@@ -4,7 +4,8 @@
 
 class Jeu {
     Carte _carte;
-    std::vector<Joueur> _joueurs;
+    std::vector<Joueur*> _joueurs;
 public:
+    void ajouterJoueur(bool estHumain = false);
     void jouer();
 };
