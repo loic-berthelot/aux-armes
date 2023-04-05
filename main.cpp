@@ -2,6 +2,8 @@
 #include "jeu.h"
 
 int main() {
-    std::cout<<"test"<<std::endl;
+    Jeu jeu;
+    std::cout<<"Debut de la partie !"<<std::endl;
+    jeu.jouer();
     return 0;
 }
