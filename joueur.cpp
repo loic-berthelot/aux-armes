@@ -1,12 +1,14 @@
 #include "joueur.h"
 
 Joueur::Joueur() {
-    _unites.emplace_back("T34", 1, 1);
-    _unites.emplace_back("CRS", 2, 3);
+    std::vector<std::string> temp1 = {"T34"};
+    _unites.emplace_back("terrestre", temp1, 1, 1);
+    std::vector<std::string> temp2 = {"CRS"};
+    _unites.emplace_back("terrestre", temp2, 2, 3);
 }
 
 void Joueur::jouer() {
     for (unsigned int i = 0; i < _unites.size(); i++) {
-        std::cout<<_unites[i].getType()<<std::endl;
+        std::cout<<_unites[i].toString()<<std::endl;
     }
 }
