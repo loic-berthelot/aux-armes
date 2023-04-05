@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/etud/Documents/stage/aux-armes/carte.cpp
+carte.h
+/home/etud/Documents/stage/aux-armes/carte.h
+
+/home/etud/Documents/stage/aux-armes/carte.h
+
+/home/etud/Documents/stage/aux-armes/jeu.cpp
+jeu.h
+/home/etud/Documents/stage/aux-armes/jeu.h
+
+/home/etud/Documents/stage/aux-armes/jeu.h
+
+/home/etud/Documents/stage/aux-armes/joueur.cpp
+joueur.h
+/home/etud/Documents/stage/aux-armes/joueur.h
+
+/home/etud/Documents/stage/aux-armes/joueur.h
+
