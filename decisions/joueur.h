@@ -2,7 +2,9 @@
 #include "../monde/carte.h"
 
 class Joueur {
-    unsigned int _idArmee = 0;
+protected:
+    unsigned int _idArmee;
 public:
-    void jouerArmee(Carte & carte);
+    Joueur() { _idArmee = 0; }
+    virtual void jouerArmee(Carte & carte)=0;
 };

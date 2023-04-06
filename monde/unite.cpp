@@ -9,3 +9,14 @@ std::string Unite::toString() const {
     for (unsigned int i = 0; i < _types.size(); i++) resultat+=_types[i]+" , ";
     return resultat;
 }
+
+void Unite::executerOrdre() {
+    if (_ordreRecu) {
+        OrdreDeplacer* ordreDeplacer = static_cast<OrdreDeplacer*>(_ordreRecu);
+        if (ordreDeplacer) {
+            _posX += ordreDeplacer->getDx();
+            _posY += ordreDeplacer->getDy();
+            return;
+        }
+    }
+}

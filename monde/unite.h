@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <vector>
-#include "ordreDeplacer.h"
+#include "../ordres/ordreDeplacer.h"
 
 class Unite{
     std::string _categorie;
@@ -14,4 +14,5 @@ public:
     Unite(const std::string & categorie, const std::vector<std::string> & types, int posX, int posY);
     std::string toString() const;
     void donnerOrdre(Ordre * ordre) { _ordreRecu = ordre; }
+    void executerOrdre();
 };
