@@ -4,5 +4,5 @@ int main() {
     Jeu jeu;
     jeu.initialiser();
     jeu.jouer();
-    return 0;
+    return 1;
 }
