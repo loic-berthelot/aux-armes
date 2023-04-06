@@ -1,0 +1,1 @@
+Contenu du fichier créé en chemin relatif.

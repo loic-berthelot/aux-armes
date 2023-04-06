@@ -1,8 +1,11 @@
 #include "jeu.h"
+#include "monde/case.h"
 
 int main() {
-    Jeu jeu;
-    jeu.initialiser();
-    jeu.jouer();
+
+    Case::creerCaseEtSauvegardeFichier("Plaine", 5);
+    //Jeu jeu;
+    //jeu.initialiser();
+    //jeu.jouer();
     return 0;
 }

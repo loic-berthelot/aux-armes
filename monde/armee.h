@@ -7,6 +7,6 @@ public :
     Armee();
     void afficher();
     unsigned int taille() { return _unites.size(); }
-    void donnerOrdre(unsigned int indiceUnite, Ordre * ordre) { _unites[indiceUnite].donnerOrdre(ordre); }
+    void donnerOrdre(unsigned int indiceUnite, Ordre* ordre) { _unites[indiceUnite].donnerOrdre(ordre); }
     void executerOrdresTour();
 };

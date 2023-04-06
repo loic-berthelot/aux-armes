@@ -1,10 +1,26 @@
 #include "armee.h"
+#include "case.h"
 
 class Carte {
+private:
+    std::vector<std::vector<Case>> _carte;
     std::vector<Armee*> _armees;
+
+
 public:
-    void creerArmee() { _armees.push_back(new Armee()); }
-    void afficher();
-    Armee* getArmee(unsigned int i) { return _armees[i]; }
+
+    //créer une armée vide
+    void creerArmee();
+    //ne marche pas encore donc à renseigner
+    void afficher()const;
+    //execute l'ordre du tour
     void executerOrdresTour(unsigned int indiceArmee);
+    
+    
+
+
+    //getters & setters
+    std::vector<std::vector<Case>> getCarte()const;
+    Armee* getArmee(unsigned int i) const;
+
 };

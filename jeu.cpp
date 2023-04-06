@@ -21,6 +21,10 @@ void Jeu::initialiser() {
 
 void Jeu::jouer() {
     std::cout<<"Debut de la partie !"<<std::endl;
+
+    
+
+
     while (! partieFinie()) {
         std::cout<<"Tour n°"<<_toursPasses<<std::endl;
         for (unsigned int i = 0; i < _joueurs.size(); i++) {
