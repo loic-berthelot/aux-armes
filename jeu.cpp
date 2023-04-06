@@ -1,13 +1,27 @@
 #include "jeu.h"
 
 void Jeu::ajouterJoueur(bool estHumain) {
-    _joueurs.push_back(new Joueur());
+    if (estHumain) _joueurs.emplace_back(new Humain());
+    else _joueurs.emplace_back(new IA());
+}
+
+bool Jeu::partieFinie() {
+    return _toursPasses > 10;
+}
+
+void Jeu::initialiser() {
+    _carte.creerArmee();
+    ajouterJoueur();
 }
 
 void Jeu::jouer() {
-    if (_joueurs.size() == 0) return; //L'état du jeu n'évolue pas après cette ligne s'il n'y a aucun joueur dans la partie
-    for (int i = 0; i < 10; i++) {
-        std::cout<<"Tour du joueur "<<i%_joueurs.size()<<std::endl;
-        _joueurs[i%_joueurs.size()]->jouer();
+    while (! partieFinie()) {
+        std::cout<<"Tour n°"<<_toursPasses<<std::endl;
+        for (unsigned int i = 0; i < _joueurs.size(); i++) {
+            std::cout<<"Tour du joueur "<<i<<std::endl;
+            _joueurs[i]->jouerArmee(_carte);
+        }        
+
+        _toursPasses++;
     }
 }

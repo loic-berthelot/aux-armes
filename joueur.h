@@ -1,9 +1,8 @@
-#include <vector>
-#include "Unite.h"
+#pragma once
+#include "carte.h"
 
 class Joueur {
-    std::vector<Unite> _unites;
+    unsigned int _idArmee = 0;
 public:
-    Joueur();
-    void jouer();
+    void jouerArmee(Carte & carte);
 };
