@@ -1,6 +1,6 @@
 #include <vector>
-#include "humain.h"
-#include "IA.h"
+#include "decisions/humain.h"
+#include "decisions/IA.h"
 
 class Jeu {
     Carte _carte;

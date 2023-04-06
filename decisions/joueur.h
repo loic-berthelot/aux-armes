@@ -1,5 +1,5 @@
 #pragma once
-#include "carte.h"
+#include "../monde/carte.h"
 
 class Joueur {
     unsigned int _idArmee = 0;
