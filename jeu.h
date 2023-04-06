@@ -10,5 +10,5 @@ public:
     void ajouterJoueur(bool estHumain = false);
     bool partieFinie();
     void initialiser();
-    void jouer();v
+    void jouer();
 };
