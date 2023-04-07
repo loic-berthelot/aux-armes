@@ -12,7 +12,7 @@ std::string Unite::toString() const {
 
 void Unite::executerOrdre() {
     if (_ordreRecu) {
-        OrdreDeplacer* ordreDeplacer = static_cast<OrdreDeplacer*>(_ordreRecu);
+        OrdreDeplacer* ordreDeplacer = static_cast<OrdreDeplacer*>(_ordreRecu.get());
         if (ordreDeplacer) {
             _posX += ordreDeplacer->getDx();
             _posY += ordreDeplacer->getDy();

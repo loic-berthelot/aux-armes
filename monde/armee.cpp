@@ -8,8 +8,16 @@ Armee::Armee() {
 }
 
 
-void Armee::afficher() {
+void Armee::afficher() const {
     for (unsigned int i = 0; i < _unites.size(); i++) std::cout<<_unites[i].toString();
+}
+
+unsigned int Armee::taille() const { 
+    return _unites.size(); 
+}
+
+void Armee::donnerOrdre(unsigned int indiceUnite, std::shared_ptr<Ordre> ordre) { 
+    _unites[indiceUnite].donnerOrdre(ordre); 
 }
 
 void Armee::executerOrdresTour()

@@ -1,6 +1,6 @@
 #include "carte.h"
 
-void Carte::creerArmee() { _armees.push_back(new Armee()); }
+void Carte::creerArmee() { _armees.emplace_back(std::make_shared<Armee>()); }
 
 
 void Carte::afficher() const{ //n'affiche pour l'instant que les armées, mais il faudra rajouter les cases
@@ -13,7 +13,7 @@ void Carte::executerOrdresTour(unsigned int indiceArmee) {
 }
 
 
-Armee* Carte::getArmee(unsigned int i) const{ return _armees[i]; }
+std::shared_ptr<Armee> Carte::getArmee(unsigned int i) const{ return _armees[i]; }
 
 
 /*getters and setters*/

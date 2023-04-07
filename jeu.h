@@ -1,10 +1,10 @@
-#include <vector>
 #include "decisions/humain.h"
 #include "decisions/IA.h"
+#include <memory>
 
 class Jeu {
     Carte _carte;
-    std::vector<Joueur*> _joueurs;
+    std::vector<std::shared_ptr<Joueur>> _joueurs;
     unsigned int _toursPasses = 0;
 public:
     void ajouterJoueur(bool estHumain = false);

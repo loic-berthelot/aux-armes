@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <memory>
 #include "../ordres/ordreDeplacer.h"
 
 class Unite{
@@ -9,10 +10,10 @@ class Unite{
     //Les coordonnées de la case centrale du plateau sont (0,0). Les axes sont dirigés vers le haut et la droite.
     int _posX;
     int _posY;
-    Ordre * _ordreRecu;
+    std::shared_ptr<Ordre> _ordreRecu;
 public:
     Unite(const std::string & categorie, const std::vector<std::string> & types, int posX, int posY);
     std::string toString() const;
-    void donnerOrdre(Ordre * ordre) { _ordreRecu = ordre; }
+    void donnerOrdre(std::shared_ptr<Ordre> ordre) { _ordreRecu = ordre; }
     void executerOrdre();
 };

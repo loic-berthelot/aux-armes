@@ -4,7 +4,7 @@
 class Carte {
 private:
     std::vector<std::vector<Case>> _carte;
-    std::vector<Armee*> _armees;
+    std::vector<std::shared_ptr<Armee>> _armees;
 
 
 public:
@@ -21,6 +21,6 @@ public:
 
     //getters & setters
     std::vector<std::vector<Case>> getCarte()const;
-    Armee* getArmee(unsigned int i) const;
+    std::shared_ptr<Armee> getArmee(unsigned int i) const;
 
 };
