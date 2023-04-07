@@ -12,11 +12,16 @@ private:
 
 public:
 
-
     
 
     Case(std::string nomFichier);//on part du build
 
     static bool creerCaseEtSauvegardeFichier(std::string const &nom, int coutDeplacement);
+
+    /*Getters and setters*/
+
+    std::string getNom()const;
+
+    int getCoutDeplacement()const;
 
 };

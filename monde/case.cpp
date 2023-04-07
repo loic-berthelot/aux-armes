@@ -6,7 +6,6 @@ Case::Case(std::string nomFichier):
     _nom(nomFichier), _coutDeplacement(100){
     nomFichier = "../monde/Cases/"+nomFichier+".case";
     
-   
 
     std::ifstream fichier(nomFichier); // Ouverture du fichier en lecture
     if (fichier.is_open()) { // Vérification si le fichier est ouvert
@@ -45,4 +44,14 @@ bool Case::creerCaseEtSauvegardeFichier(std::string const &nom, int coutDeplacem
     }
 
 
+}
+
+/*GETTERS AND SETTERS  ======*/
+std::string Case::getNom()const{
+    return _nom;
+}
+
+
+int Case::getCoutDeplacement()const{
+    return _coutDeplacement;
 }
