@@ -3,8 +3,8 @@
 Carte::Carte(int rayon) : _rayon(rayon) {
     genererCarteVide("Plaine", _rayon);
     affichageSeulementCarte();
-    //getCase(-1,1);
-/*
+    getCase(-1,1);
+
    //création d'un std::map qui recense tous les noeuds correspondant aux cases de la carte
     std::map<std::pair<int,int>,std::shared_ptr<Noeud>> noeuds;
 
@@ -20,19 +20,20 @@ Carte::Carte(int rayon) : _rayon(rayon) {
     }
 
     //création d'un vecteur contenant tous les noeuds avec leurs voisins
+    getCoordonneesVoisins(4, -4);
+    /*
     for (auto & paire : noeuds) {
         std::cout<<"1"<<std::endl;
-        std::vector<std::pair<int, int>> voisins = getVoisinsCoordonnees(paire.first.first, paire.first.second);
+        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(paire.first.first, paire.first.second);
         std::cout<<"2"<<std::endl;
         for (const auto voisin : voisins) {
-            paire.second->ajouterSuivant(noeuds[voisin], getCase(voisin.first, voisin.second).getCoutDeplacement());
+            //paire.second->ajouterSuivant(noeuds[voisin], getCase(voisin.first, voisin.second)->getCoutDeplacement());
         }
     }
-
-
+*/
     //création du graphe qui représente les cases de la carte
     _grapheCases = std::make_shared<Graphe>(noeuds);
-*/
+
     //std::vector<std::shared_ptr<Noeud>> chemin = _grapheCases->aEtoile(std::make_pair<int,int>(-1,1),std::make_pair<int,int>(2,2));
     //for (const auto & noeud : chemin) noeud->afficher();
 }
@@ -64,12 +65,13 @@ std::vector<std::pair<int, int>> Carte::getCoordonneesVoisins(int posX, int posY
 }
 
 std::shared_ptr<Case> Carte::getCase(int x, int y)const{
+    if (y <= -_rayon || y >= _rayon) return nullptr;
     if (y>=0) {
-        if (-_rayon < x && x < _rayon-y) return nullptr;
+        if (-_rayon >= x || x >= _rayon-y) return nullptr;
     } else {
-        if (-_rayon - y < x && x < _rayon) return nullptr;
+        if (-_rayon - y >= x || x >= _rayon) return nullptr;
     }
-    return _cases.at(std::make_pair(x,y));
+    return _cases.at(std::make_pair(x,y));    
 }
 
 void Carte::affichageSeulementCarte()const{
@@ -105,7 +107,7 @@ void Carte::genererCarteVide(std::string const &typeCase, unsigned int taille){
 }
 
 void Carte::sauvegarderCarteMap(std::string const &path)const{
-    
+    /*
     std::ifstream fichierLecture(path);
     if (fichierLecture.is_open()){//le fichier existe
         std::cout << "Ecrasement de l'ancienne sauvegarde : " << path << "\n";
@@ -127,12 +129,12 @@ void Carte::sauvegarderCarteMap(std::string const &path)const{
         std::cerr << "Erreur lors de la création du fichier : " << path << std::endl;
     }
     
-
+*/
 
 }
 
 
-void Carte::chargerCarteMap(std::string const &path) {
+void Carte::chargerCarteMap(std::string const &path) {/*
     std::ifstream fichier(path);
 
     if (fichier) {
@@ -152,8 +154,9 @@ void Carte::chargerCarteMap(std::string const &path) {
         affichageSeulementCarte();
     } else {
         std::cout << "ERREUR: Impossible d'ouvrir le fichier en lecture." << std::endl;
-    }
+    }*/
 }
+
 
 /*getters and setters ============================*/
 std::shared_ptr<Armee> Carte::getArmee(unsigned int i) const{ return _armees[i]; }
