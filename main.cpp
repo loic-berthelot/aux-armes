@@ -3,9 +3,9 @@
 
 int main() {
 
-    Carte c;
+    Carte c(30);
 
-    c.genererMapVide("Plaine", 20);
+    c.genererMapVide("Plaine", 1);
     c.affichageSeulementCarte();
     c.getCase(3,0);
     c.sauvegarderCarteMap("../map.map");
