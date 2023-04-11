@@ -1,19 +1,22 @@
 #include "carte.h"
 
 Carte::Carte(int rayon) : _rayon(rayon) {
-    genererMapVide("Plaine", _rayon);
-
-    //création d'un std::map qui recense tous les noeuds correspondant aux cases de la carte
+    genererCarteVide("Plaine", _rayon);
+    affichageSeulementCarte();
+    //getCase(-1,1);
+/*
+   //création d'un std::map qui recense tous les noeuds correspondant aux cases de la carte
     std::map<std::pair<int,int>,std::shared_ptr<Noeud>> noeuds;
-    int debutLigne = -_rayon;
-    int finLigne = 0;
-    for (int j = _rayon; j >= -_rayon; j--) {
-        for (int i = debutLigne; i <= finLigne; i++) {
+
+    int debut = -_rayon+1;
+    int fin = 0;
+    for (int j = _rayon-1; j > -_rayon; j--) {
+        for (int i = debut; i <= fin; i++) {
             noeuds[std::make_pair(i,j)] = std::make_shared<Noeud>("", i, j);
             std::cout<<i<<","<<j<<std::endl;
         }
-        if (j>0) finLigne++;
-        else if (j<0) debutLigne++;        
+        if (j>0) fin++;
+        else debut++;        
     }
 
     //création d'un vecteur contenant tous les noeuds avec leurs voisins
@@ -26,9 +29,10 @@ Carte::Carte(int rayon) : _rayon(rayon) {
         }
     }
 
+
     //création du graphe qui représente les cases de la carte
     _grapheCases = std::make_shared<Graphe>(noeuds);
-
+*/
     //std::vector<std::shared_ptr<Noeud>> chemin = _grapheCases->aEtoile(std::make_pair<int,int>(-1,1),std::make_pair<int,int>(2,2));
     //for (const auto & noeud : chemin) noeud->afficher();
 }
@@ -44,134 +48,61 @@ void Carte::executerOrdresTour(unsigned int indiceArmee) {
     _armees[indiceArmee]->executerOrdresTour();
 }
 
-
-std::shared_ptr<Armee> Carte::getArmee(unsigned int i) const{ return _armees[i]; }
-
-
 /*Méthode carte (map) ===================*/
 
 
-//renvoie les coordonnées des voisins coordonnées en X, Y à partir du centre
-std::vector<std::pair<int, int>> Carte::getVoisinsCoordonnees(int PosX, int PosY)const{
+//renvoie un vecteur contenant les coordonnées des 6 voisins (au plus) de la case choisie
+std::vector<std::pair<int, int>> Carte::getCoordonneesVoisins(int posX, int posY)const{
     std::vector<std::pair<int, int>> resultat;
-    
-    try{
-        getCase(PosX, PosY);
-    }catch(std::invalid_argument &e){
-        throw std::invalid_argument("Dans getVoisins, les coordonnées envoyées ne sont pas bonnes : "+std::to_string(PosX)+ " , "
-        +std::to_string(PosY));
-    }
-    //Création des résultats
-    try{
-        getCase(PosX-1, PosY);
-        resultat.push_back(std::make_pair(PosX-1, PosY));
-    }catch(std::invalid_argument &e){
-    }
-    try{
-        getCase(PosX-1, PosY-1);
-        resultat.push_back(std::make_pair(PosX-1, PosY-1));
-    }catch(std::invalid_argument &e){
-    }
-    try{
-        getCase(PosX+1, PosY-1);
-        resultat.push_back(std::make_pair(PosX+1, PosY-1));
-    }catch(std::invalid_argument &e){
-    }
-    try{
-        getCase(PosX+1, PosY);
-        resultat.push_back(std::make_pair(PosX+1, PosY));
-    }catch(std::invalid_argument &e){
-    }
-    try{
-        getCase(PosX+1, PosY+1);
-        resultat.push_back(std::make_pair(PosX+1, PosY+1));
-    }catch(std::invalid_argument &e){
-    }
-    try{
-        getCase(PosX-1, PosY+1);
-        resultat.push_back(std::make_pair(PosX-1, PosY+1));
-    }catch(std::invalid_argument &e){
-    }
-
+    if (getCase(posX-1, posY+1)) resultat.push_back(std::make_pair(posX-1, posY+1));
+    if (getCase(posX, posY+1)) resultat.push_back(std::make_pair(posX, posY+1));
+    if (getCase(posX-1, posY)) resultat.push_back(std::make_pair(posX-1, posY));
+    if (getCase(posX+1, posY)) resultat.push_back(std::make_pair(posX+1, posY));
+    if (getCase(posX, posY-1)) resultat.push_back(std::make_pair(posX, posY-1));
+    if (getCase(posX+1, posY-1)) resultat.push_back(std::make_pair(posX+1, posY-1));
     return resultat;
 }
 
-
-Case Carte::getCase(int x, int y)const{
-
-    x+= _cases.size()/2;
-    y+=_cases[x].size()/2;
-    //en dehors
-    if (x < 0 || x >= _cases.size() || y < 0 || y >= _cases[x].size())
-        throw std::invalid_argument("En dehors de la map : ("+std::to_string(x)+ ";"+std::to_string(y)+")");
-    return _cases[x][y];
-
+std::shared_ptr<Case> Carte::getCase(int x, int y)const{
+    if (y>=0) {
+        if (-_rayon < x && x < _rayon-y) return nullptr;
+    } else {
+        if (-_rayon - y < x && x < _rayon) return nullptr;
+    }
+    return _cases.at(std::make_pair(x,y));
 }
 
-
-//affiche en hexagonale la map (sachant que la map elle meme est construite en hexagonale)
 void Carte::affichageSeulementCarte()const{
     std::cout << "Map : -----------------------\n";
-    for (unsigned int i = 0; i < _cases.size(); i++) {
-        
-        if ((_cases.size() /2+1) %2== 0){//si taille initiale paire
-            for (unsigned int j = 0; j < (_cases.size()-_cases[i].size())/2+1;j++)
-                std::cout << "  ";
-            if (i % 2 == 0) // Afficher un décalage vers la droite pour chaque ligne impaire
-                std::cout << " ";
-            
-        }else{//si taille initiale impaire
-
-            for (unsigned int j = 0; j < (_cases.size()-_cases[i].size())/2;j++)
-                std::cout << "  ";
-            if (i % 2 == 1) // Afficher un décalage vers la droite pour chaque ligne impaire
-                std::cout << " ";
-            
+    int debut = -_rayon+1;
+    int fin = 0;
+    for (int j = _rayon-1; j > -_rayon; j--) {
+        std::string decalage = "";
+        for (unsigned int k = 0; k < abs(j); k++) decalage += " ";
+        std::cout<<decalage;
+        for (int i = debut; i <= fin; i++) {
+            std::string nom = _cases.at(std::make_pair(i,j))->getNom();
+            std::cout<<nom[0]<<" ";          
         }
-        //affichage de la ligne
-        for (unsigned int j = 0; j < _cases[i].size(); j++) {
-            // Afficher le contenu de chaque case
-            std::cout << _cases[i][j].getNom()[0] << " ";
-        }
-        std::cout << std::endl;
-    
+        std::cout<<std::endl;
+        if (j>0) fin++;
+        else debut++;        
     }
 }
 
-//génère une map hexagonale la taille correspond au nombre de 'tour' d'hexagone,
-//aka le nombre d'hexagones sur les côtés
-void Carte::genererMapVide(std::string const &typeCase, unsigned int taille){
-    Case c(typeCase);
-    //taille
-    unsigned int hautTampon = taille;
-    std::vector<Case> ligne;
-    //création des lignes du haut
-    //taille*2-1 correspond au nombre de case de la ligne du milieu
-    while(hautTampon <= taille*2-1){
-        for (unsigned int i = 0; i < hautTampon;i++){
-            ligne.push_back(c);
+//création d'une carte remplie de cases du même type
+void Carte::genererCarteVide(std::string const &typeCase, unsigned int taille){
+    int debut = -_rayon+1;
+    int fin = 0;
+    for (int j = _rayon-1; j > -_rayon; j--) {
+        for (int i = debut; i <= fin; i++) {
+            _cases[std::make_pair(i,j)] = std::make_shared<Case>(typeCase);
         }
-        _cases.push_back(ligne);
-        ligne.clear();
-        hautTampon++;
+        if (j>0) fin++;
+        else debut++;        
     }
-
-    unsigned int basTampon = taille*2-2;
-
-    while(basTampon >= taille){
-        for (unsigned int i = 0; i < basTampon;i++){
-            ligne.push_back(c);
-        }
-        _cases.push_back(ligne);
-        ligne.clear();
-        basTampon--;
-    }
-
-
+    std::cout << "_CASES : "<<_cases.size()<<std::endl;
 }
 
 /*getters and setters ============================*/
-
-std::vector<std::vector<Case>> Carte::getCarte()const{
-    return _cases;
-}
+std::shared_ptr<Armee> Carte::getArmee(unsigned int i) const{ return _armees[i]; }

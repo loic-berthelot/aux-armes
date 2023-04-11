@@ -3,10 +3,10 @@
 
 int main() {
 
-    Carte c(1);
+    Carte c(5);
 
-    c.affichageSeulementCarte();
-    c.getCase(3,0);
+    //c.affichageSeulementCarte();
+    //c.getCase(3,0);
     //Jeu jeu;
     //jeu.initialiser();
     //jeu.jouer();
