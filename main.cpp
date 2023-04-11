@@ -3,7 +3,7 @@
 
 int main() {
 
-    Carte c(30);
+    Carte c(1);
 
     c.affichageSeulementCarte();
     c.getCase(3,0);

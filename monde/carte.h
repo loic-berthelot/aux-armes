@@ -7,9 +7,9 @@ private:
     std::vector<std::vector<Case>> _cases;
     std::vector<std::shared_ptr<Armee>> _armees;
     std::shared_ptr<Graphe> _grapheCases;
-    unsigned int _rayon;
+    int _rayon;
 public:
-    Carte(unsigned int rayon);
+    Carte(int rayon);
 
     /*Méthode armée ============================================*/
 
