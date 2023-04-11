@@ -1,6 +1,7 @@
 #include "armee.h"
 #include "case.h"
-#include "graphe.h"
+#include <sstream>   // Pour les flux de chaînes de caractères
+
 
 class Carte {
 private:
@@ -31,6 +32,10 @@ public:
     void affichageSeulementCarte()const;
 
     void genererCarteVide(std::string const &typeCase, unsigned int taille);
+
+
+    void sauvegarderCarteMap(std::string const &path)const;
+    void chargerCarteMap(std::string const &path);
 
     //getters & setters
     std::shared_ptr<Armee> getArmee(unsigned int i) const;

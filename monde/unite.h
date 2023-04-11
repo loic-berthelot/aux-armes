@@ -11,9 +11,14 @@ class Unite{
     int _posX;
     int _posY;
     std::shared_ptr<Ordre> _ordreRecu;
+    int moral;
+    
+
 public:
     Unite(const std::string & categorie, const std::vector<std::string> & types, int posX, int posY);
     std::string toString() const;
     void donnerOrdre(std::shared_ptr<Ordre> ordre) { _ordreRecu = ordre; }
     void executerOrdre();
+    std::pair<int, int> resultatCombatSimple(Unite const &ennemy)const;
+
 };

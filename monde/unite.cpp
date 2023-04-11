@@ -20,3 +20,11 @@ void Unite::executerOrdre() {
         }
     }
 }
+
+
+std::pair<int, int> Unite::resultatCombatSimple(Unite const &ennemy)const{
+    std::pair<int, int> resultat;
+
+    return resultat;
+
+}
