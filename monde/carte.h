@@ -1,13 +1,15 @@
 #include "armee.h"
 #include "case.h"
+#include "graphe.h"
 
 class Carte {
 private:
-    std::vector<std::vector<Case>> _carte;
+    std::vector<std::vector<Case>> _cases;
     std::vector<std::shared_ptr<Armee>> _armees;
-
-
+    std::shared_ptr<Graphe> _grapheCases;
+    unsigned int _rayon;
 public:
+    Carte(unsigned int rayon);
 
     /*Méthode armée ============================================*/
 
@@ -21,7 +23,7 @@ public:
     /*Methode de la carte (MAP ) =============================*/
 
     //renvoie les coordonnées des voisins
-    std::vector<std::pair<int, int>> getVoisinsCoordonnes(int x, int y)const;
+    std::vector<std::pair<int, int>> getVoisinsCoordonnees(int x, int y)const;
 
     //Attention les X et Y sont les coordonnées en fonction du milieu
     Case getCase(int x, int y)const;

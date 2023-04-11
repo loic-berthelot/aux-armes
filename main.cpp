@@ -3,9 +3,8 @@
 
 int main() {
 
-    Carte c;
+    Carte c(30);
 
-    c.genererMapVide("Plaine", 30);
     c.affichageSeulementCarte();
     c.getCase(3,0);
     //Jeu jeu;
