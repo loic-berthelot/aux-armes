@@ -137,6 +137,57 @@ void Carte::genererMapVide(std::string const &typeCase, unsigned int taille){
 
 }
 
+void Carte::sauvegarderCarteMap(std::string const &path)const{
+    
+    std::ifstream fichierLecture(path);
+    if (fichierLecture.is_open()){//le fichier existe
+        std::cout << "Ecrasement de l'ancienne sauvegarde : " << path << "\n";
+    }
+
+    std::ofstream fichier(path); // Création du fichier
+
+    if (fichier.is_open()) { // Vérification si le fichier est ouvert
+        for (unsigned int i = 0; i < _carte.size();i++){
+            for (unsigned int j = 0; j < _carte[i].size();j++){
+                fichier << _carte[i][j].getNom()+",";
+            }
+            fichier << "\n";
+        }
+        
+        
+        fichier.close(); // Fermeture du fichier
+    } else {
+        std::cerr << "Erreur lors de la création du fichier : " << path << std::endl;
+    }
+    
+
+
+}
+
+
+void Carte::chargerCarteMap(std::string const &path) {
+    std::ifstream fichier(path);
+
+    if (fichier) {
+        // L'ouverture s'est bien passée, on peut donc lire
+
+        std::string ligne; // Une variable pour stocker les lignes lues
+        std::vector<Case> tampon;
+        while (getline(fichier, ligne)) {
+            std::stringstream ss(ligne);
+            std::string element;
+            while (getline(ss, element, ',')) {
+                tampon.push_back(Case(element));
+            }
+            _carte.push_back(tampon);
+            tampon.clear();
+        }
+        affichageSeulementCarte();
+    } else {
+        std::cout << "ERREUR: Impossible d'ouvrir le fichier en lecture." << std::endl;
+    }
+}
+
 /*getters and setters ============================*/
 
 std::vector<std::vector<Case>> Carte::getCarte()const{
