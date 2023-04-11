@@ -1,7 +1,8 @@
 #include "armee.h"
 #include "case.h"
 #include <sstream>   // Pour les flux de chaînes de caractères
-
+#include <map>
+#include "graphe.h"
 
 class Carte {
 private:
