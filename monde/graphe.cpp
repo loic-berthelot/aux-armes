@@ -18,12 +18,16 @@ void Noeud::setCoutChemin(float c) { _coutChemin = c; }
 
 void Noeud::setParent(std::shared_ptr<Noeud> p) { _parent = p; }
 
-float Noeud::distance(int x, int y) {
-    return sqrt((_posX-x)*(_posX-x)+(_posY-y)*(_posY-y));
+float Noeud::distanceRepereOrthonorme(float dx, float dy) { 
+    return sqrt(dx*dx+dy*dy);
 }
 
 float Noeud::distance(std::shared_ptr<Noeud> arrivee) {
-    return distance(arrivee->getPosX(), arrivee->getPosY());
+    float di = (float) (arrivee->getPosX() - _posX); //on calcule di, qui est le nombre de cases séparant la case d'arrivée de la case courante sur l'axe horizontal
+    float dj = (float) (arrivee->getPosY() - _posY); //de la même manière, on calcule dj. Cette distance est mesurée sur l'axe oblique (qui forme un angle de 60° avec l'axe horizontal)
+    float dx = di + dj/2; //on calcule la projection sur l'axe x d'un repère orthonormé du vecteur allant de la case courante à la case d'arrivée
+    float dy = dj * sqrt(3)/2; //on fait de même pour l'axe y du repère orthonormé
+    return distanceRepereOrthonorme(dx, dy); //on retourne la distance euclidienne entre les deux cases grâce à un calcul dans le repère orthonormé
 }
 
 void Noeud::initialiser(std::shared_ptr<Noeud> depart, std::shared_ptr<Noeud> arrivee) { 
@@ -60,7 +64,7 @@ void Noeud::afficher() {
 
 
 
-Graphe::Graphe(const std::vector<std::shared_ptr<Noeud>> noeuds) : _noeuds(noeuds) {}
+Graphe::Graphe(const std::map<std::pair<int,int>,std::shared_ptr<Noeud>> noeuds) : _noeuds(noeuds) {}
 
 void Graphe::retirerNoeud(std::vector<std::shared_ptr<Noeud>> & noeuds, std::shared_ptr<Noeud> noeud) {
     for (auto it = noeuds.begin(); it != noeuds.end(); it++) {
@@ -74,19 +78,24 @@ std::shared_ptr<Noeud> Graphe::plusFaibleScore(const std::vector<std::shared_ptr
     });
 }
 
-std::vector<std::shared_ptr<Noeud>> Graphe::aetoile(std::vector<std::shared_ptr<Noeud>> noeuds, std::shared_ptr<Noeud> depart, std::shared_ptr<Noeud> arrivee) {
-    std::vector<std::shared_ptr<Noeud>> noeudsOuverts = {depart};
+std::vector<std::shared_ptr<Noeud>> Graphe::aEtoile(std::pair<int,int> depart, std::pair<int,int> arrivee) {
+    std::shared_ptr<Noeud> noeudDepart = _noeuds[depart];
+    std::shared_ptr<Noeud> noeudArrivee = _noeuds[arrivee];
+    std::vector<std::shared_ptr<Noeud>> noeudsOuverts = {noeudDepart};
     std::vector<std::shared_ptr<Noeud>> noeudsFermes;
     std::vector<std::shared_ptr<Noeud>> plusCourtChemin;
-    std::shared_ptr<Noeud> noeudCourant = depart;
-    for (unsigned int i = 0; i < noeuds.size(); i++) noeuds[i]->initialiser(depart, arrivee);
-    while (noeudCourant != arrivee) {
+    
+    std::shared_ptr<Noeud> noeudCourant = noeudDepart;
+    for (const auto & noeud : _noeuds) {
+        std::cout<<noeud.first.first<<", "<<noeud.first.second<<", "<<noeud.second<<std::endl;
+        noeud.second->initialiser(noeudDepart, noeudArrivee);
+    }
+    while (noeudCourant != noeudArrivee) {
         noeudCourant->explorerSuivants(noeudsOuverts, noeudsFermes);
         noeudsFermes.push_back(noeudCourant);
         retirerNoeud(noeudsOuverts,noeudCourant);
         noeudCourant = plusFaibleScore(noeudsOuverts);
     }    
-    noeudCourant = arrivee;
     while (noeudCourant->getParent() != nullptr) {
         plusCourtChemin.push_back(noeudCourant);
         noeudCourant = noeudCourant->getParent();

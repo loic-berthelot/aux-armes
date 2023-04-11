@@ -1,32 +1,36 @@
 #include "carte.h"
 
-Carte::Carte(unsigned int rayon) : _rayon(rayon) {
+Carte::Carte(int rayon) : _rayon(rayon) {
     genererMapVide("Plaine", _rayon);
 
     //création d'un std::map qui recense tous les noeuds correspondant aux cases de la carte
-    std::map<std::pair<int,int>,std::shared_ptr<Noeud>> positionsNoeuds;
-    int debutLigne = -rayon;
+    std::map<std::pair<int,int>,std::shared_ptr<Noeud>> noeuds;
+    int debutLigne = -_rayon;
     int finLigne = 0;
-    for (int j = _rayon; j > -_rayon; j--) {
-        for (int i = debutLigne; i < finLigne; i++) {
-            positionsNoeuds[std::make_pair(i,j)] = std::make_shared<Noeud>("", i, j);
+    for (int j = _rayon; j >= -_rayon; j--) {
+        for (int i = debutLigne; i <= finLigne; i++) {
+            noeuds[std::make_pair(i,j)] = std::make_shared<Noeud>("", i, j);
+            std::cout<<i<<","<<j<<std::endl;
         }
-        if (j<0) finLigne++;
-        if (j>=0) debutLigne--;        
+        if (j>0) finLigne++;
+        else if (j<0) debutLigne++;        
     }
 
     //création d'un vecteur contenant tous les noeuds avec leurs voisins
-    std::vector<std::shared_ptr<Noeud>> noeuds;
-    for (auto & paire : positionsNoeuds) {
+    for (auto & paire : noeuds) {
+        std::cout<<"1"<<std::endl;
         std::vector<std::pair<int, int>> voisins = getVoisinsCoordonnees(paire.first.first, paire.first.second);
+        std::cout<<"2"<<std::endl;
         for (const auto voisin : voisins) {
-            paire.second->ajouterSuivant(positionsNoeuds[voisin], getCase(voisin.first, voisin.second).getCoutDeplacement());
+            paire.second->ajouterSuivant(noeuds[voisin], getCase(voisin.first, voisin.second).getCoutDeplacement());
         }
-        noeuds.push_back(paire.second);
     }
 
-    //création du graphe
+    //création du graphe qui représente les cases de la carte
     _grapheCases = std::make_shared<Graphe>(noeuds);
+
+    //std::vector<std::shared_ptr<Noeud>> chemin = _grapheCases->aEtoile(std::make_pair<int,int>(-1,1),std::make_pair<int,int>(2,2));
+    //for (const auto & noeud : chemin) noeud->afficher();
 }
 
 void Carte::creerArmee() { _armees.emplace_back(std::make_shared<Armee>()); }

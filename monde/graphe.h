@@ -23,7 +23,7 @@ public:
     std::string getId() const;    
     void setCoutChemin(float c);
     void setParent(std::shared_ptr<Noeud> p);    
-    float distance(int x, int y);
+    float distanceRepereOrthonorme(float dx, float dy);
     float distance(std::shared_ptr<Noeud> arrivee);
     void initialiser(std::shared_ptr<Noeud> depart, std::shared_ptr<Noeud> arrivee);
     void ajouterSuivant(std::shared_ptr<Noeud> noeud, unsigned int valeur);
@@ -32,10 +32,10 @@ public:
 };
 
 class Graphe {
-    std::vector<std::shared_ptr<Noeud>> _noeuds;
+    std::map<std::pair<int,int>,std::shared_ptr<Noeud>> _noeuds;
 public:
-    Graphe(const std::vector<std::shared_ptr<Noeud>> noeuds);
+    Graphe(const std::map<std::pair<int,int>,std::shared_ptr<Noeud>> noeuds);
     void retirerNoeud(std::vector<std::shared_ptr<Noeud>> & noeuds, std::shared_ptr<Noeud> noeud);
     std::shared_ptr<Noeud> plusFaibleScore(const std::vector<std::shared_ptr<Noeud>> & noeuds);
-    std::vector<std::shared_ptr<Noeud>> aetoile(std::vector<std::shared_ptr<Noeud>> noeuds, std::shared_ptr<Noeud> depart, std::shared_ptr<Noeud> arrivee);
+    std::vector<std::shared_ptr<Noeud>> aEtoile(std::pair<int,int> depart, std::pair<int,int>arrivee);
 };
