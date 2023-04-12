@@ -31,7 +31,7 @@ float Noeud::distance(std::shared_ptr<Noeud> arrivee) {
 }
 
 void Noeud::initialiser(std::shared_ptr<Noeud> depart, std::shared_ptr<Noeud> arrivee) { 
-    if (std::shared_ptr<Noeud>(this) == depart) _coutChemin = 0; 
+    if (this == depart.get()) _coutChemin = 0; 
     else _coutChemin = -1; 
     _heuristique = distance(arrivee);
     _parent = nullptr;
@@ -50,7 +50,7 @@ void Noeud::explorerSuivants(std::vector<std::shared_ptr<Noeud>> & noeudsOuverts
         }
     }
 }
-void Noeud::afficher() {
+void Noeud::afficher() const {
     std::string resultat = _id+"("+std::to_string(_posX)+","+std::to_string(_posY)+") : ";
     for (const auto & paire : _suivants) {
         resultat += paire.first->getId()+","+std::to_string(paire.second)+"; ";
@@ -68,7 +68,10 @@ Graphe::Graphe(const std::map<std::pair<int,int>,std::shared_ptr<Noeud>> noeuds)
 
 void Graphe::retirerNoeud(std::vector<std::shared_ptr<Noeud>> & noeuds, std::shared_ptr<Noeud> noeud) {
     for (auto it = noeuds.begin(); it != noeuds.end(); it++) {
-        if (*it == noeud) noeuds.erase(it);
+        if (*it == noeud) {
+            noeuds.erase(it);
+            return;
+        }
     }
 }
 
@@ -87,20 +90,22 @@ std::vector<std::shared_ptr<Noeud>> Graphe::aEtoile(std::pair<int,int> depart, s
     
     std::shared_ptr<Noeud> noeudCourant = noeudDepart;
     for (const auto & noeud : _noeuds) {
-        std::cout<<noeud.first.first<<", "<<noeud.first.second<<", "<<noeud.second<<std::endl;
-        noeud.second->initialiser(noeudDepart, noeudArrivee);
+        noeud.second->initialiser(noeudDepart, noeudArrivee);//on initialise tous les noeuds du graphe
     }
+    
     while (noeudCourant != noeudArrivee) {
+        if (noeudsOuverts.empty()) return plusCourtChemin; //si aucun chemin n'existe, on renvoie un vecteur vide
         noeudCourant->explorerSuivants(noeudsOuverts, noeudsFermes);
         noeudsFermes.push_back(noeudCourant);
         retirerNoeud(noeudsOuverts,noeudCourant);
         noeudCourant = plusFaibleScore(noeudsOuverts);
     }    
+    
     while (noeudCourant->getParent() != nullptr) {
-        plusCourtChemin.push_back(noeudCourant);
+        plusCourtChemin.push_back(noeudCourant);//on récupère toutes les étapes du chemin, en partant de la fin
         noeudCourant = noeudCourant->getParent();
     }
-    plusCourtChemin.push_back(noeudCourant);
-    std::reverse(plusCourtChemin.begin(), plusCourtChemin.end());
+    plusCourtChemin.push_back(noeudCourant);//on récupère aussi la case de départ
+    std::reverse(plusCourtChemin.begin(), plusCourtChemin.end());//on replace les étapes du chemin dans le bon ordre
     return plusCourtChemin;
 }

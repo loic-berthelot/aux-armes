@@ -28,7 +28,7 @@ public:
     void initialiser(std::shared_ptr<Noeud> depart, std::shared_ptr<Noeud> arrivee);
     void ajouterSuivant(std::shared_ptr<Noeud> noeud, unsigned int valeur);
     void explorerSuivants(std::vector<std::shared_ptr<Noeud>> & noeudsOuverts, std::vector<std::shared_ptr<Noeud>> & noeudsFermes);
-    void afficher();
+    void afficher() const;
 };
 
 class Graphe {
