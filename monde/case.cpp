@@ -10,6 +10,9 @@ Case::Case(std::string nomFichier):
     std::ifstream fichier(nomFichier); // Ouverture du fichier en lecture
     if (fichier.is_open()) { // Vérification si le fichier est ouvert
         std::string ligne;
+        std::getline(fichier, ligne);//index typeAccessibilité
+        std::getline(fichier, ligne);
+        _typeAccessibilité = stringToAccessibilite(ligne);
         std::getline(fichier, ligne);//index coutDeplacement
         std::getline(fichier, ligne);//valeur coutDeplacement
 
@@ -24,7 +27,7 @@ Case::Case(std::string nomFichier):
 }
 
 
-bool Case::creerCaseEtSauvegardeFichier(std::string const &nom, int coutDeplacement){
+bool Case::creerCaseEtSauvegardeFichier(std::string const &nom, accessibilite access,int coutDeplacement){
     std::string chemin = "../monde/Cases/"+nom+".case";
     std::ifstream fichier(chemin);
     if (fichier.is_open()){//le fichier existe
@@ -34,6 +37,8 @@ bool Case::creerCaseEtSauvegardeFichier(std::string const &nom, int coutDeplacem
         std::ofstream fichier(chemin); // Création du fichier
 
         if (fichier.is_open()) { // Vérification si le fichier est ouvert
+            fichier << "Accessibilité"<< std::endl;
+            fichier << accessibiliteToString(access)<<std::endl;
             fichier << "coutDeplacement:" << std::endl; 
             fichier << std::to_string(coutDeplacement) << std::endl; 
             fichier.close(); // Fermeture du fichier
@@ -46,6 +51,14 @@ bool Case::creerCaseEtSauvegardeFichier(std::string const &nom, int coutDeplacem
 
 }
 
+bool Case::accessibleEau()const{
+    return (_typeAccessibilité == accessibilite::Eau || _typeAccessibilité == accessibilite::EauEtTerre);
+}
+
+bool Case::accessibleTerre()const{
+    return (_typeAccessibilité == accessibilite::Terre || _typeAccessibilité == accessibilite::EauEtTerre);
+}
+
 /*GETTERS AND SETTERS  ======*/
 std::string Case::getNom()const{
     return _nom;
@@ -54,4 +67,27 @@ std::string Case::getNom()const{
 
 int Case::getCoutDeplacement()const{
     return _coutDeplacement;
+}
+
+std::string Case::accessibiliteToString(accessibilite const e)const{
+    if (e == accessibilite::Eau)
+        return "Eau";
+    else if (e == accessibilite::Air)
+        return "Air";
+    else if (e == accessibilite::Terre)
+        return "Terre";
+    else
+        return "EauEtTerre";
+}
+
+
+accessibilite Case::stringToAccessibilite(std::string const &s) const {
+    if (s == "Eau")
+        return accessibilite::Eau;
+    else if (s == "Terre")
+        return accessibilite::Terre;
+    else if (s == "Air")
+        return accessibilite::Air;
+    else 
+        return accessibilite::EauEtTerre;
 }

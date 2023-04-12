@@ -109,9 +109,9 @@ void Carte::sauvegarderCarteMap(std::string const &path)const{
     std::ofstream fichier(path); // Création du fichier
 
     if (fichier.is_open()) { // Vérification si le fichier est ouvert
-        for (unsigned int i = 0; i < _carte.size();i++){
-            for (unsigned int j = 0; j < _carte[i].size();j++){
-                fichier << _carte[i][j].getNom()+",";
+        for (unsigned int i = 0; i < _cases.size();i++){
+            for (unsigned int j = 0; j < _cases[i].size();j++){
+                fichier << _cases[i][j].getNom()+",";
             }
             fichier << "\n";
         }
@@ -141,7 +141,7 @@ void Carte::chargerCarteMap(std::string const &path) {/*
             while (getline(ss, element, ',')) {
                 tampon.push_back(Case(element));
             }
-            _carte.push_back(tampon);
+            _cases.push_back(tampon);
             tampon.clear();
         }
         affichageSeulementCarte();
@@ -151,5 +151,21 @@ void Carte::chargerCarteMap(std::string const &path) {/*
 }
 
 
+
+/*
+Pour le combat on cherche les alliés/ennemis que voit l'unité
+
+*/
+void Carte::combat(Unite &u1, Unite &u2){
+    std::pair<int, int> degats = u1.resultatCombatSimple(u2);
+
+
+    std::cout << degats.first<< " : "<<degats.second<<std::endl;
+}
+
 /*getters and setters ============================*/
-std::shared_ptr<Armee> Carte::getArmee(unsigned int i) const{ return _armees[i]; }
+
+std::vector<std::vector<Case>> Carte::getCarte()const{
+    return _cases;
+}
+
