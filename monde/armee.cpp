@@ -6,7 +6,7 @@ Armee::Armee() {
     _unites.emplace_back("terrestre", temp1, 1, 1);
     std::vector<std::string> temp2 = {"CRS"};
     _unites.emplace_back("terrestre", temp2, 2, 3);
-    */
+*/
 }
 
 
@@ -21,9 +21,3 @@ unsigned int Armee::taille() const {
 void Armee::donnerOrdre(unsigned int indiceUnite, std::shared_ptr<Ordre> ordre) { 
     _unites[indiceUnite].donnerOrdre(ordre); 
 }
-
-void Armee::executerOrdresTour()
-{
-    for (unsigned int i = 0; i < _unites.size(); i++)
-        _unites[i].executerOrdre();
-};

@@ -22,7 +22,7 @@ public:
     //ne marche pas encore donc à renseigner
     void afficher()const;
     //execute l'ordre du tour
-    void executerOrdresTour(unsigned int indiceArmee);
+    void executerOrdresArmee(unsigned int indiceArmee);
 
     //fais combattre 2 unités
 

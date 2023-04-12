@@ -11,7 +11,6 @@ Carte::Carte(int rayon) : _rayon(rayon) {
     for (int j = _rayon-1; j > -_rayon; j--) {
         for (int i = debut; i <= fin; i++) {
             noeuds[std::make_pair(i,j)] = std::make_shared<Noeud>("case", i, j);
-            //std::cout<<(getCase(i,j)==nullptr)<<std::endl;
         }
         if (j>0) fin++;
         else debut++;        
@@ -22,26 +21,40 @@ Carte::Carte(int rayon) : _rayon(rayon) {
         for (const auto voisin : voisins) {
             paire.second->ajouterSuivant(noeuds[voisin], getCase(voisin.first, voisin.second)->getCoutDeplacement());
         }
-        //paire.second->afficher();
     }
-    //std::cout<<"sortie"<<std::endl;
     //création du graphe qui représente les cases de la carte
     _grapheCases = std::make_shared<Graphe>(noeuds);
 
-    //std::vector<std::shared_ptr<Noeud>> chemin = _grapheCases->aEtoile(std::make_pair<int,int>(-1,1),std::make_pair<int,int>(4,3));
-    //for (const auto & noeud : chemin) noeud->afficher();
+    std::vector<std::pair<int,int>> chemin = _grapheCases->aEtoile(std::make_pair<int,int>(-1,-2),std::make_pair<int,int>(2,3));
+    for (const auto & etape : chemin) std::cout<<etape.first<<", "<<etape.second<<std::endl;
     
 }
 
-void Carte::creerArmee() { _armees.emplace_back(std::make_shared<Armee>()); }
+void Carte::creerArmee() { 
+    
+    _armees.emplace_back(std::make_shared<Armee>()); 
+}
 
 void Carte::afficher() const{ //n'affiche pour l'instant que les armées, mais il faudra rajouter les cases
     for (unsigned int i = 0; i < _armees.size(); i++) 
         _armees[i]->afficher();
 }
 
-void Carte::executerOrdresTour(unsigned int indiceArmee) {
-    _armees[indiceArmee]->executerOrdresTour();
+void Carte::executerOrdresArmee(unsigned int indiceArmee) {
+    std::vector<Unite> unites;// = _armees[indiceArmee].getUnites();
+    for (unsigned int i = 0; i < unites.size(); i++) {
+        std::vector<std::pair<int,int>> chemin;
+        if (unites[i].getOrdre()->getType() == ORDRE_DEPLACER || unites[i].getOrdre()->getType() == ORDRE_ATTAQUER) {
+            std::pair<int,int> debut = unites[i].getPos();
+            std::pair<int,int> fin = unites[i].getOrdre()->getPos();
+            chemin = _grapheCases->aEtoile(debut, fin);
+        }
+        unites[i].initialiserMouvement(chemin);
+    }
+    for (unsigned int pm = 0; pm < 100; pm++) { //on distribue un par un 100 points de mouvement aux unités
+        for (unsigned int i = 0; i < unites.size(); i++)
+            unites[i].avancer();
+    }
 }
 
 /*Méthode carte (map) ===================*/
@@ -60,7 +73,7 @@ std::vector<std::pair<int, int>> Carte::getCoordonneesVoisins(int posX, int posY
 }
 
 std::shared_ptr<Case> Carte::getCase(int x, int y)const{
-    if (y <= -_rayon || y >= _rayon) return nullptr;
+    if (-_rayon >= y || y >= _rayon) return nullptr;
     if (y>=0) {
         if (-_rayon >= x || x >= _rayon-y) return nullptr;
     } else {
