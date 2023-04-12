@@ -1,5 +1,6 @@
 #include "armee.h"
 #include "case.h"
+#include "graphe.h"
 #include <sstream>   // Pour les flux de chaînes de caractères
 
 
@@ -9,6 +10,7 @@ private:
     std::vector<std::shared_ptr<Armee>> _armees;
     std::shared_ptr<Graphe> _grapheCases;
     int _rayon;
+
 public:
     Carte(int rayon);
 
@@ -20,6 +22,10 @@ public:
     void afficher()const;
     //execute l'ordre du tour
     void executerOrdresTour(unsigned int indiceArmee);
+
+    //fais combattre 2 unités
+
+    void combat(Unite &u1, Unite &u2);
 
     /*Methode de la carte (MAP ) =============================*/
 

@@ -2,32 +2,8 @@
 
 Carte::Carte(int rayon) : _rayon(rayon) {
     genererMapVide("Plaine", _rayon);
-
-    //création d'un std::map qui recense tous les noeuds correspondant aux cases de la carte
-    std::map<std::pair<int,int>,std::shared_ptr<Noeud>> noeuds;
-    int debutLigne = -_rayon;
-    int finLigne = 0;
-    for (int j = _rayon; j >= -_rayon; j--) {
-        for (int i = debutLigne; i <= finLigne; i++) {
-            noeuds[std::make_pair(i,j)] = std::make_shared<Noeud>("", i, j);
-            std::cout<<i<<","<<j<<std::endl;
-        }
-        if (j>0) finLigne++;
-        else if (j<0) debutLigne++;        
-    }
-
-    //création d'un vecteur contenant tous les noeuds avec leurs voisins
-    for (auto & paire : noeuds) {
-        std::cout<<"1"<<std::endl;
-        std::vector<std::pair<int, int>> voisins = getVoisinsCoordonnees(paire.first.first, paire.first.second);
-        std::cout<<"2"<<std::endl;
-        for (const auto voisin : voisins) {
-            paire.second->ajouterSuivant(noeuds[voisin], getCase(voisin.first, voisin.second).getCoutDeplacement());
-        }
-    }
-
-    //création du graphe qui représente les cases de la carte
-    _grapheCases = std::make_shared<Graphe>(noeuds);
+    //affichageSeulementCarte();
+    getCase(1,1);
 
     //std::vector<std::shared_ptr<Noeud>> chemin = _grapheCases->aEtoile(std::make_pair<int,int>(-1,1),std::make_pair<int,int>(2,2));
     //for (const auto & noeud : chemin) noeud->afficher();
@@ -98,15 +74,16 @@ std::vector<std::pair<int, int>> Carte::getVoisinsCoordonnees(int PosX, int PosY
 
 
 Case Carte::getCase(int x, int y)const{
-    
     x+= _cases.size()/2;
     y+=_cases[x].size()/2;
     //en dehors
+    std::cout << ("En dehors2 de la map : ("+std::to_string(x)+ ";"+std::to_string(y)+")");
     if (x < 0 || x >= _cases.size() || y < 0 || y >= _cases[x].size())
         throw std::invalid_argument("En dehors de la map : ("+std::to_string(x)+ ";"+std::to_string(y)+")");
     return _cases[x][y];
 
 }
+
 
 
 //affiche en hexagonale la map (sachant que la map elle meme est construite en hexagonale)
@@ -180,9 +157,9 @@ void Carte::sauvegarderCarteMap(std::string const &path)const{
     std::ofstream fichier(path); // Création du fichier
 
     if (fichier.is_open()) { // Vérification si le fichier est ouvert
-        for (unsigned int i = 0; i < _carte.size();i++){
-            for (unsigned int j = 0; j < _carte[i].size();j++){
-                fichier << _carte[i][j].getNom()+",";
+        for (unsigned int i = 0; i < _cases.size();i++){
+            for (unsigned int j = 0; j < _cases[i].size();j++){
+                fichier << _cases[i][j].getNom()+",";
             }
             fichier << "\n";
         }
@@ -212,7 +189,7 @@ void Carte::chargerCarteMap(std::string const &path) {
             while (getline(ss, element, ',')) {
                 tampon.push_back(Case(element));
             }
-            _carte.push_back(tampon);
+            _cases.push_back(tampon);
             tampon.clear();
         }
         affichageSeulementCarte();
@@ -221,8 +198,22 @@ void Carte::chargerCarteMap(std::string const &path) {
     }
 }
 
+
+
+/*
+Pour le combat on cherche les alliés/ennemis que voit l'unité
+
+*/
+void Carte::combat(Unite &u1, Unite &u2){
+    std::pair<int, int> degats = u1.resultatCombatSimple(u2);
+
+
+    std::cout << degats.first<< " : "<<degats.second<<std::endl;
+}
+
 /*getters and setters ============================*/
 
 std::vector<std::vector<Case>> Carte::getCarte()const{
     return _cases;
 }
+
