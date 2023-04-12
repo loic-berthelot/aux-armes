@@ -14,6 +14,8 @@ int main() {
 */
     
 
+    //c.affichageSeulementCarte();
+    //c.getCase(3,0);
     //Jeu jeu;
     //jeu.initialiser();
     //jeu.jouer();

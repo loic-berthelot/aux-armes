@@ -2,11 +2,12 @@
 #include "case.h"
 #include "graphe.h"
 #include <sstream>   // Pour les flux de chaînes de caractères
-
+#include <map>
+#include "graphe.h"
 
 class Carte {
 private:
-    std::vector<std::vector<Case>> _cases;
+    std::map<std::pair<int,int>,std::shared_ptr<Case>> _cases;
     std::vector<std::shared_ptr<Armee>> _armees;
     std::shared_ptr<Graphe> _grapheCases;
     int _rayon;
@@ -30,23 +31,19 @@ public:
     /*Methode de la carte (MAP ) =============================*/
 
     //renvoie les coordonnées des voisins
-    std::vector<std::pair<int, int>> getVoisinsCoordonnees(int x, int y)const;
+    std::vector<std::pair<int, int>> getCoordonneesVoisins(int posX, int posY)const;
 
     //Attention les X et Y sont les coordonnées en fonction du milieu
-    Case getCase(int x, int y)const;
+    std::shared_ptr<Case> getCase(int x, int y)const;
 
     void affichageSeulementCarte()const;
 
-    void genererMapVide(std::string const &typeCase, unsigned int taille);
+    void genererCarteVide(std::string const &typeCase, unsigned int taille);
 
 
     void sauvegarderCarteMap(std::string const &path)const;
     void chargerCarteMap(std::string const &path);
 
     //getters & setters
-    std::vector<std::vector<Case>> getCarte()const;
     std::shared_ptr<Armee> getArmee(unsigned int i) const;
-    
-    
-
 };
