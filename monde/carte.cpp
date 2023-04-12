@@ -3,14 +3,15 @@
 Carte::Carte(int rayon) : _rayon(rayon) {
     genererCarteVide("Plaine", _rayon);
     affichageSeulementCarte();
-    
+
     //création d'un std::map qui recense tous les noeuds correspondant aux cases de la carte
     std::map<std::pair<int,int>,std::shared_ptr<Noeud>> noeuds;
     int debut = -_rayon+1;
     int fin = 0;
     for (int j = _rayon-1; j > -_rayon; j--) {
         for (int i = debut; i <= fin; i++) {
-            noeuds[std::make_pair(i,j)] = std::make_shared<Noeud>("case", i, j);std::cout<<(getCase(i,j)==nullptr)<<std::endl;
+            noeuds[std::make_pair(i,j)] = std::make_shared<Noeud>("case", i, j);
+            //std::cout<<(getCase(i,j)==nullptr)<<std::endl;
         }
         if (j>0) fin++;
         else debut++;        
@@ -21,14 +22,15 @@ Carte::Carte(int rayon) : _rayon(rayon) {
         for (const auto voisin : voisins) {
             paire.second->ajouterSuivant(noeuds[voisin], getCase(voisin.first, voisin.second)->getCoutDeplacement());
         }
-        paire.second->afficher();
+        //paire.second->afficher();
     }
-    std::cout<<"sortie"<<std::endl;
+    //std::cout<<"sortie"<<std::endl;
     //création du graphe qui représente les cases de la carte
     _grapheCases = std::make_shared<Graphe>(noeuds);
 
-    std::vector<std::shared_ptr<Noeud>> chemin = _grapheCases->aEtoile(std::make_pair<int,int>(-1,1),std::make_pair<int,int>(4,3));
-    for (const auto & noeud : chemin) noeud->afficher();
+    //std::vector<std::shared_ptr<Noeud>> chemin = _grapheCases->aEtoile(std::make_pair<int,int>(-1,1),std::make_pair<int,int>(4,3));
+    //for (const auto & noeud : chemin) noeud->afficher();
+    
 }
 
 void Carte::creerArmee() { _armees.emplace_back(std::make_shared<Armee>()); }
@@ -164,4 +166,6 @@ void Carte::combat(Unite &u1, Unite &u2){
 }
 
 /*getters and setters ============================*/
-
+std::shared_ptr<Armee> Carte::getArmee(unsigned int i) const {
+    return _armees.at(i);
+}

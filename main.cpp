@@ -3,9 +3,9 @@
 
 int main() {
 
-
+    Carte c(5);
     std::vector<std::string> types;
-    /*u1.setMorale(200);
+    /*u1.setMoral(200);
     std::pair<int, int> result = u1.resultatCombatSimple(u2);
 
     std::cout << result.first << " : "<<result.second<<std::endl;
