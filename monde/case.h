@@ -5,14 +5,15 @@
 #include <fstream>
 
 enum class accessibilite{Eau, Air, Terre, EauEtTerre};
+
 class Case{
 private:
     int _coutDeplacement;//100 valeurs de base pour la plaine
     std::string _nom;
     
     
-
     accessibilite _typeAccessibilité;
+
 public:
     
 
