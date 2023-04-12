@@ -36,5 +36,4 @@ public:
     int getCoutDeplacement()const;
 
 
-
 };

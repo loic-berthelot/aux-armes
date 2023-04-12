@@ -172,7 +172,3 @@ void Carte::combat(Unite &u1, Unite &u2){
 
 /*getters and setters ============================*/
 
-std::vector<std::vector<Case>> Carte::getCarte()const{
-    return _cases;
-}
-
