@@ -4,8 +4,12 @@ Unite::Unite(const std::string & categorie, const std::vector<std::string> & typ
 int defense, int distanceVue) : 
 _categorie(categorie), _types(types), _posX(posX), _posY(posY), _sante(santeInitiale), _maxSante(santeInitiale), _attaque(attaque), 
 _defense(defense), _distanceVue(distanceVue){
-    
+    _ordreRecu = std::make_shared<Ordre>(TypeOrdre::IMMOBILISER, 0, 0);
 };
+
+void Unite::donnerOrdre(std::shared_ptr<Ordre> ordre) { 
+    _ordreRecu = ordre; 
+}
 
 std::string Unite::toString() const {
     std::string resultat = "("+std::to_string(_posX)+","+std::to_string(_posY)+") "+_categorie+" : ";
@@ -30,6 +34,7 @@ void Unite::avancer() {
     } else {
         _pointsMouvement++;
         if (_pointsMouvement > 10) {
+            std::cout<<_chemin[0].first<<", "<<_chemin[0].second<<std::endl;
             _pointsMouvement = 0;
             _posX = _chemin[0].first;
             _posY = _chemin[0].second;
@@ -40,6 +45,7 @@ void Unite::avancer() {
 
 void Unite::initialiserMouvement(std::vector<std::pair<int,int>> chemin) {
     _pointsMouvement = 0;
+    _chemin = chemin;
 }
 
 std::shared_ptr<Ordre> Unite::getOrdre() const{

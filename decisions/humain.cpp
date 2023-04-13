@@ -7,6 +7,8 @@ void Humain::jouerArmee(Carte & carte) {
         std::string typeOrdre;
         int val1, val2;
         std::cin>>typeOrdre>>val1>>val2;
-        if (typeOrdre == "deplacer") armee->donnerOrdre(i, std::make_shared<Ordre>(ORDRE_DEPLACER, val1, val2));
+        if (typeOrdre == "deplacer") armee->donnerOrdre(i, std::make_shared<Ordre>(TypeOrdre::DEPLACER, val1, val2));
+        else if (typeOrdre == "attaquer") armee->donnerOrdre(i, std::make_shared<Ordre>(TypeOrdre::ATTAQUER, val1, val2));
+        else armee->donnerOrdre(i, std::make_shared<Ordre>(TypeOrdre::IMMOBILISER, val1, val2));
     }      
 }

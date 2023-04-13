@@ -3,7 +3,8 @@
 
 int main() {
 
-    Carte c(6);
+    Jeu jeu;
+    jeu.jouer();
     std::vector<std::string> types;
     /*u1.setMoral(200);
     std::pair<int, int> result = u1.resultatCombatSimple(u2);

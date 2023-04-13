@@ -7,8 +7,8 @@ class Jeu {
     std::vector<std::shared_ptr<Joueur>> _joueurs;
     unsigned int _toursPasses = 0;
 public:
+    Jeu();
     void ajouterJoueur(bool estHumain = false);
     bool partieFinie();
-    void initialiser();
     void jouer();
 };

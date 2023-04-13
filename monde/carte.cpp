@@ -23,15 +23,10 @@ Carte::Carte(int rayon) : _rayon(rayon) {
         }
     }
     //création du graphe qui représente les cases de la carte
-    _grapheCases = std::make_shared<Graphe>(noeuds);
-
-    std::vector<std::pair<int,int>> chemin = _grapheCases->aEtoile(std::make_pair<int,int>(-1,-2),std::make_pair<int,int>(2,3));
-    for (const auto & etape : chemin) std::cout<<etape.first<<", "<<etape.second<<std::endl;
-    
+    _grapheCases = std::make_shared<Graphe>(noeuds); 
 }
 
-void Carte::creerArmee() { 
-    
+void Carte::creerArmee() {     
     _armees.emplace_back(std::make_shared<Armee>()); 
 }
 
@@ -41,24 +36,22 @@ void Carte::afficher() const{ //n'affiche pour l'instant que les armées, mais i
 }
 
 void Carte::executerOrdresArmee(unsigned int indiceArmee) {
-    std::vector<Unite> unites;// = _armees[indiceArmee].getUnites();
+    std::vector<std::shared_ptr<Unite>> unites = _armees[indiceArmee]->getUnites();
     for (unsigned int i = 0; i < unites.size(); i++) {
         std::vector<std::pair<int,int>> chemin;
-        if (unites[i].getOrdre()->getType() == ORDRE_DEPLACER || unites[i].getOrdre()->getType() == ORDRE_ATTAQUER) {
-            std::pair<int,int> debut = unites[i].getPos();
-            std::pair<int,int> fin = unites[i].getOrdre()->getPos();
+        if (unites[i]->getOrdre()->getType() == TypeOrdre::DEPLACER || unites[i]->getOrdre()->getType() == TypeOrdre::ATTAQUER) {
+            std::pair<int,int> debut = unites[i]->getPos();
+            std::pair<int,int> fin = unites[i]->getOrdre()->getPos();
             chemin = _grapheCases->aEtoile(debut, fin);
         }
-        unites[i].initialiserMouvement(chemin);
+        unites[i]->initialiserMouvement(chemin);
     }
     for (unsigned int pm = 0; pm < 100; pm++) { //on distribue un par un 100 points de mouvement aux unités
-        for (unsigned int i = 0; i < unites.size(); i++)
-            unites[i].avancer();
+        for (unsigned int i = 0; i < unites.size(); i++) {
+            unites[i]->avancer();
+        }        
     }
 }
-
-/*Méthode carte (map) ===================*/
-
 
 //renvoie un vecteur contenant les coordonnées des 6 voisins (au plus) de la case choisie
 std::vector<std::pair<int, int>> Carte::getCoordonneesVoisins(int posX, int posY)const{

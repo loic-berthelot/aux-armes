@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 
-enum TypeOrdre { ORDRE_DEPLACER, ORDRE_ATTAQUER };
+enum class TypeOrdre { DEPLACER, ATTAQUER, IMMOBILISER };
 
 class Ordre {
     TypeOrdre _type;

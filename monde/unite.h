@@ -23,7 +23,7 @@ public:
     Unite(const std::string & categorie, const std::vector<std::string> & types, int posX, int posY, int santeInitiale, int attaque, 
     int defense, int distanceVue);
     std::string toString() const;
-    void donnerOrdre(std::shared_ptr<Ordre> ordre) { _ordreRecu = ordre; }
+    void donnerOrdre(std::shared_ptr<Ordre> ordre);
     std::pair<int, int> resultatCombatSimple(Unite const &ennemy)const;
     void avancer();
     void initialiserMouvement(std::vector<std::pair<int,int>> chemin);
