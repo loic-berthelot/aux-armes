@@ -17,21 +17,20 @@ void Armee::donnerOrdre(unsigned int indiceUnite, std::shared_ptr<Ordre> ordre) 
     _unites[indiceUnite]->donnerOrdre(ordre); 
 }
 
-void Armee::executerOrdresTour()
-{
-    for (unsigned int i = 0; i < _unites.size(); i++)
-        _unites[i].executerOrdre();
-};
-
-void Armee::ajoutUnite(Unite const &u){
+void Armee::ajoutUnite(std::shared_ptr<Unite> u){
     _unites.push_back(u);
 }
 
 
     /*GETTERS = ===================*/
-Unite Armee::getUnite(unsigned int i)const{
+std::vector<std::shared_ptr<Unite>> Armee::getUnites()  {
+    return _unites;
+}
+
+std::shared_ptr<Unite> Armee::getUnite(unsigned int i) const {
     return _unites[i];
 }
+
 unsigned int Armee::size()const{
     return _unites.size();
 

@@ -31,7 +31,7 @@ public:
     /*Methode de la carte (MAP ) =============================*/
 
 
-    void brouillardDeGuerreUnite(Unite const &unite, std::vector<std::pair<int,int>> &vecteur)const;
+    void brouillardDeGuerreUnite(std::shared_ptr<Unite> unite, std::vector<std::pair<int,int>> &vecteur)const;
 
 
     std::vector<std::pair<int, int>> brouillardDeGuerreEquipe(unsigned int i)const;
@@ -49,10 +49,10 @@ public:
     void sauvegarderCarteMap(std::string const &path)const;
     void chargerCarteMap(std::string const &path);
 
-    void ajoutUniteTeam(unsigned int IDarmee, Unite const &u);
+    void ajoutUniteTeam(unsigned int IDarmee, std::shared_ptr<Unite> unite);
 
     
-    float ratioAlliesAdversaires(Unite &unite, unsigned int zoneAutour, unsigned int idEquipeJoueur)const;
+    float ratioAlliesAdversaires(std::shared_ptr<Unite> unite, unsigned int zoneAutour, unsigned int idEquipeJoueur)const;
 
     //getters & setters
     std::shared_ptr<Armee> getArmee(unsigned int i) const;

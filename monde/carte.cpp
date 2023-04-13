@@ -173,14 +173,14 @@ void Carte::combat(Unite &u1, Unite &u2){
 
 
 
-void Carte::brouillardDeGuerreUnite(Unite const &unite, std::vector<std::pair<int, int>> &vecteur)const{
+void Carte::brouillardDeGuerreUnite(std::shared_ptr<Unite> unite, std::vector<std::pair<int, int>> &vecteur)const{
     std::vector<std::pair<int, int>> vue;
     std::vector<std::pair<int, int>> vueTampon;
 
-    vue.push_back(std::make_pair(unite.getX(), unite.getY()));
-    vecteur.push_back(std::make_pair(unite.getX(), unite.getY()));
+    vue.push_back(std::make_pair(unite->getX(), unite->getY()));
+    vecteur.push_back(std::make_pair(unite->getX(), unite->getY()));
 
-    for (unsigned int i = 0; i < unite.getDistanceVue(); i++){
+    for (unsigned int i = 0; i < unite->getDistanceVue(); i++){
         for (unsigned int j = 0; j < vue.size();j++){
             std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(vue[j].first, vue[j].second);
 
@@ -228,15 +228,15 @@ std::vector<std::pair<int, int>> Carte::brouillardDeGuerreEquipe(unsigned int i)
 }
 
 
-void Carte::ajoutUniteTeam(unsigned int IDarmee, Unite const &u){
-    _armees[IDarmee]->ajoutUnite(u);
+void Carte::ajoutUniteTeam(unsigned int IDarmee, std::shared_ptr<Unite> unite){
+    _armees[IDarmee]->ajoutUnite(unite);
 }
 
 //a corriger il se compte lui meme
-float Carte::ratioAlliesAdversaires(Unite &unite, unsigned int zoneAutour, unsigned int idEquipeJoueur)const{
+float Carte::ratioAlliesAdversaires(std::shared_ptr<Unite> unite, unsigned int zoneAutour, unsigned int idEquipeJoueur)const{
     std::vector<std::pair<int, int>> vision;
-    unsigned int ancienneVision = unite.getDistanceVue();
-    unite.setDistanceVue(zoneAutour);
+    unsigned int ancienneVision = unite->getDistanceVue();
+    unite->setDistanceVue(zoneAutour);
     brouillardDeGuerreUnite(unite, vision);
 
     unsigned int nbAllies = 0;
@@ -245,7 +245,7 @@ float Carte::ratioAlliesAdversaires(Unite &unite, unsigned int zoneAutour, unsig
     for (unsigned int i = 0; i < vision.size();i++){
         for (unsigned int j = 0; j < _armees.size();j++){
             for (unsigned int k = 0; k < _armees[j]->size();k++){
-                if (_armees[i]->getUnite(k).getX() == vision[i].first && _armees[i]->getUnite(k).getY() == vision[i].second){
+                if (_armees[i]->getUnite(k)->getX() == vision[i].first && _armees[i]->getUnite(k)->getY() == vision[i].second){
                     if (j == idEquipeJoueur)
                         nbAllies++;
                     else 
@@ -257,7 +257,7 @@ float Carte::ratioAlliesAdversaires(Unite &unite, unsigned int zoneAutour, unsig
         } 
     }
 
-    unite.setDistanceVue(ancienneVision);
+    unite->setDistanceVue(ancienneVision);
 
 
     return static_cast<float>(nbAllies)/static_cast<float>(nbEnnemis);

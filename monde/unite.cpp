@@ -42,6 +42,7 @@ int Unite::getY()const{
 
 int Unite::getDistanceVue()const{
     return _distanceVue;
+}
 
 void Unite::avancer() {
     if (_chemin.empty()) {
