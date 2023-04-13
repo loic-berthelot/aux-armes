@@ -30,7 +30,7 @@ void Jeu::jouer() {
         for (unsigned int i = 0; i < _joueurs.size(); i++) {
             std::cout<<"Tour du joueur "<<i<<std::endl;
             _joueurs[i]->jouerArmee(_carte);
-            _carte.executerOrdresTour(i);
+            _carte.executerOrdresArmee(i);
             _carte.afficher();
         }   
 

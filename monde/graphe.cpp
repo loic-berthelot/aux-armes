@@ -81,12 +81,12 @@ std::shared_ptr<Noeud> Graphe::plusFaibleScore(const std::vector<std::shared_ptr
     });
 }
 
-std::vector<std::shared_ptr<Noeud>> Graphe::aEtoile(std::pair<int,int> depart, std::pair<int,int> arrivee) {
+std::vector<std::pair<int,int>> Graphe::aEtoile(std::pair<int,int> depart, std::pair<int,int> arrivee) {
     std::shared_ptr<Noeud> noeudDepart = _noeuds[depart];
     std::shared_ptr<Noeud> noeudArrivee = _noeuds[arrivee];
     std::vector<std::shared_ptr<Noeud>> noeudsOuverts = {noeudDepart};
     std::vector<std::shared_ptr<Noeud>> noeudsFermes;
-    std::vector<std::shared_ptr<Noeud>> plusCourtChemin;
+    std::vector<std::pair<int,int>> plusCourtChemin;
     
     std::shared_ptr<Noeud> noeudCourant = noeudDepart;
     for (const auto & noeud : _noeuds) {
@@ -102,10 +102,10 @@ std::vector<std::shared_ptr<Noeud>> Graphe::aEtoile(std::pair<int,int> depart, s
     }    
     
     while (noeudCourant->getParent() != nullptr) {
-        plusCourtChemin.push_back(noeudCourant);//on récupère toutes les étapes du chemin, en partant de la fin
+        plusCourtChemin.push_back(std::make_pair(noeudCourant->getPosX(), noeudCourant->getPosY()));//on récupère toutes les étapes du chemin, en partant de la fin
         noeudCourant = noeudCourant->getParent();
     }
-    plusCourtChemin.push_back(noeudCourant);//on récupère aussi la case de départ
+    plusCourtChemin.push_back(std::make_pair(noeudCourant->getPosX(), noeudCourant->getPosY()));//on récupère aussi la case de départ
     std::reverse(plusCourtChemin.begin(), plusCourtChemin.end());//on replace les étapes du chemin dans le bon ordre
     return plusCourtChemin;
 }

@@ -13,18 +13,6 @@ std::string Unite::toString() const {
     return resultat;
 }
 
-void Unite::executerOrdre() {
-    if (_ordreRecu) {
-        OrdreDeplacer* ordreDeplacer = static_cast<OrdreDeplacer*>(_ordreRecu.get());
-        if (ordreDeplacer) {
-            _posX += ordreDeplacer->getDx();
-            _posY += ordreDeplacer->getDy();
-            return;
-        }
-    }
-}
-
-
 //on considère que le combat est équilibré. Les boots ou autres changements seront fais dans la méthode combat de la classe Map
 std::pair<int, int> Unite::resultatCombatSimple(Unite const &ennemy)const{
     std::pair<int, int> resultat;
@@ -51,4 +39,28 @@ int Unite::getY()const{
 int Unite::getDistanceVue()const{
     return _distanceVue;
 
+void Unite::avancer() {
+    if (_chemin.empty()) {
+        _pointsMouvement = 0;
+    } else {
+        _pointsMouvement++;
+        if (_pointsMouvement > 10) {
+            _pointsMouvement = 0;
+            _posX = _chemin[0].first;
+            _posY = _chemin[0].second;
+            _chemin.erase(_chemin.begin());
+        }
+    }
+}
+
+void Unite::initialiserMouvement(std::vector<std::pair<int,int>> chemin) {
+    _pointsMouvement = 0;
+}
+
+std::shared_ptr<Ordre> Unite::getOrdre() const{
+    return _ordreRecu;
+}
+
+std::pair<int,int> Unite::getPos() const {
+    return std::make_pair(_posX, _posY);
 }

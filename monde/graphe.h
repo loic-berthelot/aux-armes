@@ -38,5 +38,5 @@ public:
     Graphe(const std::map<std::pair<int,int>,std::shared_ptr<Noeud>> noeuds);
     void retirerNoeud(std::vector<std::shared_ptr<Noeud>> & noeuds, std::shared_ptr<Noeud> noeud);
     std::shared_ptr<Noeud> plusFaibleScore(const std::vector<std::shared_ptr<Noeud>> & noeuds);
-    std::vector<std::shared_ptr<Noeud>> aEtoile(std::pair<int,int> depart, std::pair<int,int>arrivee);
+    std::vector<std::pair<int,int>> aEtoile(std::pair<int,int> depart, std::pair<int,int>arrivee);
 };
