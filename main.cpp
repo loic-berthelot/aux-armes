@@ -3,11 +3,7 @@
 
 int main() {
 
-<<<<<<< HEAD
-    Carte c(50);
-=======
     Carte c(6);
->>>>>>> 63de7a228d8812536bce83c40a78176988afcfc6
     std::vector<std::string> types;
     c.creerArmee();
     //Unite(const std::string & categorie, const std::vector<std::string> & types, int posX, int posY, int santeInitiale, int attaque, 
