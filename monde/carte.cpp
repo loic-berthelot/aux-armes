@@ -171,6 +171,98 @@ void Carte::combat(Unite &u1, Unite &u2){
     std::cout << degats.first<< " : "<<degats.second<<std::endl;
 }
 
+
+
+void Carte::brouillardDeGuerreUnite(Unite const &unite, std::vector<std::pair<int, int>> &vecteur)const{
+    std::vector<std::pair<int, int>> vue;
+    std::vector<std::pair<int, int>> vueTampon;
+
+    vue.push_back(std::make_pair(unite.getX(), unite.getY()));
+    vecteur.push_back(std::make_pair(unite.getX(), unite.getY()));
+
+    for (unsigned int i = 0; i < unite.getDistanceVue(); i++){
+        for (unsigned int j = 0; j < vue.size();j++){
+            std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(vue[j].first, vue[j].second);
+
+            for (unsigned int k = 0; k < voisins.size();k++){
+                //si pas déjà dans la fonction et si c'est accessible
+                if (!(std::find(vue.begin(), vue.end(), voisins[k]) != vue.end())
+                    && (_cases.at(voisins[j])->accessibleTerre()
+                    || _cases.at(voisins[j])->accessibleEau())
+                    ){
+                    vueTampon.push_back(voisins[k]);
+                    vecteur.push_back(voisins[k]);
+                }
+
+            }
+            
+        }
+        
+
+        //On remet dans la vue ce qu'il y a dans le bufferVue dans la vue
+        for (unsigned int k = 0; k < vueTampon.size();k++){
+            vue.push_back(vueTampon[k]);
+        }
+        vueTampon.clear();
+    }
+    //rajoute les montagnes si elles sont à une distance suffisante (on rajoute que la case MONTAGNE)
+    for (unsigned int i = 0; i < vue.size();i++){
+        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(vue[i].first, vue[i].second);
+        for (unsigned int j = 0; j < voisins.size();j++){
+            if (!(std::find(vue.begin(), vue.end(), voisins[j]) != vue.end())
+                && !_cases.at(voisins[j])->accessibleTerre() 
+                && !_cases.at(voisins[j])->accessibleEau()
+                //&& distance(voisins[j], std::make_pair(unite.getX(), unite.getY())) <= unite.getDistanceVue()
+                )
+                    vecteur.push_back(voisins[j]);
+        }   
+    }
+
+}
+
+std::vector<std::pair<int, int>> Carte::brouillardDeGuerreEquipe(unsigned int i)const{
+    std::vector<std::pair<int, int>> resultat;
+    for (unsigned int j = 0; j < _armees[i]->size();j++)
+        brouillardDeGuerreUnite(_armees[i]->getUnite(j), resultat);
+    return resultat;
+}
+
+
+void Carte::ajoutUniteTeam(unsigned int IDarmee, Unite const &u){
+    _armees[IDarmee]->ajoutUnite(u);
+}
+
+//a corriger il se compte lui meme
+float Carte::ratioAlliesAdversaires(Unite &unite, unsigned int zoneAutour, unsigned int idEquipeJoueur)const{
+    std::vector<std::pair<int, int>> vision;
+    unsigned int ancienneVision = unite.getDistanceVue();
+    unite.setDistanceVue(zoneAutour);
+    brouillardDeGuerreUnite(unite, vision);
+
+    unsigned int nbAllies = 0;
+    unsigned int nbEnnemis = 0;
+
+    for (unsigned int i = 0; i < vision.size();i++){
+        for (unsigned int j = 0; j < _armees.size();j++){
+            for (unsigned int k = 0; k < _armees[j]->size();k++){
+                if (_armees[i]->getUnite(k).getX() == vision[i].first && _armees[i]->getUnite(k).getY() == vision[i].second){
+                    if (j == idEquipeJoueur)
+                        nbAllies++;
+                    else 
+                        nbEnnemis++;
+                }
+
+
+            }
+        } 
+    }
+
+    unite.setDistanceVue(ancienneVision);
+
+
+    return static_cast<float>(nbAllies)/static_cast<float>(nbEnnemis);
+}
+
 /*getters and setters ============================*/
 std::shared_ptr<Armee> Carte::getArmee(unsigned int i) const {
     return _armees.at(i);

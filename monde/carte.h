@@ -30,6 +30,12 @@ public:
 
     /*Methode de la carte (MAP ) =============================*/
 
+
+    void brouillardDeGuerreUnite(Unite const &unite, std::vector<std::pair<int,int>> &vecteur)const;
+
+
+    std::vector<std::pair<int, int>> brouillardDeGuerreEquipe(unsigned int i)const;
+
     //renvoie les coordonnées des voisins
     std::vector<std::pair<int, int>> getCoordonneesVoisins(int posX, int posY)const;
 
@@ -40,10 +46,19 @@ public:
 
     void genererCarteVide(std::string const &typeCase, unsigned int taille);
 
-
     void sauvegarderCarteMap(std::string const &path)const;
     void chargerCarteMap(std::string const &path);
 
+    void ajoutUniteTeam(unsigned int IDarmee, Unite const &u);
+
+    
+    float ratioAlliesAdversaires(Unite &unite, unsigned int zoneAutour, unsigned int idEquipeJoueur)const;
+
     //getters & setters
     std::shared_ptr<Armee> getArmee(unsigned int i) const;
+
+
+
+
+
 };

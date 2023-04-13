@@ -33,6 +33,17 @@ public:
     void setMorale(int moral){
         _moral = moral;
     }
+
+
+    int getX()const;
+
+    int getY()const;
+
+    int getDistanceVue()const;
+
+    void setDistanceVue(int distanceVue){
+        _distanceVue = distanceVue;
+    }
     std::shared_ptr<Ordre> getOrdre() const;
     std::pair<int,int> getPos() const;
 };

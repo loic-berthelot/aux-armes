@@ -9,4 +9,13 @@ public :
     unsigned int taille() const;
     void donnerOrdre(unsigned int indiceUnite, std::shared_ptr<Ordre> ordre);
     std::vector<std::shared_ptr<Unite>> getUnites();
+    void executerOrdresTour();
+    
+    void ajoutUnite(Unite const &u);
+
+    /*GETTERS*/
+    Unite getUnite(unsigned int i)const;
+    
+    unsigned int size()const;
+
 };

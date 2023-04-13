@@ -28,6 +28,21 @@ std::pair<int, int> Unite::resultatCombatSimple(Unite const &ennemy)const{
 
 }
 
+
+/*Getters / SETTERS*/
+
+
+int Unite::getX()const{
+    return _posX;
+}
+
+int Unite::getY()const{
+    return _posY;
+}
+
+int Unite::getDistanceVue()const{
+    return _distanceVue;
+
 void Unite::avancer() {
     if (_chemin.empty()) {
         _pointsMouvement = 0;
