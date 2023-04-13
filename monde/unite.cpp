@@ -35,3 +35,20 @@ std::pair<int, int> Unite::resultatCombatSimple(Unite const &ennemy)const{
     return resultat;
 
 }
+
+
+/*Getters / SETTERS*/
+
+
+int Unite::getX()const{
+    return _posX;
+}
+
+int Unite::getY()const{
+    return _posY;
+}
+
+int Unite::getDistanceVue()const{
+    return _distanceVue;
+
+}

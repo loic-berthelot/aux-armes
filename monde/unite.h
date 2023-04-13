@@ -33,4 +33,14 @@ public:
         _moral = moral;
     }
 
+
+    int getX()const;
+
+    int getY()const;
+
+    int getDistanceVue()const;
+
+    void setDistanceVue(int distanceVue){
+        _distanceVue = distanceVue;
+    }
 };

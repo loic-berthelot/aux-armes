@@ -27,3 +27,17 @@ void Armee::executerOrdresTour()
     for (unsigned int i = 0; i < _unites.size(); i++)
         _unites[i].executerOrdre();
 };
+
+void Armee::ajoutUnite(Unite const &u){
+    _unites.push_back(u);
+}
+
+
+    /*GETTERS = ===================*/
+Unite Armee::getUnite(unsigned int i)const{
+    return _unites[i];
+}
+unsigned int Armee::size()const{
+    return _unites.size();
+
+}
