@@ -7,7 +7,6 @@
 #include <memory>
 
 class Noeud {
-    static int compt;
     std::string _id;
     std::map<const std::shared_ptr<Noeud>, int> _suivants;
     int _posX;
@@ -24,6 +23,7 @@ public:
     std::shared_ptr<Noeud> getParent()const;
     int getPosX() const;
     int getPosY() const;
+    std::pair<int,int> getPos() const;
     int getCoutParent() const;
     float getCoutChemin() const;
     float getHeuristique() const;
@@ -44,5 +44,5 @@ public:
     void retirerNoeud(std::vector<std::shared_ptr<Noeud>> & noeuds, const std::shared_ptr<Noeud> noeud);
     std::shared_ptr<Noeud> plusFaibleScore(const std::vector<std::shared_ptr<Noeud>> & noeuds) const;
     std::vector<std::pair<std::pair<int,int>, int>> aEtoile(std::pair<int,int> depart, std::pair<int,int>arrivee);
-    std::vector<std::pair<int,int>> zoneAccessible(int pointsMouvement);
+    std::vector<std::pair<int,int>> zoneAccessible(std::pair<int,int> depart, int pointsMouvement);
 };

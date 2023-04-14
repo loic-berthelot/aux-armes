@@ -24,6 +24,8 @@ Carte::Carte(int rayon) : _rayon(rayon), _indiceArmee(0) {
     }
     //création du graphe qui représente les cases de la carte
     _grapheCases = std::make_shared<Graphe>(noeuds); 
+    std::vector<std::pair<int,int>> zone = _grapheCases->zoneAccessible(std::make_pair(0,0), 10);
+    for (const auto & paire : zone) std::cout<<paire.first<<", "<<paire.second<<std::endl;
 }
 
 void Carte::creerArmee() {     

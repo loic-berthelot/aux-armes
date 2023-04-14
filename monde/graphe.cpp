@@ -1,17 +1,16 @@
 #include "graphe.h"
 
-int Noeud::compt = 0;
-
 Noeud::Noeud(const std::string & id, int posX, int posY) : _id(id), _posX(posX), _posY(posY), _parent(nullptr){}
-bool Noeud::estEgal(const std::shared_ptr<const Noeud> & noeud) const {
-    return this == noeud.get();
-}
+
+bool Noeud::estEgal(const std::shared_ptr<const Noeud> & noeud) const { return this == noeud.get(); }
 
 std::shared_ptr<Noeud> Noeud::getParent() const { return _parent; }
 
 int Noeud::getPosX() const { return _posX; }
 
 int Noeud::getPosY() const { return _posY; }
+
+std::pair<int,int> Noeud::getPos() const { return std::make_pair(_posX,_posY); }
 
 int Noeud::getCoutParent() const { return _suivants.at(_parent); }
 
@@ -111,9 +110,31 @@ std::vector<std::pair<std::pair<int,int>, int>> Graphe::aEtoile(std::pair<int,in
     }    
 
     while (noeudCourant->getParent() != nullptr) { 
-        plusCourtChemin.push_back(std::make_pair(std::make_pair(noeudCourant->getPosX(), noeudCourant->getPosY()), noeudCourant->getCoutParent()));//on récupère toutes les étapes du chemin, en partant de la fin
+        plusCourtChemin.push_back(std::make_pair(noeudCourant->getPos(), noeudCourant->getCoutParent()));//on récupère toutes les étapes du chemin, en partant de la fin
         noeudCourant = noeudCourant->getParent();
     }
     std::reverse(plusCourtChemin.begin(), plusCourtChemin.end());//on replace les étapes du chemin dans le bon ordre
     return plusCourtChemin;
+}
+
+std::vector<std::pair<int,int>> Graphe::zoneAccessible(std::pair<int,int> depart, int pointsMouvement) {
+    const std::shared_ptr<Noeud> noeudDepart = _noeuds.at(depart);
+    std::vector<std::shared_ptr<Noeud>> noeudsOuverts = {noeudDepart};
+    std::vector<std::shared_ptr<Noeud>> noeudsFermes;
+    std::vector<std::pair<int,int>> zone;
+    std::shared_ptr<Noeud> noeudCourant = noeudDepart;
+
+    for (const auto & noeud : _noeuds) noeud.second->initialiser(noeudDepart, noeudDepart);
+    
+    while (! noeudsOuverts.empty()) {
+        noeudCourant = noeudsOuverts.at(0);
+        if(noeudCourant->getCoutChemin() <= pointsMouvement) {
+            noeudCourant->explorerSuivants(noeudsOuverts, noeudsFermes);
+            noeudsFermes.push_back(noeudCourant);
+        }        
+        retirerNoeud(noeudsOuverts,noeudCourant);        
+    }    
+
+    for (const auto & noeud : noeudsFermes) zone.push_back(noeud->getPos());
+    return zone;
 }
