@@ -22,14 +22,15 @@ bool Jeu::partieFinie() {
 void Jeu::jouer() {
     std::cout<<"Debut de la partie !"<<std::endl;
     while (! partieFinie()) {
-        std::cout<<"Tour n°"<<_toursPasses<<std::endl;
+        std::cout<<"---Tour n°"<<_toursPasses<<"---"<<std::endl;
         for (unsigned int i = 0; i < _joueurs.size(); i++) {
-            std::cout<<"Tour du joueur "<<i<<std::endl;
+            std::cout<<"Tour du joueur "<<i<<" : "<<std::endl;
+            _carte.selectionnerArmee(i);
             _joueurs[i]->jouerArmee(_carte);
-            _carte.executerOrdresArmee(i);
-            _carte.afficher();
-        }   
-        std::cout<<std::endl<<"_____________"<<std::endl;
+            _carte.executerOrdresArmee();
+            _carte.afficherArmee();
+            std::cout<<std::endl;
+        }  
         _toursPasses++;
     }
     std::cout<<"Fin de la partie !"<<std::endl;

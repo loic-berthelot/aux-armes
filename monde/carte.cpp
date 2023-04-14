@@ -1,6 +1,6 @@
 #include "carte.h"
 
-Carte::Carte(int rayon) : _rayon(rayon) {
+Carte::Carte(int rayon) : _rayon(rayon), _indiceArmee(0) {
     genererCarteVide("Plaine", _rayon);
     affichageSeulementCarte();
 
@@ -30,15 +30,23 @@ void Carte::creerArmee() {
     _armees.emplace_back(std::make_shared<Armee>()); 
 }
 
-void Carte::afficher() const{ //n'affiche pour l'instant que les armées, mais il faudra rajouter les cases
+void Carte::afficherArmees() const{ //n'affiche pour l'instant que les armées, mais il faudra rajouter les cases
     for (unsigned int i = 0; i < _armees.size(); i++) 
         _armees[i]->afficher();
 }
 
-void Carte::executerOrdresArmee(unsigned int indiceArmee) {
-    std::vector<std::shared_ptr<Unite>> unites = _armees[indiceArmee]->getUnites();
+void Carte::afficherArmee() const{
+    getArmee()->afficher();
+}
+
+void Carte::selectionnerArmee(unsigned int indiceArmee) {
+    _indiceArmee = indiceArmee;
+}
+
+void Carte::executerOrdresArmee() {
+    std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
     for (unsigned int i = 0; i < unites.size(); i++) {
-        std::vector<std::pair<int,int>> chemin;
+        std::vector<std::pair<std::pair<int,int>, int>> chemin;
         if (unites[i]->getOrdre()->getType() == TypeOrdre::DEPLACER || unites[i]->getOrdre()->getType() == TypeOrdre::ATTAQUER) {
             std::pair<int,int> debut = unites[i]->getPos();
             std::pair<int,int> fin = unites[i]->getOrdre()->getPos();
@@ -264,6 +272,6 @@ float Carte::ratioAlliesAdversaires(std::shared_ptr<Unite> unite, unsigned int z
 }
 
 /*getters and setters ============================*/
-std::shared_ptr<Armee> Carte::getArmee(unsigned int i) const {
-    return _armees.at(i);
+std::shared_ptr<Armee> Carte::getArmee() const {
+    return _armees.at(_indiceArmee);
 }

@@ -17,8 +17,9 @@ class Unite{
     int _attaque;//100 de base
     int _defense;//100 de base
     int _distanceVue;
-    unsigned int _pointsMouvement;
-    std::vector<std::pair<int,int>> _chemin;
+    float _vitesseDeplacement = 0.2;
+    float _pointsMouvement;
+    std::vector<std::pair<std::pair<int,int>, int>> _chemin;
 public:
     Unite(const std::string & categorie, const std::vector<std::string> & types, int posX, int posY, int santeInitiale, int attaque, 
     int defense, int distanceVue);
@@ -26,7 +27,7 @@ public:
     void donnerOrdre(std::shared_ptr<Ordre> ordre);
     std::pair<int, int> resultatCombatSimple(Unite const &ennemy)const;
     void avancer();
-    void initialiserMouvement(std::vector<std::pair<int,int>> chemin);
+    void initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>> chemin);
 
     /*GETTERS AND SETTERS ================================*/
 
