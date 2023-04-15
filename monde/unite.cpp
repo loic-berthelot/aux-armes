@@ -145,18 +145,19 @@ void Unite::avancer() {
     if (_chemin.empty()) {
         _pointsMouvement = 0;
     } else {
-        _pointsMouvement++;
-        if (_pointsMouvement > 10) {
+        _pointsMouvement += _vitesseDeplacement;
+        if (_pointsMouvement > _chemin[0].second) {
             _pointsMouvement = 0;
-            _posX = _chemin[0].first;
-            _posY = _chemin[0].second;
+            _posX = _chemin[0].first.first;
+            _posY = _chemin[0].first.second;
             _chemin.erase(_chemin.begin());
         }
     }
 }
 
-void Unite::initialiserMouvement(std::vector<std::pair<int,int>> chemin) {
+void Unite::initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>> chemin) {
     _pointsMouvement = 0;
+    _chemin = chemin;
 }
 
 std::shared_ptr<Ordre> Unite::getOrdre() const{

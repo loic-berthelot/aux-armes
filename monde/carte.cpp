@@ -1,6 +1,6 @@
 #include "carte.h"
 
-Carte::Carte(int rayon) : _rayon(rayon) {
+Carte::Carte(int rayon) : _rayon(rayon), _indiceArmee(0) {
     genererCarteVide("Plaine", _rayon);
     affichageSeulementCarte();
 
@@ -23,42 +23,45 @@ Carte::Carte(int rayon) : _rayon(rayon) {
         }
     }
     //création du graphe qui représente les cases de la carte
-    _grapheCases = std::make_shared<Graphe>(noeuds);
-
-    std::vector<std::pair<int,int>> chemin = _grapheCases->aEtoile(std::make_pair<int,int>(-1,-2),std::make_pair<int,int>(2,3));
-    for (const auto & etape : chemin) std::cout<<etape.first<<", "<<etape.second<<std::endl;
-    
+    _grapheCases = std::make_shared<Graphe>(noeuds); 
+    std::vector<std::pair<int,int>> zone = _grapheCases->zoneAccessible(std::make_pair(0,0), 10);
+    for (const auto & paire : zone) std::cout<<paire.first<<", "<<paire.second<<std::endl;
 }
 
-void Carte::creerArmee() { 
-    
+void Carte::creerArmee() {     
     _armees.emplace_back(std::make_shared<Armee>()); 
 }
 
-void Carte::afficher() const{ //n'affiche pour l'instant que les armées, mais il faudra rajouter les cases
+void Carte::afficherArmees() const{ //n'affiche pour l'instant que les armées, mais il faudra rajouter les cases
     for (unsigned int i = 0; i < _armees.size(); i++) 
         _armees[i]->afficher();
 }
 
-void Carte::executerOrdresArmee(unsigned int indiceArmee) {
-    std::vector<Unite> unites;// = _armees[indiceArmee].getUnites();
-    for (unsigned int i = 0; i < unites.size(); i++) {
-        std::vector<std::pair<int,int>> chemin;
-        if (unites[i].getOrdre()->getType() == ORDRE_DEPLACER || unites[i].getOrdre()->getType() == ORDRE_ATTAQUER) {
-            std::pair<int,int> debut = unites[i].getPos();
-            std::pair<int,int> fin = unites[i].getOrdre()->getPos();
-            chemin = _grapheCases->aEtoile(debut, fin);
-        }
-        unites[i].initialiserMouvement(chemin);
-    }
-    for (unsigned int pm = 0; pm < 100; pm++) { //on distribue un par un 100 points de mouvement aux unités
-        for (unsigned int i = 0; i < unites.size(); i++)
-            unites[i].avancer();
-    }
+void Carte::afficherArmee() const{
+    getArmee()->afficher();
 }
 
-/*Méthode carte (map) ===================*/
+void Carte::selectionnerArmee(unsigned int indiceArmee) {
+    _indiceArmee = indiceArmee;
+}
 
+void Carte::executerOrdresArmee() {
+    std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
+    for (unsigned int i = 0; i < unites.size(); i++) {
+        std::vector<std::pair<std::pair<int,int>, int>> chemin;
+        if (unites[i]->getOrdre()->getType() == TypeOrdre::DEPLACER || unites[i]->getOrdre()->getType() == TypeOrdre::ATTAQUER) {
+            std::pair<int,int> debut = unites[i]->getPos();
+            std::pair<int,int> fin = unites[i]->getOrdre()->getPos();
+            chemin = _grapheCases->aEtoile(debut, fin);
+        }
+        unites[i]->initialiserMouvement(chemin);
+    }
+    for (unsigned int pm = 0; pm < 100; pm++) { //on distribue un par un 100 points de mouvement aux unités
+        for (unsigned int i = 0; i < unites.size(); i++) {
+            unites[i]->avancer();
+        }        
+    }
+}
 
 //renvoie un vecteur contenant les coordonnées des 6 voisins (au plus) de la case choisie
 std::vector<std::pair<int, int>> Carte::getCoordonneesVoisins(int posX, int posY)const{
@@ -180,14 +183,14 @@ void Carte::combat(Unite &u1, Unite &u2){
 
 
 
-void Carte::brouillardDeGuerreUnite(Unite const &unite, std::vector<std::pair<int, int>> &vecteur)const{
+void Carte::brouillardDeGuerreUnite(std::shared_ptr<Unite> unite, std::vector<std::pair<int, int>> &vecteur)const{
     std::vector<std::pair<int, int>> vue;
     std::vector<std::pair<int, int>> vueTampon;
 
-    vue.push_back(std::make_pair(unite.getX(), unite.getY()));
-    vecteur.push_back(std::make_pair(unite.getX(), unite.getY()));
+    vue.push_back(std::make_pair(unite->getX(), unite->getY()));
+    vecteur.push_back(std::make_pair(unite->getX(), unite->getY()));
 
-    for (unsigned int i = 0; i < unite.getDistanceVue(); i++){
+    for (unsigned int i = 0; i < unite->getDistanceVue(); i++){
         for (unsigned int j = 0; j < vue.size();j++){
             std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(vue[j].first, vue[j].second);
 
@@ -235,15 +238,15 @@ std::vector<std::pair<int, int>> Carte::brouillardDeGuerreEquipe(unsigned int i)
 }
 
 
-void Carte::ajoutUniteTeam(unsigned int IDarmee, Unite const &u){
-    _armees[IDarmee]->ajoutUnite(u);
+void Carte::ajoutUniteTeam(unsigned int IDarmee, std::shared_ptr<Unite> unite){
+    _armees[IDarmee]->ajoutUnite(unite);
 }
 
 //a corriger il se compte lui meme
-float Carte::ratioAlliesAdversaires(Unite &unite, unsigned int zoneAutour, unsigned int idEquipeJoueur)const{
+float Carte::ratioAlliesAdversaires(std::shared_ptr<Unite> unite, unsigned int zoneAutour, unsigned int idEquipeJoueur)const{
     std::vector<std::pair<int, int>> vision;
-    unsigned int ancienneVision = unite.getDistanceVue();
-    unite.setDistanceVue(zoneAutour);
+    unsigned int ancienneVision = unite->getDistanceVue();
+    unite->setDistanceVue(zoneAutour);
     brouillardDeGuerreUnite(unite, vision);
 
     unsigned int nbAllies = 0;
@@ -252,7 +255,7 @@ float Carte::ratioAlliesAdversaires(Unite &unite, unsigned int zoneAutour, unsig
     for (unsigned int i = 0; i < vision.size();i++){
         for (unsigned int j = 0; j < _armees.size();j++){
             for (unsigned int k = 0; k < _armees[j]->size();k++){
-                if (_armees[i]->getUnite(k).getX() == vision[i].first && _armees[i]->getUnite(k).getY() == vision[i].second){
+                if (_armees[i]->getUnite(k)->getX() == vision[i].first && _armees[i]->getUnite(k)->getY() == vision[i].second){
                     if (j == idEquipeJoueur)
                         nbAllies++;
                     else 
@@ -264,13 +267,13 @@ float Carte::ratioAlliesAdversaires(Unite &unite, unsigned int zoneAutour, unsig
         } 
     }
 
-    unite.setDistanceVue(ancienneVision);
+    unite->setDistanceVue(ancienneVision);
 
 
     return static_cast<float>(nbAllies)/static_cast<float>(nbEnnemis);
 }
 
 /*getters and setters ============================*/
-std::shared_ptr<Armee> Carte::getArmee(unsigned int i) const {
-    return _armees.at(i);
+std::shared_ptr<Armee> Carte::getArmee() const {
+    return _armees.at(_indiceArmee);
 }

@@ -11,6 +11,7 @@ private:
     std::vector<std::shared_ptr<Armee>> _armees;
     std::shared_ptr<Graphe> _grapheCases;
     int _rayon;
+    unsigned int _indiceArmee;
 
 public:
     Carte(int rayon);
@@ -20,9 +21,13 @@ public:
     //créer une armée vide
     void creerArmee();
     //ne marche pas encore donc à renseigner
-    void afficher()const;
+    void afficherArmee() const;
+
+    void afficherArmees() const;
+
+    void selectionnerArmee(unsigned int indiceArmee);
     //execute l'ordre du tour
-    void executerOrdresArmee(unsigned int indiceArmee);
+    void executerOrdresArmee();
 
     //fais combattre 2 unités
 
@@ -31,8 +36,7 @@ public:
     /*Methode de la carte (MAP ) =============================*/
 
 
-    void brouillardDeGuerreUnite(Unite const &unite, std::vector<std::pair<int,int>> &vecteur)const;
-
+    void brouillardDeGuerreUnite(std::shared_ptr<Unite> unite, std::vector<std::pair<int,int>> &vecteur)const;
 
     std::vector<std::pair<int, int>> brouillardDeGuerreEquipe(unsigned int i)const;
 
@@ -47,18 +51,14 @@ public:
     void genererCarteVide(std::string const &typeCase, unsigned int taille);
 
     void sauvegarderCarteMap(std::string const &path)const;
+
     void chargerCarteMap(std::string const &path);
 
-    void ajoutUniteTeam(unsigned int IDarmee, Unite const &u);
-
+    void ajoutUniteTeam(unsigned int IDarmee, std::shared_ptr<Unite> unite);
     
-    float ratioAlliesAdversaires(Unite &unite, unsigned int zoneAutour, unsigned int idEquipeJoueur)const;
+    float ratioAlliesAdversaires(std::shared_ptr<Unite> unite, unsigned int zoneAutour, unsigned int idEquipeJoueur)const;
 
     //getters & setters
-    std::shared_ptr<Armee> getArmee(unsigned int i) const;
 
-
-
-
-
+    std::shared_ptr<Armee> getArmee() const;
 };
