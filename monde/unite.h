@@ -2,11 +2,20 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include "Type.h"
 #include "ordre.h"
 
+enum class Categorie{
+    Air,
+    Eau,
+    Terre,
+    EauEtTerre
+};
+
 class Unite{
-    std::string _categorie;
-    std::vector<std::string> _types;
+    std::string _nom;
+    Categorie _categorie;
+    std::vector<Type> _types;
     //Les coordonnées de la case centrale du plateau sont (0,0). Les axes sont dirigés vers le haut et la droite.
     int _posX;
     int _posY;
@@ -20,20 +29,48 @@ class Unite{
     unsigned int _pointsMouvement;
     std::vector<std::pair<int,int>> _chemin;
 public:
-    Unite(const std::string & categorie, const std::vector<std::string> & types, int posX, int posY, int santeInitiale, int attaque, 
+    Unite(std::string nom,Categorie categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, 
     int defense, int distanceVue);
+
+
+    Unite(std::string name, int x, int y);
+
+
     std::string toString() const;
     void donnerOrdre(std::shared_ptr<Ordre> ordre) { _ordreRecu = ordre; }
     std::pair<int, int> resultatCombatSimple(Unite const &ennemy)const;
     void avancer();
     void initialiserMouvement(std::vector<std::pair<int,int>> chemin);
 
+
+    static Categorie stringToCategorie(std::string const &s){
+        if (s == "Air")
+            return Categorie::Air;
+        else if (s == "Eau")
+            return Categorie::Eau;
+        else if (s == "Terre")
+            return Categorie::Terre;
+        else return Categorie::EauEtTerre;
+    }
+    static std::string CategorieToString(Categorie const c){
+        if (c == Categorie::Air)
+            return "Air";
+        else if (c == Categorie::Eau)
+            return "Eau";
+        else if (c == Categorie::Terre)
+            return "Terre";
+        else return "EauEtTerre";
+    }
+
+
+    static void CreationNouvelleUnite(std::string const &nom, std::vector<Type> const &types, int sante, Categorie categorie,
+    int attaque, int defense, int distanceVue, int pointsMouvement);
+
     /*GETTERS AND SETTERS ================================*/
 
     void setMorale(int moral){
         _moral = moral;
     }
-
 
     int getX()const;
 
@@ -46,4 +83,9 @@ public:
     }
     std::shared_ptr<Ordre> getOrdre() const;
     std::pair<int,int> getPos() const;
+
+    std::vector<Type> getTypes()const{
+        return _types;
+    }
+
 };

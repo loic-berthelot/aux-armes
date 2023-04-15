@@ -4,19 +4,21 @@
 int main() {
 
     Carte c(6);
-    std::vector<std::string> types;
+    std::vector<Type> types;
+    types.push_back(Type("Infanterie"));
+    Unite::CreationNouvelleUnite("Garde Royale", types, 1000, Categorie::Terre, 150, 300, 4, 100);
     c.creerArmee();
+    Unite u("Garde Royale", 0, 0);
     //Unite(const std::string & categorie, const std::vector<std::string> & types, int posX, int posY, int santeInitiale, int attaque, 
     //int defense, int distanceVue);
-    Unite u1("Archer", types, 0, 0, 100, 100, 100, 2);
-    c.ajoutUniteTeam(0,u1);
+    //Unite u1("Archer", types, 0, 0, 100, 100, 100, 2);
+    //c.ajoutUniteTeam(0,u1);
 
-    std::vector<std::pair<int, int>> brouillard = c.brouillardDeGuerreEquipe(0);
 
-    for (int i = 0; i < brouillard.size(); i ++){
-        std::cout << "X : "<<brouillard[i].first << " y : "<<brouillard[i].second<< std::endl;
-    }
-    std::cout << c.ratioAlliesAdversaires(u1, 5, 0);
+    
+    Type t("Infanterie");
+
+    //std::cout << c.ratioAlliesAdversaires(u1, 5, 0);
     /*u1.setMoral(200);
     std::pair<int, int> result = u1.resultatCombatSimple(u2);
 

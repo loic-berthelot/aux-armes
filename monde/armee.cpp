@@ -24,8 +24,6 @@ void Armee::donnerOrdre(unsigned int indiceUnite, std::shared_ptr<Ordre> ordre) 
 
 void Armee::executerOrdresTour()
 {
-    for (unsigned int i = 0; i < _unites.size(); i++)
-        _unites[i].executerOrdre();
 };
 
 void Armee::ajoutUnite(Unite const &u){
