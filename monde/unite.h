@@ -39,7 +39,7 @@ public:
 
     std::string toString() const;
     void donnerOrdre(std::shared_ptr<Ordre> ordre);
-    std::pair<int, int> resultatCombatSimple(Unite const &ennemy)const;
+    std::pair<int, int> resultatCombatSimple(std::shared_ptr<Unite> ennemy)const;
     void avancer();
     void initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>> chemin);
 
@@ -69,8 +69,12 @@ public:
 
     /*GETTERS AND SETTERS ================================*/
 
-    void setMorale(int moral){
+    void setMoral(int moral){
         _moral = moral;
+    }
+
+    int getMoral()const{
+        return _moral;
     }
 
     int getX()const;
@@ -89,4 +93,9 @@ public:
         return _types;
     }
 
+
+
+    void infligerDegats(unsigned int damage){
+        _sante-=damage;
+    }
 };

@@ -31,7 +31,8 @@ public:
 
     //fais combattre 2 unités
 
-    void combat(Unite &u1, Unite &u2);
+    void combat(std::shared_ptr<Unite> u1,unsigned int idTeam1, 
+    std::shared_ptr<Unite> u2, unsigned int idTeam2);
 
     /*Methode de la carte (MAP ) =============================*/
 

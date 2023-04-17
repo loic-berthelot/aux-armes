@@ -54,7 +54,7 @@ std::string Unite::toString() const {
 }
 
 //on considère que le combat est équilibré. Les boots ou autres changements seront fais dans la méthode combat de la classe Map
-std::pair<int, int> Unite::resultatCombatSimple(Unite const &ennemy)const{
+std::pair<int, int> Unite::resultatCombatSimple(std::shared_ptr<Unite> ennemy)const{
 
     //calcul du coefficient
 
@@ -65,8 +65,8 @@ std::pair<int, int> Unite::resultatCombatSimple(Unite const &ennemy)const{
     float moyBuffer = 1;
     for (unsigned int i = 0; i < _types.size();i++){
         
-        for (unsigned int j = 0; j <ennemy.getTypes().size();j++){
-            moyBuffer+=_types[i].getCoefficients(ennemy.getTypes()[j].getNom());
+        for (unsigned int j = 0; j <ennemy->getTypes().size();j++){
+            moyBuffer+=_types[i].getCoefficients(ennemy->getTypes()[j].getNom());
             nbBuffer++;
 
         }
@@ -87,8 +87,8 @@ std::pair<int, int> Unite::resultatCombatSimple(Unite const &ennemy)const{
 
     std::pair<int, int> resultat;
     //1er int correspond aux dégâts que recoit l'unité this et le deuxième aux dégats de l'unité
-    resultat.first = (static_cast<float>(ennemy._attaque)*(1.0 / ( static_cast<float>(_defense) ) ) )*static_cast<float>(ennemy._moral)*coef;
-    resultat.second = (static_cast<float>(_attaque)*(1.0 / ( static_cast<float>(ennemy._defense) ) ) )*static_cast<float>(_moral)*coef;
+    resultat.first = (static_cast<float>(ennemy->_attaque)*(1.0 / ( static_cast<float>(_defense) ) ) )*static_cast<float>(ennemy->_moral)*coef;
+    resultat.second = (static_cast<float>(_attaque)*(1.0 / ( static_cast<float>(ennemy->_defense) ) ) )*static_cast<float>(_moral)*coef;
 
     return resultat;
 
@@ -128,6 +128,11 @@ int attaque, int defense, int distanceVue, int pointsMouvement){
 }
 
 /*Getters / SETTERS*/
+
+
+void Unite::donnerOrdre(std::shared_ptr<Ordre> ordre){
+    _ordreRecu = ordre;
+}
 
 int Unite::getX()const{
     return _posX;

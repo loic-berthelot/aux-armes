@@ -174,9 +174,25 @@ void Carte::chargerCarteMap(std::string const &path) {/*
 Pour le combat on cherche les alliés/ennemis que voit l'unité
 
 */
-void Carte::combat(Unite &u1, Unite &u2){
-    std::pair<int, int> degats = u1.resultatCombatSimple(u2);
+//U1 attaque, U2 se défend
+void Carte::combat(std::shared_ptr<Unite> u1,unsigned int idTeam1, std::shared_ptr<Unite> u2, unsigned int idTeam2){
+    //on applique mtn les calculs du nombre (par exemple si il y a plus d'ennemis, on va un peu perdre du morale)
+    u1->setMoral(u1->getMoral()+(ratioAlliesAdversaires(u1, 5, idTeam1)*6-15));//moral baisse ou augmente de 15
+    u2->setMoral(u2->getMoral()+(ratioAlliesAdversaires(u2, 5, idTeam2)*6-15));//moral baisse ou augmente de 15
+ 
+    //calcul de base
+    std::pair<int, int> degats = u1->resultatCombatSimple(u2);
+    int defense = 100;
+    //on applique les calculs du terrain du défenseur
+    for (const auto& pair : _cases) {
+        if (pair.first.first == u2->getX() && pair.first.second == u2->getY())
+            defense = pair.second->getDefense();
+    }
+    degats.first = static_cast<float>(degats.first)*(static_cast<float>(defense)/100);
+    degats.second = static_cast<float>(degats.second)*(static_cast<float>(100+(100-defense))/100);
 
+    u1->infligerDegats(degats.first);
+    u2->infligerDegats(degats.second);
 
     std::cout << degats.first<< " : "<<degats.second<<std::endl;
 }
@@ -191,23 +207,25 @@ void Carte::brouillardDeGuerreUnite(std::shared_ptr<Unite> unite, std::vector<st
     vecteur.push_back(std::make_pair(unite->getX(), unite->getY()));
 
     for (unsigned int i = 0; i < unite->getDistanceVue(); i++){
+
+
         for (unsigned int j = 0; j < vue.size();j++){
             std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(vue[j].first, vue[j].second);
-
             for (unsigned int k = 0; k < voisins.size();k++){
                 //si pas déjà dans la fonction et si c'est accessible
                 if (!(std::find(vue.begin(), vue.end(), voisins[k]) != vue.end())
-                    && (_cases.at(voisins[j])->accessibleTerre()
-                    || _cases.at(voisins[j])->accessibleEau())
+                    && (_cases.at(voisins[k])->accessibleTerre()
+                    || _cases.at(voisins[k])->accessibleEau())
                     ){
+                        
                     vueTampon.push_back(voisins[k]);
                     vecteur.push_back(voisins[k]);
+                    
                 }
-
             }
+
             
         }
-        
 
         //On remet dans la vue ce qu'il y a dans le bufferVue dans la vue
         for (unsigned int k = 0; k < vueTampon.size();k++){
@@ -227,7 +245,7 @@ void Carte::brouillardDeGuerreUnite(std::shared_ptr<Unite> unite, std::vector<st
                     vecteur.push_back(voisins[j]);
         }   
     }
-
+    
 }
 
 std::vector<std::pair<int, int>> Carte::brouillardDeGuerreEquipe(unsigned int i)const{
@@ -242,19 +260,18 @@ void Carte::ajoutUniteTeam(unsigned int IDarmee, std::shared_ptr<Unite> unite){
     _armees[IDarmee]->ajoutUnite(unite);
 }
 
-//a corriger il se compte lui meme
 float Carte::ratioAlliesAdversaires(std::shared_ptr<Unite> unite, unsigned int zoneAutour, unsigned int idEquipeJoueur)const{
     std::vector<std::pair<int, int>> vision;
     unsigned int ancienneVision = unite->getDistanceVue();
     unite->setDistanceVue(zoneAutour);
     brouillardDeGuerreUnite(unite, vision);
-
+    
     unsigned int nbAllies = 0;
     unsigned int nbEnnemis = 0;
 
-    for (unsigned int i = 0; i < vision.size();i++){
-        for (unsigned int j = 0; j < _armees.size();j++){
-            for (unsigned int k = 0; k < _armees[j]->size();k++){
+    for (unsigned int i = 0; i < vision.size();i++)
+        for (unsigned int j = 0; j < _armees.size();j++)
+            for (unsigned int k = 0; k < _armees[j]->size();k++)
                 if (_armees[i]->getUnite(k)->getX() == vision[i].first && _armees[i]->getUnite(k)->getY() == vision[i].second){
                     if (j == idEquipeJoueur)
                         nbAllies++;
@@ -262,14 +279,9 @@ float Carte::ratioAlliesAdversaires(std::shared_ptr<Unite> unite, unsigned int z
                         nbEnnemis++;
                 }
 
-
-            }
-        } 
-    }
-
     unite->setDistanceVue(ancienneVision);
 
-
+    if (nbEnnemis == 0)return 1;
     return static_cast<float>(nbAllies)/static_cast<float>(nbEnnemis);
 }
 
