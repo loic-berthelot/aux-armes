@@ -14,6 +14,8 @@ private:
     unsigned int _indiceArmee;
 
 public:
+    std::shared_ptr<Graphe> creerGraphe() const;
+
     Carte(int rayon);
 
     /*Méthode armée ============================================*/

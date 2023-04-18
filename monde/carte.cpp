@@ -1,9 +1,6 @@
 #include "carte.h"
 
-Carte::Carte(int rayon) : _rayon(rayon), _indiceArmee(0) {
-    genererCarteVide("Plaine", _rayon);
-    affichageSeulementCarte();
-
+std::shared_ptr<Graphe> Carte::creerGraphe() const {
     //création d'un std::map qui recense tous les noeuds correspondant aux cases de la carte
     std::map<std::pair<int,int>,std::shared_ptr<Noeud>> noeuds;
     int debut = -_rayon+1;
@@ -22,8 +19,14 @@ Carte::Carte(int rayon) : _rayon(rayon), _indiceArmee(0) {
             paire.second->ajouterSuivant(noeuds[voisin], getCase(voisin.first, voisin.second)->getCoutDeplacement());
         }
     }
+    return std::make_shared<Graphe>(noeuds); 
+}
+
+Carte::Carte(int rayon) : _rayon(rayon), _indiceArmee(0) {
+    genererCarteVide("Plaine", _rayon);
+    affichageSeulementCarte();
     //création du graphe qui représente les cases de la carte
-    _grapheCases = std::make_shared<Graphe>(noeuds); 
+    _grapheCases = creerGraphe();
     std::vector<std::pair<int,int>> zone = _grapheCases->zoneAccessible(std::make_pair(0,0), 10);
     for (const auto & paire : zone) std::cout<<paire.first<<", "<<paire.second<<std::endl;
 }
