@@ -1,0 +1,6 @@
+Cavalerie
+1.2
+Specificite
+inflammable
+rien
+invisibleForet

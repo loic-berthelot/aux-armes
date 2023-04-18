@@ -18,6 +18,12 @@ Case::Case(std::string nomFichier):
 
         _coutDeplacement = std::stoi(ligne);
 
+        std::getline(fichier, ligne);//index defense
+        std::getline(fichier, ligne);//valeur Defense
+
+        _defense = std::stoi(ligne);
+
+        
         fichier.close(); // Fermeture du fichier
     } else {
         
@@ -27,7 +33,7 @@ Case::Case(std::string nomFichier):
 }
 
 
-bool Case::creerCaseEtSauvegardeFichier(std::string const &nom, accessibilite access,int coutDeplacement){
+bool Case::creerCaseEtSauvegardeFichier(std::string const &nom, accessibilite access,int coutDeplacement, int defense){
     std::string chemin = "../monde/Cases/"+nom+".case";
     std::ifstream fichier(chemin);
     if (fichier.is_open()){//le fichier existe
@@ -41,6 +47,8 @@ bool Case::creerCaseEtSauvegardeFichier(std::string const &nom, accessibilite ac
             fichier << accessibiliteToString(access)<<std::endl;
             fichier << "coutDeplacement:" << std::endl; 
             fichier << std::to_string(coutDeplacement) << std::endl; 
+            fichier << "Défense:"<<std::endl;
+            fichier << std::to_string(defense)<<std::endl;
             fichier.close(); // Fermeture du fichier
         } else {
             std::cerr << "Erreur lors de la création du fichier : " << nom << std::endl;
@@ -60,6 +68,12 @@ bool Case::accessibleTerre()const{
 }
 
 /*GETTERS AND SETTERS  ======*/
+
+
+int Case::getDefense()const{
+    return _defense;
+}
+
 std::string Case::getNom()const{
     return _nom;
 }
@@ -69,7 +83,7 @@ int Case::getCoutDeplacement()const{
     return _coutDeplacement;
 }
 
-std::string Case::accessibiliteToString(accessibilite const e)const{
+std::string Case::accessibiliteToString(accessibilite const e){
     if (e == accessibilite::Eau)
         return "Eau";
     else if (e == accessibilite::Air)
@@ -81,7 +95,7 @@ std::string Case::accessibiliteToString(accessibilite const e)const{
 }
 
 
-accessibilite Case::stringToAccessibilite(std::string const &s) const {
+accessibilite Case::stringToAccessibilite(std::string const &s) {
     if (s == "Eau")
         return accessibilite::Eau;
     else if (s == "Terre")

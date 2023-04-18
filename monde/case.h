@@ -10,17 +10,15 @@ class Case{
 private:
     int _coutDeplacement;//100 valeurs de base pour la plaine
     std::string _nom;
-    
+    int _defense;//100 valeur de base
     
     accessibilite _typeAccessibilité;
 
 public:
-    
 
     Case(std::string nomFichier);//on part du build
 
-    bool creerCaseEtSauvegardeFichier(std::string const &nom, accessibilite access,int coutDeplacement);
-
+    static bool creerCaseEtSauvegardeFichier(std::string const &nom, accessibilite access,int coutDeplacement, int defense);
 
     bool accessibleTerre()const;
 
@@ -30,11 +28,14 @@ public:
 
     std::string getNom()const;
 
-    accessibilite stringToAccessibilite(std::string const &s)const;
+    static accessibilite stringToAccessibilite(std::string const &s);
 
-    std::string accessibiliteToString(accessibilite const e)const;
+    static std::string accessibiliteToString(accessibilite const e);
 
     int getCoutDeplacement()const;
+
+    int getDefense()const;
+
 
 
 };
