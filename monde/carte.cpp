@@ -2,24 +2,25 @@
 
 std::shared_ptr<Graphe> Carte::creerGraphe() const {
     //création d'un std::map qui recense tous les noeuds correspondant aux cases de la carte
-    std::map<std::pair<int,int>,std::shared_ptr<Noeud>> noeuds;
+    std::vector<std::pair<int,int>> sommets;
     int debut = -_rayon+1;
     int fin = 0;
     for (int j = _rayon-1; j > -_rayon; j--) {
         for (int i = debut; i <= fin; i++) {
-            noeuds[std::make_pair(i,j)] = std::make_shared<Noeud>("case", i, j);
+            sommets.push_back(std::make_pair(i,j));
         }
         if (j>0) fin++;
         else debut++;        
     }
+    std::shared_ptr<Graphe> graphe = std::make_shared<Graphe>(sommets); 
     //ajout des voisins
-    for (auto & paire : noeuds) {
-        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(paire.first.first, paire.first.second);
+    for (auto & paire : sommets) {
+        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(paire.first, paire.second);
         for (const auto voisin : voisins) {
-            paire.second->ajouterSuivant(noeuds[voisin], getCase(voisin.first, voisin.second)->getCoutDeplacement());
+            graphe->ajouterSuivant(paire, voisin, getCase(voisin.first, voisin.second)->getCoutDeplacement());
         }
     }
-    return std::make_shared<Graphe>(noeuds); 
+    return graphe;
 }
 
 Carte::Carte(int rayon) : _rayon(rayon), _indiceArmee(0) {
@@ -27,8 +28,28 @@ Carte::Carte(int rayon) : _rayon(rayon), _indiceArmee(0) {
     affichageSeulementCarte();
     //création du graphe qui représente les cases de la carte
     _grapheCases = creerGraphe();
-    std::vector<std::pair<int,int>> zone = _grapheCases->zoneAccessible(std::make_pair(0,0), 10);
+/*
+    std::cout<<"A*"<<std::endl;
+    std::vector<std::pair<std::pair<int,int>, int>> chemin = _grapheCases->aEtoile(std::make_pair(-1,1), std::make_pair(2,-2));
+    for (const auto & paire : chemin)  std::cout<<paire.first.first<<","<<paire.first.second<<std::endl;
+*/
+
+    std::cout<<"ZONE RAVITAILLEMENT"<<std::endl;
+    std::vector<std::pair<int,int>> departs;
+    departs.push_back( std::make_pair(-1,1));
+    departs.push_back( std::make_pair(1,-2));
+    std::vector<std::pair<int,int>> obstacles;
+    obstacles.push_back(std::make_pair(0,1));
+    obstacles.push_back(std::make_pair(0,0));
+    obstacles.push_back(std::make_pair(-1,0));
+    obstacles.push_back(std::make_pair(0,-1));
+    std::map<std::pair<int,int>,int> relais;
+    relais[std::make_pair(-1,1)] = 10;
+    relais[std::make_pair(0,2)] = 10;
+    relais[std::make_pair(1,-2)] = 10;
+    std::vector<std::pair<int,int>> zone = _grapheCases->zoneRavitaillement(departs, obstacles, relais);
     for (const auto & paire : zone) std::cout<<paire.first<<", "<<paire.second<<std::endl;
+
 }
 
 void Carte::creerArmee() {     

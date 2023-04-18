@@ -3,7 +3,7 @@
 
 int main() {
 
-    Carte c(6);
+    Carte c(3);
     //Jeu jeu;
     //jeu.jouer();
 

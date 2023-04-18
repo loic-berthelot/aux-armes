@@ -1,6 +1,6 @@
 #include "jeu.h"
 
-Jeu::Jeu() : _carte(6) {
+Jeu::Jeu() : _carte(3) {
     //Joueur 0 : Humain
     _carte.creerArmee();
     ajouterJoueur(true);
