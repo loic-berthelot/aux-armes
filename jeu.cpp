@@ -27,6 +27,10 @@ void Jeu::jouer() {
             std::cout<<"Tour du joueur "<<i<<" : "<<std::endl;
             _carte.selectionnerArmee(i);
             _joueurs[i]->jouerArmee(_carte);
+
+            //Il faut calculer le brouillard de guerre par ici
+            _carte.ravitaillerArmee();
+            _carte.appliquerAttritionArmee();
             _carte.executerOrdresArmee();
             _carte.afficherArmee();
             std::cout<<std::endl;

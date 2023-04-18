@@ -27,10 +27,21 @@ public:
     void afficherArmees() const;
 
     void selectionnerArmee(unsigned int indiceArmee);
+
+    std::vector<std::pair<int,int>> getDepartsRavitaillement() const;
+
+    std::vector<std::pair<int,int>> getPositionsEnnemis() const;
+
+    std::map<std::pair<int,int>, int> getRelaisRavitaillement() const;
+
+    void ravitaillerArmee();
+
+    void appliquerAttritionArmee();
+
     //execute l'ordre du tour
     void executerOrdresArmee();
 
-    //fais combattre 2 unités
+    //fait combattre 2 unités
 
     void combat(std::shared_ptr<Unite> u1,unsigned int idTeam1, 
     std::shared_ptr<Unite> u2, unsigned int idTeam2);

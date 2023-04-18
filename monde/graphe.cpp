@@ -31,7 +31,7 @@ std::shared_ptr<SommetParcours> Graphe::creerSommetZoneRavitaillement(std::share
     std::shared_ptr<SommetParcours> sommetParcours = std::make_shared<SommetParcours>();
     sommetParcours->_sommetGraphe = sommetGraphe;
     sommetParcours->_passageAutorise =  ! _obstacles[sommetGraphe->_pos];
-    sommetParcours->_coutChemin = 0;
+    sommetParcours->_coutChemin = 1;
     sommetParcours->_parent = nullptr;
     return sommetParcours;    
 }
@@ -141,25 +141,23 @@ std::vector<std::pair<int,int>> Graphe::zoneRavitaillement(std::vector<std::pair
 
     _sommetsParcours.clear();
     for (unsigned int i = 0; i < departs.size(); i++) {            
-        _sommetsParcours[departs[i]] = creerSommetZoneRavitaillement(_sommetsGraphe.at(departs[i])); 
-        _sommetDepart = _sommetsParcours[departs[i]];  
+        _sommetDepart = creerSommetZoneRavitaillement(_sommetsGraphe.at(departs[i])); 
+        _sommetsParcours[departs[i]] = _sommetDepart;  
         if (relais[_sommetDepart->_sommetGraphe->_pos]) _sommetDepart->_coutChemin = -relais.at(_sommetDepart->_sommetGraphe->_pos); 
         for (const auto paire : _sommetDepart->_sommetGraphe->_suivants) ajouterSommetParcours(paire.first);
         sommetsOuverts.push_back(_sommetDepart);
-    }    
-    
+    }        
    
     //on cherche toutes les cases accessibles
-    std::shared_ptr<SommetParcours> sommetCourant = sommetsOuverts[0];
+    std::shared_ptr<SommetParcours> sommetCourant;
     while (! sommetsOuverts.empty()) {
-        if (-relais[sommetCourant->_sommetGraphe->_pos] < sommetCourant->_coutChemin) {
-            std::cout<<-relais[sommetCourant->_sommetGraphe->_pos] <<std::endl;
+        sommetCourant = sommetsOuverts[0];
+        if (relais[sommetCourant->_sommetGraphe->_pos] > 0 && -relais[sommetCourant->_sommetGraphe->_pos] < sommetCourant->_coutChemin) {
             sommetCourant->_coutChemin = -relais[sommetCourant->_sommetGraphe->_pos];
         }
         explorerSuivants(sommetCourant, sommetsOuverts, sommetsFermes);
         if (sommetCourant->_coutChemin <= 0 && ! contient(sommetsFermes, sommetCourant)) sommetsFermes.push_back(sommetCourant);
-        retirerSommet(sommetsOuverts, sommetCourant);
-        sommetCourant = sommetsOuverts[0];
+        retirerSommet(sommetsOuverts, sommetCourant);        
     } 
     
     //on retourne la position des sommets accessibles

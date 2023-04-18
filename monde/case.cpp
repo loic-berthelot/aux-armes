@@ -105,3 +105,8 @@ accessibilite Case::stringToAccessibilite(std::string const &s) {
     else 
         return accessibilite::EauEtTerre;
 }
+
+bool Case::estDepartRavitaillement() const {
+    return (_nom == "Ville");
+    //return _departRavitaillement;
+}
