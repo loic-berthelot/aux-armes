@@ -15,7 +15,7 @@ void Jeu::ajouterJoueur(bool estHumain) {
 }
 
 bool Jeu::partieFinie() {
-    return _toursPasses > 10;
+    return _toursPasses > 2;
 }
 
 void Jeu::jouer() {
@@ -32,6 +32,7 @@ void Jeu::jouer() {
             _carte.appliquerAttritionArmee();
             _carte.executerOrdresArmee();
             _carte.afficherArmee();
+            _carte.retirerCadavres();
             std::cout<<std::endl;
         }  
         _toursPasses++;

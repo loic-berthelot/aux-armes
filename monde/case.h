@@ -13,7 +13,7 @@ private:
     int _defense;//100 valeur de base
     bool _departRavitaillement; 
     accessibilite _typeAccessibilité;
-
+    int _capaciteAccueil;
 public:
 
     Case(std::string nomFichier);//on part du build
@@ -38,4 +38,5 @@ public:
 
     bool estDepartRavitaillement() const;
 
+    int getCapaciteAccueil() const;
 };

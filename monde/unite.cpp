@@ -3,7 +3,7 @@
 Unite::Unite(std::string name, accessibilite categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, 
     int defense, int distanceVue): 
 _categorie(categorie), _types(types), _posX(posX), _posY(posY), _sante(santeInitiale), _maxSante(santeInitiale), _attaque(attaque), 
-_defense(defense), _distanceVue(distanceVue), _nom(name){
+_defense(defense), _distanceVue(distanceVue), _nom(name), _maxMoral(100), _moral(_maxMoral), _vitesseDeplacement(0.2), _enVie(true), _espaceOccupe(1) {
     
 };
 
@@ -182,6 +182,37 @@ std::pair<int,int> Unite::getPos() const {
     return std::make_pair(_posX, _posY);
 }
 
+void Unite::regenererMoral(int pointsMoral) {
+    _moral += pointsMoral;
+    if (_moral > _maxMoral) _moral = _maxMoral;
+}
+
+void Unite::regenererSante(int pointsSante) {
+    _sante += pointsSante;
+    if (_sante > _maxSante) _sante = _maxSante;
+}
+
+void Unite::infligerDegats(unsigned int degats) {
+    if (degats < 0) throw Exception ("Erreur : degats negatifs dans Unite::infligerDegats.");
+    _sante -= degats;
+    if (_sante <= 0) _enVie = false;
+}
+
+void Unite::subirAttrition(float attrition) {
+    unsigned int degats = static_cast<unsigned int>(attrition);
+    infligerDegats(degats);
+}
+
 void Unite::ravitailler() {
     std::cout<<"unite ravitaillee !"<<std::endl;
+    regenererMoral(10);
+    regenererSante(10);
+}
+
+bool Unite::estVivant() const {
+    return _enVie;
+}
+
+int Unite::getEspaceOccupe() const {
+    return _espaceOccupe;
 }

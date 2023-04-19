@@ -5,7 +5,7 @@ int main() {
     Jeu jeu;
     jeu.jouer();
 */
-    
+    srand(time(0));
     //Carte c(6);
 
     std::shared_ptr<Unite> uPointeur = std::make_shared<Unite>("Garde Royale", 0, 0);

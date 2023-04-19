@@ -5,6 +5,7 @@
 #include "Type.h"
 #include "ordre.h"
 #include "case.h"
+#include "exception.h"
 
 class Unite{
     std::string _nom;
@@ -14,15 +15,18 @@ class Unite{
     int _posX;
     int _posY;
     std::shared_ptr<Ordre> _ordreRecu;
-    int _moral = 100;//100 la valeur de base, remonte au fil du temps
+    int _moral;
+    int _maxMoral;
     int _sante;
     int _maxSante;
     int _attaque;//100 de base
     int _defense;//100 de base
     int _distanceVue;
     int _rayonRavitaillement;
-    float _vitesseDeplacement = 0.2;
+    float _vitesseDeplacement;
     float _pointsMouvement;
+    int _espaceOccupe;
+    bool _enVie;
     std::vector<std::pair<std::pair<int,int>, int>> _chemin;
 public:
     Unite(std::string nom,accessibilite categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, 
@@ -92,11 +96,15 @@ public:
         return _types;
     }
 
+    void regenererSante(int pointsSante);
+
+    void regenererMoral(int pointsMoral);
+
+    void infligerDegats(unsigned int degats);
+
     void ravitailler();
 
-    void infligerDegats(unsigned int damage){
-        _sante-=damage;
-    }
+    void subirAttrition(float attrition);
 
     void setX(int x){
         _posX = x;
@@ -105,4 +113,8 @@ public:
     void setY(int y){
         _posY = y;
     }
+
+    bool estVivant() const;
+
+    int getEspaceOccupe() const;
 };

@@ -48,6 +48,7 @@ public:
     //execute l'ordre du tour
     void executerOrdresArmee();
 
+    void retirerCadavres();
     //fait combattre 2 unités
 
     void combat(std::shared_ptr<Unite> u1,unsigned int idTeam1, 

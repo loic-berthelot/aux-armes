@@ -11,7 +11,6 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
                 double value = perlin2D(x, y); // Appel de la fonction perlin2D pour obtenir la valeur de bruit de Perlin
                 // Utilisation de la valeur de bruit de Perlin pour créer la case correspondante dans la carte
                 _cases[std::make_pair(i, j)] = std::make_shared<Case>(valueToCaseNom(value));
-                std::cout << "Value : "<< static_cast<int>(value)<<std::endl;
         }
         if (j>0) fin++;
         else debut++;        
@@ -246,11 +245,34 @@ void Carte::ravitaillerArmee() {
 
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
     for (unsigned int i = 0; i < unites.size(); i++) {
-        unites[i]->ravitailler();
+        if (std::find(zoneRavitaillement.begin(), zoneRavitaillement.end(), unites[i]->getPos()) != zoneRavitaillement.end()) {
+            unites[i]->ravitailler();
+        } 
     }
 }
 
 void Carte::appliquerAttritionArmee(){
+    std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
+    // on calcule l'occupation totale de chaque case occupée par une unité de l'arméee
+    std::map<std::pair<int,int>, int> casesOccupees;
+    for (unsigned int i = 0; i < unites.size(); i++) {
+        casesOccupees[unites[i]->getPos()] += unites[i]->getEspaceOccupe();
+    }
+    // on recupere une seule fois la capacite d'accueil de chaque case sur laquelle se trouvent des unités de l'armée
+    std::map<std::pair<int,int>, int> capacitesCases;
+    for (const auto & paire : casesOccupees) {
+        capacitesCases[paire.first] = getCase(paire.first.first, paire.first.second)->getCapaciteAccueil();
+    }
+    // pour chacune des unites de l'armee, on calcule et applique l'attrition
+    int capaciteAcceuil, occupation;
+    for (unsigned int i = 0; i < unites.size(); i++) {
+        occupation = casesOccupees.at(unites[i]->getPos());
+        capaciteAcceuil = capacitesCases.at(unites[i]->getPos());
+        if (occupation > capaciteAcceuil) unites[i]->subirAttrition(50*(occupation/capaciteAcceuil-1));       
+    }
+}
+
+void Carte::retirerCadavres(){
 
 }
 
