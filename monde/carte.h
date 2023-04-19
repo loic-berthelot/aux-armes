@@ -53,6 +53,7 @@ public:
 
     /*Methode de la carte (MAP ) =============================*/
 
+    
 
     void brouillardDeGuerreUnite(std::shared_ptr<Unite> unite, std::vector<std::pair<int,int>> &vecteur)const;
 
@@ -68,9 +69,6 @@ public:
 
     void genererCarteVide(std::string const &typeCase, unsigned int taille);
 
-    void sauvegarderCarteMap(std::string const &path)const;
-
-    void chargerCarteMap(std::string const &path);
 
     void ajoutUniteTeam(unsigned int IDarmee, std::shared_ptr<Unite> unite);
     
@@ -79,4 +77,37 @@ public:
     //getters & setters
 
     std::shared_ptr<Armee> getArmee() const;
+    
+
+    // Fonction pour calculer la distance entre deux points hexagonaux (i, j) et (k, l) sur la carte
+    static double distanceEntrePointsHexagonaux(int i, int j, int k, int l);
+
+    /*
+    Editeur de map
+    */
+    //calcul une valeur entre a et b en fonction de parametreMelange
+    //qui est compris entre 0 et 1, plus c'est proche de 0 plus la valeur sera proche de A
+    double calculIntermediaire(double pointA, double pointB, double parametreMelange)const;
+
+
+    // Fonction pour calculer le produit scalaire entre un gradient et un vecteur
+    double vecteurPente(int hash, double x, double y) const;
+
+    // Fonction pour interpoler
+    double fade(double t)const ;
+
+
+    // Fonction pour calculer la valeur de bruit de Perlin en 2D
+    double perlin2D(double x, double y) const;
+
+    static std::string valueToCaseNom(float Value);
+
+
+    bool peutEtreEn(int x, int y, std::shared_ptr<Unite> u1){
+        return (u1->getCategorie() == Categorie::Air)||((u1->getCategorie() == Categorie::Eau || u1->getCategorie() == Categorie::EauEtTerre) && _cases[std::make_pair(x, y)]->accessibleEau())
+        || ((u1->getCategorie() == Categorie::Terre || u1->getCategorie() == Categorie::EauEtTerre) && _cases[std::make_pair(x, y)]->accessibleTerre());
+    }const
+    
 };
+
+

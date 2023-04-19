@@ -72,6 +72,10 @@ public:
         return _moral;
     }
 
+    Categorie getCategorie()const{
+        return _categorie;
+    }
+
     int getX()const;
 
     int getY()const;
@@ -96,5 +100,13 @@ public:
 
     void infligerDegats(unsigned int damage){
         _sante-=damage;
+    }
+
+    void setX(int x){
+        _posX = x;
+    }
+
+    void setY(int y){
+        _posY = y;
     }
 };

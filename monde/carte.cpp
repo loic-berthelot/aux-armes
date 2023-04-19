@@ -1,5 +1,108 @@
 #include "carte.h"
 
+Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _rayon(taille), _indiceArmee(0), _armees(armees) {
+    
+
+    // Code pour générer la carte en utilisant la fonction perlin2D
+    for (int j = -taille + 1; j <= taille - 1; j++) {
+        for (int i = -taille + 1; i <= taille - 1; i++) {
+                double x = static_cast<double>(i) / taille;
+                double y = static_cast<double>(j) / taille;
+                double value = perlin2D(x, y); // Appel de la fonction perlin2D pour obtenir la valeur de bruit de Perlin
+                // Utilisation de la valeur de bruit de Perlin pour créer la case correspondante dans la carte
+                _cases[std::make_pair(i, j)] = std::make_shared<Case>(valueToCaseNom(value));
+                std::cout << "Value : "<< static_cast<int>(value)<<std::endl;
+        }
+    }
+
+    // Paramètres de génération des villes
+    //int nbVilles = armees.size(); // Nombre de villes à générer
+    int nbVilles = 10;
+    double distanceMinDuBord = taille * 0.1; // Distance minimale du bord pour générer une ville (1/10 de la taille)
+    double distanceMaxDuBord = taille * 0.2; // Distance maximale du bord pour générer une ville (1/5 de la taille)
+    double distanceMinEntreVilles = taille * 0.1; // Distance minimale entre deux villes (1/10 de la taille)
+    std::vector<std::pair<int, int>> villes;
+    
+    for (int n = 0; n < nbVilles;n++) {
+        int i = rand() % (taille * 2) - taille + 1; // Coordonnée i aléatoire
+        int j = rand() % (taille * 2) - taille + 1; // Coordonnée j aléatoire
+        double distanceDuBord = std::abs(distanceEntrePointsHexagonaux(0, 0, i, j)); // Distance du point au bord de la carte
+        bool estTropPresDuBord = distanceDuBord < distanceMinDuBord; // Vérification si le point est trop près du bord
+
+        // Vérification si le point est assez éloigné des autres villes
+        bool estAssezEloigneDesVilles = true;
+        for (const auto& ville : villes) {
+            double distanceEntreVilles = distanceEntrePointsHexagonaux(i, j, ville.first, ville.second);
+            if (distanceEntreVilles < distanceMinEntreVilles) {
+                estAssezEloigneDesVilles = false;
+                break;
+            }
+        }
+
+        // Vérification si le point est accessible par la terre
+        bool estAccessibleParTerre = false;
+        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(i, j);
+        for (const auto& voisin : voisins) {
+            if (getCase(voisin.first, voisin.second) && getCase(voisin.first, voisin.second)->accessibleTerre()) {
+                estAccessibleParTerre = true;
+                break;
+            }
+        }
+
+        // Si le point est assez éloigné du bord, des autres villes et accessible par la terre, alors on ajoute une ville
+        if (!estTropPresDuBord && estAssezEloigneDesVilles && estAccessibleParTerre) {
+            _cases[std::make_pair(i, j)] = std::make_shared<Case>("Ville");
+            villes.push_back(std::make_pair(i, j));
+            n++;
+        }
+    }
+
+
+   /*Placement des unités*/
+
+   for (unsigned int i = 0; i < _armees.size();i++){
+        std::vector<std::pair<int, int>> emplacements;
+        emplacements.push_back(std::make_pair(villes[i].first, villes[i].second));
+        unsigned int indexEmplacements = 0;
+        for (unsigned int j = 0; j < _armees[i]->getUnites().size();j++){
+            while(!peutEtreEn(emplacements[indexEmplacements].first, emplacements[indexEmplacements].second, _armees[i]->getUnites()[j])){
+                indexEmplacements++;
+                if (indexEmplacements < emplacements.size()){
+                    _armees[i]->getUnites()[j]->setX(emplacements[j].first);
+                    _armees[i]->getUnites()[j]->setY(emplacements[j].second);
+                }else{//pas d'emplacements donc on élargit la zone
+                    //on ajoute les voisins qui n'ont pas d'unités et qui ne sont pas des villes et qui sont accessible pour l'unité
+                    std::vector<std::pair<int, int>> emplacementsBuffer;
+                    for (unsigned int k = 0; k < emplacements.size();k++){
+                        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(emplacements[k].first, emplacements[k].second);
+                        for (unsigned int l = 0; l < voisins.size();l++){
+                            //Mtn on vérifie si l'emplacement n'est pas déjà dans l'emplacement
+                            bool appartientEmplacement = false;
+                            for (unsigned int m = 0; m < emplacements.size();m++)
+                                if (emplacements[m].first == voisins[l].first && emplacements[m].second == voisins[l].second)
+                                    appartientEmplacement = true;
+                            //donc mtn on l'ajoute
+                            if (!appartientEmplacement)
+                                emplacementsBuffer.push_back(voisins[l]);
+
+                        }
+
+                    }
+
+                    //mtn on ajoute les emplacements
+                    for (unsigned int k = 0; k < emplacementsBuffer.size();k++){
+                        emplacements.push_back(emplacementsBuffer[k]);
+                    }
+                }
+            }
+            indexEmplacements++;
+        }
+
+   }
+
+    affichageSeulementCarte();
+}
+
 std::shared_ptr<Graphe> Carte::creerGraphe(accessibilite acces) const {
     //création d'un std::map qui recense tous les noeuds correspondant aux cases de la carte
     std::vector<std::pair<int,int>> sommets;
@@ -212,58 +315,14 @@ void Carte::genererCarteVide(std::string const &typeCase, unsigned int taille){
     std::cout << "_CASES : "<<_cases.size()<<std::endl;
 }
 
-void Carte::sauvegarderCarteMap(std::string const &path)const{
-    /*
-    std::ifstream fichierLecture(path);
-    if (fichierLecture.is_open()){//le fichier existe
-        std::cout << "Ecrasement de l'ancienne sauvegarde : " << path << "\n";
-    }
 
-    std::ofstream fichier(path); // Création du fichier
-
-    if (fichier.is_open()) { // Vérification si le fichier est ouvert
-        for (unsigned int i = 0; i < _cases.size();i++){
-            for (unsigned int j = 0; j < _cases[i].size();j++){
-                fichier << _cases[i][j].getNom()+",";
-            }
-            fichier << "\n";
-        }
-        
-        
-        fichier.close(); // Fermeture du fichier
-    } else {
-        std::cerr << "Erreur lors de la création du fichier : " << path << std::endl;
-    }
-    
-*/
-
+double Carte::distanceEntrePointsHexagonaux(int i, int j, int k, int l) {
+    double x1 = i * 1.5;
+    double y1 = (j - i / 2.0) * std::sqrt(3);
+    double x2 = k * 1.5;
+    double y2 = (l - k / 2.0) * std::sqrt(3);
+    return std::sqrt(std::pow(x2 - x1, 2) + std::pow(y2 - y1, 2));
 }
-
-
-void Carte::chargerCarteMap(std::string const &path) {/*
-    std::ifstream fichier(path);
-
-    if (fichier) {
-        // L'ouverture s'est bien passée, on peut donc lire
-
-        std::string ligne; // Une variable pour stocker les lignes lues
-        std::vector<Case> tampon;
-        while (getline(fichier, ligne)) {
-            std::stringstream ss(ligne);
-            std::string element;
-            while (getline(ss, element, ',')) {
-                tampon.push_back(Case(element));
-            }
-            _cases.push_back(tampon);
-            tampon.clear();
-        }
-        affichageSeulementCarte();
-    } else {
-        std::cout << "ERREUR: Impossible d'ouvrir le fichier en lecture." << std::endl;
-    }*/
-}
-
-
 
 /*
 Pour le combat on cherche les alliés/ennemis que voit l'unité
@@ -302,8 +361,6 @@ void Carte::brouillardDeGuerreUnite(std::shared_ptr<Unite> unite, std::vector<st
     vecteur.push_back(std::make_pair(unite->getX(), unite->getY()));
 
     for (unsigned int i = 0; i < unite->getDistanceVue(); i++){
-
-
         for (unsigned int j = 0; j < vue.size();j++){
             std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(vue[j].first, vue[j].second);
             for (unsigned int k = 0; k < voisins.size();k++){
@@ -312,13 +369,10 @@ void Carte::brouillardDeGuerreUnite(std::shared_ptr<Unite> unite, std::vector<st
                     && (_cases.at(voisins[k])->accessibleTerre()
                     || _cases.at(voisins[k])->accessibleEau())
                     ){
-                        
                     vueTampon.push_back(voisins[k]);
                     vecteur.push_back(voisins[k]);
-                    
                 }
             }
-
             
         }
 
@@ -383,4 +437,77 @@ float Carte::ratioAlliesAdversaires(std::shared_ptr<Unite> unite, unsigned int z
 /*getters and setters ============================*/
 std::shared_ptr<Armee> Carte::getArmee() const {
     return _armees.at(_indiceArmee);
+}
+
+
+/*Bruit de Perlin ======================*/
+double Carte::calculIntermediaire(double pointA, double pointB, double parametreMelange) const{
+    return pointA + parametreMelange * (pointB - pointA);
+}
+
+
+// Fonction pour calculer le produit scalaire entre un gradient et un vecteur
+//gradient
+double Carte::vecteurPente(int hash, double x, double y) const{
+    switch (hash & 0x3) {
+        case 0x0: return x + y;
+        case 0x1: return -x + y;
+        case 0x2: return x - y;
+        case 0x3: return -x - y;
+        default: return 0;
+    }
+}
+
+
+// Fonction pour calculer la valeur de bruit de Perlin en 2D
+double Carte::perlin2D(double x, double y) const{
+    int permutation[256];
+
+    // Remplir le tableau de permutation avec des valeurs aléatoires entre 0 et 255
+    for (int i = 0; i < 256; ++i) {
+        permutation[i] = i;
+    }
+
+    for (int i = 256 - 1; i > 0; --i) {
+        int j = rand() % (i + 1);
+        std::swap(permutation[i], permutation[j]);
+    }
+    int xi = static_cast<int>(x) & 255;
+    int yi = static_cast<int>(y) & 255;
+    double xf = x - static_cast<int>(x);
+    double yf = y - static_cast<int>(y);
+    double u = fade(xf);
+    double v = fade(yf);
+
+    int aa = permutation[permutation[xi] + yi];
+    int ab = permutation[permutation[xi] + yi + 1];
+    int ba = permutation[permutation[xi + 1] + yi];
+    int bb = permutation[permutation[xi + 1] + yi + 1];
+
+    double x1 = calculIntermediaire(vecteurPente(aa, xf, yf), vecteurPente(ba, xf - 1, yf), u);
+    double x2 = calculIntermediaire(vecteurPente(ab, xf, yf - 1), vecteurPente(bb, xf - 1, yf - 1), u);
+
+    return calculIntermediaire(x1, x2, v);
+    
+}
+
+// Fonction pour interpoler
+double Carte::fade(double t) const{
+    return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
+
+std::string Carte::valueToCaseNom(float Value){
+    if (Value < -0.5)
+        return "Ocean";
+    else if (Value < 0)
+        return "Plaine";
+    else if (Value < 45)
+        return "Plaine";
+    else if (Value < 50)
+        return "Foret";
+    else if (Value < 0.91)
+        return "Marecage";
+    else
+        return "Montagne";
 }

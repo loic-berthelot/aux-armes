@@ -50,7 +50,7 @@ std::ifstream fichier("../monde/Unites/"+name+".txt");
 }
 
 std::string Unite::toString() const {
-    return "Vide";
+    return "X : "+ std::to_string(_posX)+"Y : "+std::to_string(_posY);
 }
 
 //on considère que le combat est équilibré. Les boots ou autres changements seront fais dans la méthode combat de la classe Map
