@@ -21,6 +21,7 @@ public:
     std::shared_ptr<Graphe> getGraphe(accessibilite acces);
 
     Carte(int rayon);
+    Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees);
 
     /*Méthode armée ============================================*/
 
@@ -104,9 +105,11 @@ public:
 
 
     bool peutEtreEn(int x, int y, std::shared_ptr<Unite> u1){
-        return (u1->getCategorie() == Categorie::Air)||((u1->getCategorie() == Categorie::Eau || u1->getCategorie() == Categorie::EauEtTerre) && _cases[std::make_pair(x, y)]->accessibleEau())
-        || ((u1->getCategorie() == Categorie::Terre || u1->getCategorie() == Categorie::EauEtTerre) && _cases[std::make_pair(x, y)]->accessibleTerre());
+        return (u1->getCategorie() == accessibilite::Air)||((u1->getCategorie() == accessibilite::Eau || u1->getCategorie() == accessibilite::EauEtTerre) && _cases[std::make_pair(x, y)]->accessibleEau())
+        || ((u1->getCategorie() == accessibilite::Terre || u1->getCategorie() == accessibilite::EauEtTerre) && _cases[std::make_pair(x, y)]->accessibleTerre());
     }
+
+    bool caseAvecUnite(int x, int y)const;
     
 };
 
