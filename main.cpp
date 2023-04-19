@@ -6,7 +6,6 @@ int main() {
     //jeu.jouer();
     std::shared_ptr<Unite> uPointeur = std::make_shared<Unite>("Garde Royale", 0, 0);
 
-    Case::creerCaseEtSauvegardeFichier("Montagne", accessibilite::Terre, 200, 150);
     //c.ajoutUniteTeam(0,u1);
     //Armée1 : 
     std::shared_ptr<Armee> armee1 = std::make_shared<Armee>();

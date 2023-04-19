@@ -101,7 +101,7 @@ public:
     bool peutEtreEn(int x, int y, std::shared_ptr<Unite> u1){
         return (u1->getCategorie() == Categorie::Air)||((u1->getCategorie() == Categorie::Eau || u1->getCategorie() == Categorie::EauEtTerre) && _cases[std::make_pair(x, y)]->accessibleEau())
         || ((u1->getCategorie() == Categorie::Terre || u1->getCategorie() == Categorie::EauEtTerre) && _cases[std::make_pair(x, y)]->accessibleTerre());
-    }const
+    }
     
 };
 

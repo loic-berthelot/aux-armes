@@ -58,48 +58,6 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
     }
 
 
-   /*Placement des unités*/
-
-   for (unsigned int i = 0; i < _armees.size();i++){
-        std::vector<std::pair<int, int>> emplacements;
-        emplacements.push_back(std::make_pair(villes[i].first, villes[i].second));
-        unsigned int indexEmplacements = 0;
-        for (unsigned int j = 0; j < _armees[i]->getUnites().size();j++){
-            while(!peutEtreEn(emplacements[indexEmplacements].first, emplacements[indexEmplacements].second, _armees[i]->getUnites()[j])){
-                indexEmplacements++;
-                if (indexEmplacements < emplacements.size()){
-                    _armees[i]->getUnites()[j]->setX(emplacements[j].first);
-                    _armees[i]->getUnites()[j]->setY(emplacements[j].second);
-                }else{//pas d'emplacements donc on élargit la zone
-                    //on ajoute les voisins qui n'ont pas d'unités et qui ne sont pas des villes et qui sont accessible pour l'unité
-                    std::vector<std::pair<int, int>> emplacementsBuffer;
-                    for (unsigned int k = 0; k < emplacements.size();k++){
-                        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(emplacements[k].first, emplacements[k].second);
-                        for (unsigned int l = 0; l < voisins.size();l++){
-                            //Mtn on vérifie si l'emplacement n'est pas déjà dans l'emplacement
-                            bool appartientEmplacement = false;
-                            for (unsigned int m = 0; m < emplacements.size();m++)
-                                if (emplacements[m].first == voisins[l].first && emplacements[m].second == voisins[l].second)
-                                    appartientEmplacement = true;
-                            //donc mtn on l'ajoute
-                            if (!appartientEmplacement)
-                                emplacementsBuffer.push_back(voisins[l]);
-
-                        }
-
-                    }
-
-                    //mtn on ajoute les emplacements
-                    for (unsigned int k = 0; k < emplacementsBuffer.size();k++){
-                        emplacements.push_back(emplacementsBuffer[k]);
-                    }
-                }
-            }
-            indexEmplacements++;
-        }
-
-   }
-
     affichageSeulementCarte();
     
 
