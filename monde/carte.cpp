@@ -1,13 +1,15 @@
 #include "carte.h"
 
-std::shared_ptr<Graphe> Carte::creerGraphe() const {
+std::shared_ptr<Graphe> Carte::creerGraphe(accessibilite acces) const {
     //création d'un std::map qui recense tous les noeuds correspondant aux cases de la carte
     std::vector<std::pair<int,int>> sommets;
     int debut = -_rayon+1;
     int fin = 0;
     for (int j = _rayon-1; j > -_rayon; j--) {
         for (int i = debut; i <= fin; i++) {
-            sommets.push_back(std::make_pair(i,j));
+            if (acces==accessibilite::Air) sommets.push_back(std::make_pair(i,j));
+            else if (getCase(i,j)->accessibleEau() && (acces==accessibilite::EauEtTerre || acces==accessibilite::Eau)) sommets.push_back(std::make_pair(i,j));
+            else if (getCase(i,j)->accessibleTerre() && (acces==accessibilite::EauEtTerre || acces==accessibilite::Terre)) sommets.push_back(std::make_pair(i,j));        
         }
         if (j>0) fin++;
         else debut++;        
@@ -17,17 +19,32 @@ std::shared_ptr<Graphe> Carte::creerGraphe() const {
     for (auto & paire : sommets) {
         std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(paire.first, paire.second);
         for (const auto voisin : voisins) {
-            graphe->ajouterSuivant(paire, voisin, getCase(voisin.first, voisin.second)->getCoutDeplacement());
+            if (std::find(sommets.begin(), sommets.end(), voisin) != sommets.end()) {
+                graphe->ajouterSuivant(paire, voisin, getCase(voisin.first, voisin.second)->getCoutDeplacement());
+            }
         }
     }
     return graphe;
+}
+
+std::shared_ptr<Graphe> Carte::getGraphe(accessibilite acces) {
+    switch (acces) {
+        case accessibilite::Terre : return _grapheTerre; break;
+        case accessibilite::EauEtTerre : return _grapheEauEtTerre; break;
+        case accessibilite::Eau : return _grapheEau; break;
+        case accessibilite::Air : 
+        default : return _grapheAir; break;
+    }
 }
 
 Carte::Carte(int rayon) : _rayon(rayon), _indiceArmee(0) {
     genererCarteVide("Plaine", _rayon);
     affichageSeulementCarte();
     //création du graphe qui représente les cases de la carte
-    _grapheCases = creerGraphe();
+    _grapheAir = creerGraphe(accessibilite::Air);
+    _grapheTerre = creerGraphe(accessibilite::Terre);
+    _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
+    _grapheEau = creerGraphe(accessibilite::Eau);
 /*
     std::cout<<"A*"<<std::endl;
     std::vector<std::pair<std::pair<int,int>, int>> chemin = _grapheCases->aEtoile(std::make_pair(-1,1), std::make_pair(2,-2));
@@ -110,7 +127,7 @@ void Carte::ravitaillerArmee() {
     std::vector<std::pair<int,int>> obstacles = getPositionsEnnemis();
     std::map<std::pair<int,int>,int> relais = getRelaisRavitaillement();
 
-    std::vector<std::pair<int,int>> zoneRavitaillement = _grapheCases->zoneRavitaillement(departs, obstacles, relais);
+    std::vector<std::pair<int,int>> zoneRavitaillement = _grapheAir->zoneRavitaillement(departs, obstacles, relais);
     for (const auto & paire : zoneRavitaillement) std::cout<<paire.first<<", "<<paire.second<<std::endl;
 
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
@@ -130,7 +147,7 @@ void Carte::executerOrdresArmee() {
         if (unites[i]->getOrdre()->getType() == TypeOrdre::DEPLACER || unites[i]->getOrdre()->getType() == TypeOrdre::ATTAQUER) {
             std::pair<int,int> debut = unites[i]->getPos();
             std::pair<int,int> fin = unites[i]->getOrdre()->getPos();
-            chemin = _grapheCases->aEtoile(debut, fin);
+            chemin = getGraphe(unites[i]-> getCategorie())->aEtoile(debut, fin);
         }
         unites[i]->initialiserMouvement(chemin);
     }

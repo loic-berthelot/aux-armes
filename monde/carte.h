@@ -8,12 +8,17 @@ class Carte {
 private:
     std::map<std::pair<int,int>,std::shared_ptr<Case>> _cases;
     std::vector<std::shared_ptr<Armee>> _armees;
-    std::shared_ptr<Graphe> _grapheCases;
+    std::shared_ptr<Graphe> _grapheAir;
+    std::shared_ptr<Graphe> _grapheTerre;
+    std::shared_ptr<Graphe> _grapheEauEtTerre;
+    std::shared_ptr<Graphe> _grapheEau;
     int _rayon;
     unsigned int _indiceArmee;
 
 public:
-    std::shared_ptr<Graphe> creerGraphe() const;
+    std::shared_ptr<Graphe> creerGraphe(accessibilite acces) const;
+
+    std::shared_ptr<Graphe> getGraphe(accessibilite acces);
 
     Carte(int rayon);
 
