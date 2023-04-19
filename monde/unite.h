@@ -72,10 +72,6 @@ public:
         return _moral;
     }
 
-    Categorie getCategorie()const{
-        return _categorie;
-    }
-
     int getX()const;
 
     int getY()const;

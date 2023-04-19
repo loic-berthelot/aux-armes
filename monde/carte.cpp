@@ -1,11 +1,11 @@
 #include "carte.h"
 
 Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _rayon(taille), _indiceArmee(0), _armees(armees) {
-    
-
     // Code pour générer la carte en utilisant la fonction perlin2D
-    for (int j = -taille + 1; j <= taille - 1; j++) {
-        for (int i = -taille + 1; i <= taille - 1; i++) {
+    int debut = -_rayon+1;
+    int fin = 0;
+    for (int j = _rayon-1; j > -_rayon; j--) {
+        for (int i = debut; i <= fin; i++) {
                 double x = static_cast<double>(i) / taille;
                 double y = static_cast<double>(j) / taille;
                 double value = perlin2D(x, y); // Appel de la fonction perlin2D pour obtenir la valeur de bruit de Perlin
@@ -13,6 +13,8 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
                 _cases[std::make_pair(i, j)] = std::make_shared<Case>(valueToCaseNom(value));
                 std::cout << "Value : "<< static_cast<int>(value)<<std::endl;
         }
+        if (j>0) fin++;
+        else debut++;        
     }
 
     // Paramètres de génération des villes
@@ -59,7 +61,7 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
 
 
    /*Placement des unités*/
-
+/*
    for (unsigned int i = 0; i < _armees.size();i++){
         std::vector<std::pair<int, int>> emplacements;
         emplacements.push_back(std::make_pair(villes[i].first, villes[i].second));
@@ -99,7 +101,12 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
         }
 
    }
+   */
 
+    _grapheAir = creerGraphe(accessibilite::Air);
+    _grapheTerre = creerGraphe(accessibilite::Terre);
+    _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
+    _grapheEau = creerGraphe(accessibilite::Eau);
     affichageSeulementCarte();
 }
 
@@ -213,18 +220,22 @@ std::vector<std::pair<int,int>> Carte::getPositionsEnnemis() const {
 std::map<std::pair<int,int>, int> Carte::getRelaisRavitaillement() const {
     std::map<std::pair<int,int>, int> relais;
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
+    std::pair<int,int> pos;
+    int rayon;
     for (unsigned int i = 0; i < unites.size(); i++) {
-        if (relais[unites[i]->getPos()] < unites[i]->getRayonRavitaillement()) {
-            relais[unites[i]->getPos()] = unites[i]->getRayonRavitaillement();
+        pos = unites[i]->getPos();
+        rayon = unites[i]->getRayonRavitaillement();
+        if (relais.count(pos) == 0) {
+            if ( rayon > 0) relais[pos] = rayon;
+        } else if (relais.at(pos) < rayon) {
+            relais[pos] = rayon;
         }
-    }
-    for (const auto & paire : relais) {
-        if (paire.second == 0) relais.erase(paire.first);
-    }
+    }    
     return relais;
 }
 
 void Carte::ravitaillerArmee() {
+
     std::cout<<"RAVITAILLEMENT"<<std::endl;
     std::vector<std::pair<int,int>> departs = getDepartsRavitaillement();
     std::vector<std::pair<int,int>> obstacles = getPositionsEnnemis();
