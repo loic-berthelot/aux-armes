@@ -28,9 +28,9 @@ void Jeu::jouer() {
             _joueurs[i]->jouerArmee(_carte);
 
             //Il faut calculer le brouillard de guerre par ici
-            _carte.ravitaillerArmee();
+            //_carte.ravitaillerArmee();
             _carte.appliquerAttritionArmee();
-            _carte.executerOrdresArmee();
+            //_carte.executerOrdresArmee();
             _carte.afficherArmee();
             _carte.retirerCadavres();
             std::cout<<std::endl;

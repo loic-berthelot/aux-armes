@@ -1,6 +1,9 @@
 #include "carte.h"
 
 Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _rayon(taille), _indiceArmee(0), _armees(armees) {
+    
+    	
+    srand(time(NULL));
     // Code pour générer la carte en utilisant la fonction perlin2D
     int debut = -_rayon+1;
     int fin = 0;
@@ -15,6 +18,8 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
         if (j>0) fin++;
         else debut++;        
     }
+               
+        
 
     // Paramètres de génération des villes
     //int nbVilles = armees.size(); // Nombre de villes à générer
@@ -58,16 +63,20 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
         }
     }
 
+    affichageSeulementCarte();
 
-   /*Placement des unités*/
-/*
+
+    /*Placement des unités*/
    for (unsigned int i = 0; i < _armees.size();i++){
         std::vector<std::pair<int, int>> emplacements;
         emplacements.push_back(std::make_pair(villes[i].first, villes[i].second));
         unsigned int indexEmplacements = 0;
         for (unsigned int j = 0; j < _armees[i]->getUnites().size();j++){
-            while(!peutEtreEn(emplacements[indexEmplacements].first, emplacements[indexEmplacements].second, _armees[i]->getUnites()[j])){
+            
+            while(indexEmplacements >= emplacements.size() || !peutEtreEn(emplacements[indexEmplacements].first, emplacements[indexEmplacements].second, _armees[i]->getUnites()[j])){
                 indexEmplacements++;
+                std::cout << "j : "<<j<<std::endl;
+            
                 if (indexEmplacements < emplacements.size()){
                     _armees[i]->getUnites()[j]->setX(emplacements[j].first);
                     _armees[i]->getUnites()[j]->setY(emplacements[j].second);
@@ -77,36 +86,39 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
                     for (unsigned int k = 0; k < emplacements.size();k++){
                         std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(emplacements[k].first, emplacements[k].second);
                         for (unsigned int l = 0; l < voisins.size();l++){
+                            std::cout << "j : "<<j << voisins[l].first<<std::endl;
                             //Mtn on vérifie si l'emplacement n'est pas déjà dans l'emplacement
                             bool appartientEmplacement = false;
                             for (unsigned int m = 0; m < emplacements.size();m++)
                                 if (emplacements[m].first == voisins[l].first && emplacements[m].second == voisins[l].second)
                                     appartientEmplacement = true;
                             //donc mtn on l'ajoute
-                            if (!appartientEmplacement)
+                            if (!appartientEmplacement && _cases[voisins[l]]->getNom() != "Ville" && 
+                            !caseAvecUnite(voisins[l].first, voisins[l].second))
                                 emplacementsBuffer.push_back(voisins[l]);
-
                         }
-
                     }
-
                     //mtn on ajoute les emplacements
                     for (unsigned int k = 0; k < emplacementsBuffer.size();k++){
                         emplacements.push_back(emplacementsBuffer[k]);
                     }
                 }
             }
+            std::cout <<"taille : "<<emplacements[indexEmplacements].first<<std::endl;
+            _armees[i]->getUnites()[j]->setX(emplacements[indexEmplacements].first);
+            _armees[i]->getUnites()[j]->setY(emplacements[indexEmplacements].second);
             indexEmplacements++;
         }
-
    }
-   */
 
-    _grapheAir = creerGraphe(accessibilite::Air);
+   grapheAir = creerGraphe(accessibilite::Air);
     _grapheTerre = creerGraphe(accessibilite::Terre);
     _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
     _grapheEau = creerGraphe(accessibilite::Eau);
     affichageSeulementCarte();
+   
+
+
 }
 
 std::shared_ptr<Graphe> Carte::creerGraphe(accessibilite acces) const {
@@ -501,9 +513,8 @@ double Carte::perlin2D(double x, double y) const{
         permutation[i] = i;
     }
 
-    for (int i = 256 - 1; i > 0; --i) {
-        int j = rand() % (i + 1);
-        std::swap(permutation[i], permutation[j]);
+    for (int i = 255; i > 0; --i) {
+        permutation[i] = rand()%255;
     }
     int xi = static_cast<int>(x) & 255;
     int yi = static_cast<int>(y) & 255;
@@ -543,4 +554,14 @@ std::string Carte::valueToCaseNom(float Value){
         return "Marecage";
     else
         return "Montagne";
+}
+
+
+bool Carte::caseAvecUnite(int x, int y)const{
+    for (unsigned int i = 0; i < _armees.size();i++)
+        for (unsigned int j = 0; j < _armees[i]->getUnites().size();j++)
+            if (_armees[i]->getUnites()[j]->getX() == x && _armees[i]->getUnites()[j]->getY() == y)
+                return true;
+    
+    return false;
 }
