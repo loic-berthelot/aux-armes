@@ -4,17 +4,11 @@
 #include <memory>
 #include "Type.h"
 #include "ordre.h"
-
-enum class Categorie{
-    Air,
-    Eau,
-    Terre,
-    EauEtTerre
-};
+#include "case.h"
 
 class Unite{
     std::string _nom;
-    Categorie _categorie;
+    accessibilite _categorie;
     std::vector<Type> _types;
     //Les coordonnées de la case centrale du plateau sont (0,0). Les axes sont dirigés vers le haut et la droite.
     int _posX;
@@ -31,7 +25,7 @@ class Unite{
     float _pointsMouvement;
     std::vector<std::pair<std::pair<int,int>, int>> _chemin;
 public:
-    Unite(std::string nom,Categorie categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, 
+    Unite(std::string nom,accessibilite categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, 
     int defense, int distanceVue);
 
 
@@ -45,27 +39,27 @@ public:
     void initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>> chemin);
 
 
-    static Categorie stringToCategorie(std::string const &s){
+    static accessibilite stringToCategorie(std::string const &s){
         if (s == "Air")
-            return Categorie::Air;
+            return accessibilite::Air;
         else if (s == "Eau")
-            return Categorie::Eau;
+            return accessibilite::Eau;
         else if (s == "Terre")
-            return Categorie::Terre;
-        else return Categorie::EauEtTerre;
+            return accessibilite::Terre;
+        else return accessibilite::EauEtTerre;
     }
-    static std::string CategorieToString(Categorie const c){
-        if (c == Categorie::Air)
+    static std::string CategorieToString(accessibilite const c){
+        if (c == accessibilite::Air)
             return "Air";
-        else if (c == Categorie::Eau)
+        else if (c == accessibilite::Eau)
             return "Eau";
-        else if (c == Categorie::Terre)
+        else if (c == accessibilite::Terre)
             return "Terre";
         else return "EauEtTerre";
     }
 
 
-    static void CreationNouvelleUnite(std::string const &nom, std::vector<Type> const &types, int sante, Categorie categorie,
+    static void CreationNouvelleUnite(std::string const &nom, std::vector<Type> const &types, int sante, accessibilite categorie,
     int attaque, int defense, int distanceVue, int pointsMouvement);
 
     /*GETTERS AND SETTERS ================================*/
@@ -89,6 +83,8 @@ public:
     int getDistanceVue()const;
 
     int getRayonRavitaillement() const;
+
+    accessibilite getCategorie() const;
 
     void setDistanceVue(int distanceVue){
         _distanceVue = distanceVue;

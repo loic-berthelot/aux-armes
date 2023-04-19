@@ -1,6 +1,6 @@
 #include "unite.h"
 
-Unite::Unite(std::string name, Categorie categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, 
+Unite::Unite(std::string name, accessibilite categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, 
     int defense, int distanceVue): 
 _categorie(categorie), _types(types), _posX(posX), _posY(posY), _sante(santeInitiale), _maxSante(santeInitiale), _attaque(attaque), 
 _defense(defense), _distanceVue(distanceVue), _nom(name){
@@ -96,7 +96,7 @@ std::pair<int, int> Unite::resultatCombatSimple(std::shared_ptr<Unite> ennemy)co
 
 
 
-void Unite::CreationNouvelleUnite(std::string const &nom, std::vector<Type> const &types, int sante, Categorie categorie,
+void Unite::CreationNouvelleUnite(std::string const &nom, std::vector<Type> const &types, int sante, accessibilite categorie,
 int attaque, int defense, int distanceVue, int pointsMouvement){
     std::ofstream fichier("../monde/Unites/"+nom+".txt");
 
@@ -149,6 +149,10 @@ int Unite::getDistanceVue()const{
 int Unite::getRayonRavitaillement() const {
     if (_nom == "Caravane") return 10;
     return 0;
+}
+
+accessibilite Unite::getCategorie() const {
+    return _categorie;
 }
 
 void Unite::avancer() {
