@@ -20,6 +20,8 @@ public:
 
     std::shared_ptr<Graphe> getGraphe(accessibilite acces);
 
+    Carte(int rayon, std::vector<std::shared_ptr<Armee>> const &armees);
+
     Carte(int rayon);
     Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees);
 
@@ -110,6 +112,7 @@ public:
     }
 
     bool caseAvecUnite(int x, int y)const;
+    
     
 };
 

@@ -72,7 +72,6 @@ public:
         return _moral;
     }
 
-
     int getX()const;
 
     int getY()const;

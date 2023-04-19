@@ -110,6 +110,12 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
             indexEmplacements++;
         }
    }
+
+   grapheAir = creerGraphe(accessibilite::Air);
+    _grapheTerre = creerGraphe(accessibilite::Terre);
+    _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
+    _grapheEau = creerGraphe(accessibilite::Eau);
+    affichageSeulementCarte();
    
 
 
@@ -225,18 +231,22 @@ std::vector<std::pair<int,int>> Carte::getPositionsEnnemis() const {
 std::map<std::pair<int,int>, int> Carte::getRelaisRavitaillement() const {
     std::map<std::pair<int,int>, int> relais;
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
+    std::pair<int,int> pos;
+    int rayon;
     for (unsigned int i = 0; i < unites.size(); i++) {
-        if (relais[unites[i]->getPos()] < unites[i]->getRayonRavitaillement()) {
-            relais[unites[i]->getPos()] = unites[i]->getRayonRavitaillement();
+        pos = unites[i]->getPos();
+        rayon = unites[i]->getRayonRavitaillement();
+        if (relais.count(pos) == 0) {
+            if ( rayon > 0) relais[pos] = rayon;
+        } else if (relais.at(pos) < rayon) {
+            relais[pos] = rayon;
         }
-    }
-    for (const auto & paire : relais) {
-        if (paire.second == 0) relais.erase(paire.first);
-    }
+    }    
     return relais;
 }
 
 void Carte::ravitaillerArmee() {
+
     std::cout<<"RAVITAILLEMENT"<<std::endl;
     std::vector<std::pair<int,int>> departs = getDepartsRavitaillement();
     std::vector<std::pair<int,int>> obstacles = getPositionsEnnemis();

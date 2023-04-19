@@ -1,9 +1,13 @@
 #include "jeu.h"
 
 int main() {
+/*
+    Jeu jeu;
+    jeu.jouer();
+*/
+    
+    //Carte c(6);
 
-    //Jeu jeu;
-    //jeu.jouer();
     std::shared_ptr<Unite> uPointeur = std::make_shared<Unite>("Garde Royale", 0, 0);
 
     //c.ajoutUniteTeam(0,u1);
