@@ -111,7 +111,7 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
         }
    }
 
-   grapheAir = creerGraphe(accessibilite::Air);
+   _grapheAir = creerGraphe(accessibilite::Air);
     _grapheTerre = creerGraphe(accessibilite::Terre);
     _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
     _grapheEau = creerGraphe(accessibilite::Eau);

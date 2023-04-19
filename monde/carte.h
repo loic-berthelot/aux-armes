@@ -23,7 +23,6 @@ public:
     Carte(int rayon, std::vector<std::shared_ptr<Armee>> const &armees);
 
     Carte(int rayon);
-    Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees);
 
     /*Méthode armée ============================================*/
 
