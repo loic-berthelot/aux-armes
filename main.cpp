@@ -23,6 +23,8 @@ int main() {
 
     //std::cout << c.ratioAlliesAdversaires(uPointeur, 5, 0);
     
+    std::cout << c.ratioAlliesAdversaires(uPointeur, 5, 0);
+
 
     return 0;
 

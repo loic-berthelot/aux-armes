@@ -11,7 +11,7 @@ private:
     int _coutDeplacement;//100 valeurs de base pour la plaine
     std::string _nom;
     int _defense;//100 valeur de base
-    
+    bool _departRavitaillement; 
     accessibilite _typeAccessibilité;
 
 public:
@@ -36,6 +36,6 @@ public:
 
     int getDefense()const;
 
-
+    bool estDepartRavitaillement() const;
 
 };

@@ -3,7 +3,6 @@
 #include "graphe.h"
 #include <sstream>   // Pour les flux de chaînes de caractères
 #include <map>
-#include "graphe.h"
 
 class Carte {
 private:
@@ -14,7 +13,9 @@ private:
     unsigned int _indiceArmee;
 
 public:
-    Carte(int rayon, std::vector<std::shared_ptr<Armee>> const &armees);
+    std::shared_ptr<Graphe> creerGraphe() const;
+
+    Carte(int rayon);
 
     /*Méthode armée ============================================*/
 
@@ -26,14 +27,21 @@ public:
     void afficherArmees() const;
 
     void selectionnerArmee(unsigned int indiceArmee);
+
+    std::vector<std::pair<int,int>> getDepartsRavitaillement() const;
+
+    std::vector<std::pair<int,int>> getPositionsEnnemis() const;
+
+    std::map<std::pair<int,int>, int> getRelaisRavitaillement() const;
+
+    void ravitaillerArmee();
+
+    void appliquerAttritionArmee();
+
     //execute l'ordre du tour
     void executerOrdresArmee();
 
-    void ajouterArmee(std::shared_ptr<Armee> a){
-        _armees.push_back(a);
-    }
-
-    //fais combattre 2 unités
+    //fait combattre 2 unités
 
     void combat(std::shared_ptr<Unite> u1,unsigned int idTeam1, 
     std::shared_ptr<Unite> u2, unsigned int idTeam2);

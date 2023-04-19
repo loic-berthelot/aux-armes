@@ -146,6 +146,11 @@ int Unite::getDistanceVue()const{
     return _distanceVue;
 }
 
+int Unite::getRayonRavitaillement() const {
+    if (_nom == "Caravane") return 10;
+    return 0;
+}
+
 void Unite::avancer() {
     if (_chemin.empty()) {
         _pointsMouvement = 0;
@@ -171,4 +176,8 @@ std::shared_ptr<Ordre> Unite::getOrdre() const{
 
 std::pair<int,int> Unite::getPos() const {
     return std::make_pair(_posX, _posY);
+}
+
+void Unite::ravitailler() {
+    std::cout<<"unite ravitaille !"<<std::endl;
 }

@@ -26,6 +26,7 @@ class Unite{
     int _attaque;//100 de base
     int _defense;//100 de base
     int _distanceVue;
+    int _rayonRavitaillement;
     float _vitesseDeplacement = 0.2;
     float _pointsMouvement;
     std::vector<std::pair<std::pair<int,int>, int>> _chemin;
@@ -87,6 +88,8 @@ public:
 
     int getDistanceVue()const;
 
+    int getRayonRavitaillement() const;
+
     void setDistanceVue(int distanceVue){
         _distanceVue = distanceVue;
     }
@@ -96,6 +99,8 @@ public:
     std::vector<Type> getTypes()const{
         return _types;
     }
+
+    void ravitailler();
 
     void infligerDegats(unsigned int damage){
         _sante-=damage;

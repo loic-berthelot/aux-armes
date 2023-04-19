@@ -1,0 +1,13 @@
+Catégorie:
+Terre
+Santé:
+1000
+Attaque:
+150
+Défense:
+300
+Distance de vue:
+4
+Point de mouvement:
+100
+Infanterie

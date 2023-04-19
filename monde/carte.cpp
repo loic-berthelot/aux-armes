@@ -104,27 +104,54 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
     
 
     //création d'un std::map qui recense tous les noeuds correspondant aux cases de la carte
-    std::map<std::pair<int,int>,std::shared_ptr<Noeud>> noeuds;
+    std::vector<std::pair<int,int>> sommets;
     int debut = -_rayon+1;
     int fin = 0;
     for (int j = _rayon-1; j > -_rayon; j--) {
         for (int i = debut; i <= fin; i++) {
-            noeuds[std::make_pair(i,j)] = std::make_shared<Noeud>("case", i, j);
+            sommets.push_back(std::make_pair(i,j));
         }
         if (j>0) fin++;
         else debut++;        
     }
+    std::shared_ptr<Graphe> graphe = std::make_shared<Graphe>(sommets); 
     //ajout des voisins
-    for (auto & paire : noeuds) {
-        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(paire.first.first, paire.first.second);
+    for (auto & paire : sommets) {
+        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(paire.first, paire.second);
         for (const auto voisin : voisins) {
-            paire.second->ajouterSuivant(noeuds[voisin], getCase(voisin.first, voisin.second)->getCoutDeplacement());
+            graphe->ajouterSuivant(paire, voisin, getCase(voisin.first, voisin.second)->getCoutDeplacement());
         }
     }
+    return graphe;
+}
+
+Carte::Carte(int rayon) : _rayon(rayon), _indiceArmee(0) {
+    genererCarteVide("Plaine", _rayon);
+    affichageSeulementCarte();
     //création du graphe qui représente les cases de la carte
-    _grapheCases = std::make_shared<Graphe>(noeuds); 
-    std::vector<std::pair<int,int>> zone = _grapheCases->zoneAccessible(std::make_pair(0,0), 10);
-    
+    _grapheCases = creerGraphe();
+/*
+    std::cout<<"A*"<<std::endl;
+    std::vector<std::pair<std::pair<int,int>, int>> chemin = _grapheCases->aEtoile(std::make_pair(-1,1), std::make_pair(2,-2));
+    for (const auto & paire : chemin)  std::cout<<paire.first.first<<","<<paire.first.second<<std::endl;
+*/
+/*
+    std::cout<<"ZONE RAVITAILLEMENT"<<std::endl;
+    std::vector<std::pair<int,int>> departs;
+    departs.push_back( std::make_pair(-1,1));
+    //departs.push_back( std::make_pair(1,-2));
+    std::vector<std::pair<int,int>> obstacles;
+    obstacles.push_back(std::make_pair(0,1));
+    obstacles.push_back(std::make_pair(0,0));
+    obstacles.push_back(std::make_pair(-1,0));
+    obstacles.push_back(std::make_pair(0,-1));
+    std::map<std::pair<int,int>,int> relais;
+    relais[std::make_pair(-1,1)] = 10;
+    //relais[std::make_pair(0,2)] = 10;
+    //relais[std::make_pair(1,-2)] = 10;
+    std::vector<std::pair<int,int>> zone = _grapheCases->zoneRavitaillement(departs, obstacles, relais);
+    for (const auto & paire : zone) std::cout<<paire.first<<", "<<paire.second<<std::endl;
+*/
 }
 
 void Carte::creerArmee() {     
@@ -142,6 +169,60 @@ void Carte::afficherArmee() const{
 
 void Carte::selectionnerArmee(unsigned int indiceArmee) {
     _indiceArmee = indiceArmee;
+}
+
+std::vector<std::pair<int,int>> Carte::getDepartsRavitaillement() const {
+    std::vector<std::pair<int,int>> departs;
+    for (const auto & paire : _cases) {
+        if (paire.second->estDepartRavitaillement()) departs.push_back(paire.first);
+    }
+    return departs;
+}
+
+std::vector<std::pair<int,int>> Carte::getPositionsEnnemis() const {
+    std::map<std::pair<int,int>, bool> positionsOccupees;
+    for (unsigned int i = 0; i < _armees.size(); i++) {
+        if (i != _indiceArmee) {
+            std::vector<std::shared_ptr<Unite>> unites = _armees[i]->getUnites();
+            for (unsigned int j = 0; j < unites.size(); j++) positionsOccupees[unites[j]->getPos()] = true;
+        }
+    }
+    std::vector<std::pair<int,int>> positionsEnnemis;
+    for (const auto & pos : positionsOccupees) positionsEnnemis.push_back(pos.first);
+    return positionsEnnemis;
+}
+
+std::map<std::pair<int,int>, int> Carte::getRelaisRavitaillement() const {
+    std::map<std::pair<int,int>, int> relais;
+    std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
+    for (unsigned int i = 0; i < unites.size(); i++) {
+        if (relais[unites[i]->getPos()] < unites[i]->getRayonRavitaillement()) {
+            relais[unites[i]->getPos()] = unites[i]->getRayonRavitaillement();
+        }
+    }
+    for (const auto & paire : relais) {
+        if (paire.second == 0) relais.erase(paire.first);
+    }
+    return relais;
+}
+
+void Carte::ravitaillerArmee() {
+    std::cout<<"RAVITAILLEMENT"<<std::endl;
+    std::vector<std::pair<int,int>> departs = getDepartsRavitaillement();
+    std::vector<std::pair<int,int>> obstacles = getPositionsEnnemis();
+    std::map<std::pair<int,int>,int> relais = getRelaisRavitaillement();
+
+    std::vector<std::pair<int,int>> zoneRavitaillement = _grapheCases->zoneRavitaillement(departs, obstacles, relais);
+    for (const auto & paire : zoneRavitaillement) std::cout<<paire.first<<", "<<paire.second<<std::endl;
+
+    std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
+    for (unsigned int i = 0; i < unites.size(); i++) {
+        unites[i]->ravitailler();
+    }
+}
+
+void Carte::appliquerAttritionArmee(){
+
 }
 
 void Carte::executerOrdresArmee() {
