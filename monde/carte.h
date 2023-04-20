@@ -22,6 +22,9 @@ public:
 
     Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees);
 
+    Carte(){
+        
+    }
     Carte(int rayon);
 
     std::pair<int,int> positionAleatoireCarte();

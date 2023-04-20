@@ -1,8 +1,30 @@
 #include "jeu.h"
 
 
-Jeu::Jeu(std::vector<std::shared_ptr<Armee>> const &toutesArmees, unsigned int tailleMap):_carte(tailleMap, toutesArmees){
-    for (unsigned int i = 0; i < toutesArmees.size();i++){
+Jeu::Jeu(unsigned int tailleMap, std::string const &armeeDesc){
+    unsigned int team = 0;
+    std::vector<std::shared_ptr<Armee>> buffer;
+    std::shared_ptr<Armee> armeeCourante = std::make_shared<Armee>();
+    unsigned int nbUnites = 0;
+    unsigned int indexPrecedent = 0;
+    for (unsigned int i = 0; i < armeeDesc.size();i++){
+        std::cout << "i : "<<i<<std::endl;
+        if (armeeDesc[i] == ';'){
+            buffer.push_back(armeeCourante);
+            armeeCourante = std::make_shared<Armee>();
+            team++;
+            indexPrecedent = i+1;
+        }else if (armeeDesc[i] == ':'){
+            nbUnites = std::stoul(armeeDesc.substr(indexPrecedent, i-indexPrecedent));
+            indexPrecedent = i+1;
+        }else if (armeeDesc[i] == ','){
+            for (unsigned int j = 0; j < nbUnites;j++)
+                armeeCourante->ajoutUnite(std::make_shared<Unite>(armeeDesc.substr(indexPrecedent ,i-indexPrecedent), 0, 0));
+            indexPrecedent = i+1;
+        }
+    }
+    _carte = Carte(tailleMap, buffer);
+    for (unsigned int i = 0; i < team;i++){
         ajouterJoueur();
     }
     
