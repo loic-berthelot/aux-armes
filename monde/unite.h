@@ -30,6 +30,7 @@ class Unite{
     bool _enVie;
     bool _estRavitaille;
     std::vector<std::pair<std::pair<int,int>, int>> _chemin;
+    std::pair<int,int> _positionPrecedente;
 public:
     Unite(std::string nom,accessibilite categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, 
     int defense, int distanceVue);
@@ -79,8 +80,6 @@ public:
 
     int getY()const;
 
-
-
     int getDistanceVue()const;
 
     int getRayonRavitaillement() const;
@@ -119,4 +118,6 @@ public:
     bool estVivant() const;
 
     int getEspaceOccupe() const;
+
+    void reculer();
 };

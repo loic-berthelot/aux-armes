@@ -51,6 +51,8 @@ public:
     //execute l'ordre du tour
     void executerOrdresArmee();
 
+    bool ennemiSurCase(std::pair<int,int> pos) const;
+
     void retirerCadavres();
     //fait combattre 2 unités
 

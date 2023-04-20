@@ -322,11 +322,27 @@ void Carte::executerOrdresArmee() {
     }
     for (unsigned int pm = 0; pm < 100; pm++) { //on distribue un par un 100 points de mouvement aux unités
         for (unsigned int i = 0; i < unites.size(); i++) {
-            if (unites[i]->avancer()) {
-                //à compléter
+            bool seDeplace = unites[i]->avancer(); //l'unité avance (elle accumue des points de mouvement et avance parfois d'une case)
+            if (seDeplace) { //si en avançant l'unité arrive sur une nouvelle case, on vérifie si cette case est tenue par un ennemi
+                if (ennemiSurCase(unites[i]->getPos())) {
+                    combat(unites[i], _indiceArmee, unites[i]->getOrdre()->getPos().first, unites[i]->getOrdre()->getPos().second); //on lance alors un combat
+                    if (ennemiSurCase(unites[i]->getPos())) unites[i]->reculer(); //si l'une des unités ennemies survit, elle repousse l'attaque(l'unité courante doit reculer)
+                }
             }
         }        
     }
+}
+
+bool Carte::ennemiSurCase(std::pair<int,int> pos) const {
+    for (unsigned int i = 0; i < _armees.size(); i++) {
+        if (i != _indiceArmee) {
+            std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
+            for (unsigned int j = 0; j < unites.size(); j++) {
+                if (unites[i]->getPos() == pos) return true;
+            }
+        }
+    }
+    return false;
 }
 
 //renvoie un vecteur contenant les coordonnées des 6 voisins (au plus) de la case choisie

@@ -1,9 +1,9 @@
 #include "unite.h"
 
-Unite::Unite(std::string name, accessibilite categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, 
-    int defense, int distanceVue): 
+Unite::Unite(std::string name, accessibilite categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, int defense, int distanceVue): 
 _categorie(categorie), _types(types), _posX(posX), _posY(posY), _sante(santeInitiale), _maxSante(santeInitiale), _attaque(attaque), 
-_defense(defense), _distanceVue(distanceVue), _nom(name), _maxMoral(100), _moral(_maxMoral), _vitesseDeplacement(0.2), _enVie(true), _espaceOccupe(1), _estRavitaille(false) {
+_defense(defense), _distanceVue(distanceVue), _nom(name), _maxMoral(100), _moral(_maxMoral), _vitesseDeplacement(0.2), _enVie(true), 
+_espaceOccupe(1), _estRavitaille(false),_positionPrecedente(std::make_pair(_posX, _posY)) {
     
 };
 
@@ -163,12 +163,18 @@ bool Unite::avancer() {
     _pointsMouvement += _vitesseDeplacement;
     if (_pointsMouvement > _chemin[0].second) {
         _pointsMouvement = 0;
+        _positionPrecedente = std::make_pair(_posX, _posY);
         _posX = _chemin[0].first.first;
         _posY = _chemin[0].first.second;
         _chemin.erase(_chemin.begin());
         return true;
     }
     return false;
+}
+
+void Unite::reculer() {
+    _posX = _positionPrecedente.first;
+    _posY = _positionPrecedente.second;
 }
 
 void Unite::initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>> chemin) {
