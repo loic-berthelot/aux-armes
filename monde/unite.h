@@ -70,9 +70,6 @@ public:
 
     /*GETTERS AND SETTERS ================================*/
 
-    void setMoral(int moral){
-        _moral = moral;
-    }
 
     int getMoral()const{
         return _moral;

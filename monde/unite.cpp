@@ -187,6 +187,7 @@ std::pair<int,int> Unite::getPos() const {
 void Unite::regenererMoral(int pointsMoral) {
     _moral += pointsMoral;
     if (_moral > _maxMoral) _moral = _maxMoral;
+    if (_moral < 0) _moral = 0;
 }
 
 void Unite::regenererSante(int pointsSante) {

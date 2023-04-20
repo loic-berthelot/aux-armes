@@ -393,34 +393,33 @@ void Carte::combat(std::shared_ptr<Unite> u1, unsigned int idTeam, int x, int y)
 
     if (distance(u1->getOrdre()->getPos(), u1->getPos()) <= u1->getPortee()){
         for (unsigned int j = 0; j < _armees.size();j++){
-            for (unsigned int k = 0;k < _armees[j]->getUnites().size();k++){
-                if (_armees[j]->getUnites()[k]->getX() == u1->getOrdre()->getPos().first && 
-                    _armees[j]->getUnites()[k]->getY() == u1->getOrdre()->getPos().second){
-                    bool ennemiPeutRepliquer = distance(u1->getPos(), u1->getOrdre()->getPos()) <= _armees[j]->getUnites()[k]->getPortee();
-                    u1->setMoral(u1->getMoral()+(ratioAlliesAdversaires(u1, 5, idTeam)*6-15));//moral baisse ou augmente de 15
-                    _armees[j]->getUnites()[k]->setMoral(_armees[j]->getUnites()[k]->getMoral()+(ratioAlliesAdversaires(_armees[j]->getUnites()[k], 5, j)*6-15));//moral baisse ou augmente de 15
+            std::vector<std::shared_ptr<Unite>> unites = _armees[j]->getUnites();
+            for (unsigned int k = 0; k < unites.size(); k++){
+                if (_armees[j]->getUnite(k)->getPos() == u1->getOrdre()->getPos()){
+                    bool ennemiPeutRepliquer = distance(u1->getPos(), u1->getOrdre()->getPos()) <= _armees[j]->getUnite(k)->getPortee();
+                    u1->regenererMoral(ratioAlliesAdversaires(u1, 5, idTeam)*6-15);//moral baisse ou augmente de 15
+                    _armees[j]->getUnite(k)->regenererMoral(ratioAlliesAdversaires(_armees[j]->getUnite(k), 5, j)*6-15);//moral baisse ou augmente de 15
 
                     //calcul de base
-                    std::pair<int, int> degats = u1->resultatCombatSimple(_armees[j]->getUnites()[k]);
+                    std::pair<int, int> degats = u1->resultatCombatSimple(_armees[j]->getUnite(k));
                     int defense = 100;
                     //on applique les calculs du terrain du défenseur
                     for (const auto& pair : _cases) {
-                        if (pair.first.first == _armees[j]->getUnites()[k]->getX() && pair.first.second == _armees[j]->getUnites()[k]->getY())
-                            defense = pair.second->getDefense();
+                        if (pair.first == _armees[j]->getUnite(k)->getPos()) defense = pair.second->getDefense();
                     }
                     degats.first = static_cast<float>(degats.first)*(static_cast<float>(defense)/100);
                     degats.second = static_cast<float>(degats.second)*(static_cast<float>(100+(100-defense))/100);
 
                     u1->infligerDegats(degats.first);
                     if (ennemiPeutRepliquer)
-                        _armees[j]->getUnites()[k]->infligerDegats(degats.second);
+                        _armees[j]->getUnite(k)->infligerDegats(degats.second);
 
                     std::cout << degats.first<< " : "<<degats.second<<std::endl;
                 }
             }                 
         }                
     }else
-        std::cout << "Portée pas assez grande pour attaquer."<<std::endl;
+        throw Exception("Portée pas assez grande pour attaquer.");
             
 
 }
