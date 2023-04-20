@@ -185,3 +185,7 @@ std::pair<int,int> Unite::getPos() const {
 void Unite::ravitailler() {
     std::cout<<"unite ravitaillee !"<<std::endl;
 }
+
+unsigned int Unite::getPortee()const{
+    return _portee;
+}

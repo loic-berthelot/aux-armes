@@ -75,7 +75,6 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
             
             while(indexEmplacements >= emplacements.size() || !peutEtreEn(emplacements[indexEmplacements].first, emplacements[indexEmplacements].second, _armees[i]->getUnites()[j])){
                 indexEmplacements++;
-                std::cout << "j : "<<j<<std::endl;
             
                 if (indexEmplacements < emplacements.size()){
                     _armees[i]->getUnites()[j]->setX(emplacements[j].first);
@@ -86,7 +85,6 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
                     for (unsigned int k = 0; k < emplacements.size();k++){
                         std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(emplacements[k].first, emplacements[k].second);
                         for (unsigned int l = 0; l < voisins.size();l++){
-                            std::cout << "j : "<<j << voisins[l].first<<std::endl;
                             //Mtn on vérifie si l'emplacement n'est pas déjà dans l'emplacement
                             bool appartientEmplacement = false;
                             for (unsigned int m = 0; m < emplacements.size();m++)
@@ -104,18 +102,17 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
                     }
                 }
             }
-            std::cout <<"taille : "<<emplacements[indexEmplacements].first<<std::endl;
             _armees[i]->getUnites()[j]->setX(emplacements[indexEmplacements].first);
             _armees[i]->getUnites()[j]->setY(emplacements[indexEmplacements].second);
             indexEmplacements++;
         }
    }
 
-   grapheAir = creerGraphe(accessibilite::Air);
+    _grapheAir = creerGraphe(accessibilite::Air);
     _grapheTerre = creerGraphe(accessibilite::Terre);
     _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
     _grapheEau = creerGraphe(accessibilite::Eau);
-    affichageSeulementCarte();
+    
    
 
 
@@ -269,10 +266,26 @@ void Carte::executerOrdresArmee() {
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
     for (unsigned int i = 0; i < unites.size(); i++) {
         std::vector<std::pair<std::pair<int,int>, int>> chemin;
-        if (unites[i]->getOrdre()->getType() == TypeOrdre::DEPLACER || unites[i]->getOrdre()->getType() == TypeOrdre::ATTAQUER) {
+        if (unites[i]->getOrdre()->getType() == TypeOrdre::DEPLACER) {
             std::pair<int,int> debut = unites[i]->getPos();
             std::pair<int,int> fin = unites[i]->getOrdre()->getPos();
             chemin = getGraphe(unites[i]-> getCategorie())->aEtoile(debut, fin);
+        }else if (unites[i]->getOrdre()->getType() == TypeOrdre::ATTAQUER){
+
+            if (distanceEntrePointsHexagonaux(unites[i]->getOrdre()->getPos().first, unites[i]->getOrdre()->getPos().second, 
+            unites[i]->getX(), unites[i]->getY()) 
+            <= unites[i]->getPortee()){
+                for (unsigned int j = 0; j < _armees.size();j++){
+                    for (unsigned int k = 0;k < _armees[j]->getUnites().size();k++){
+                        bool ennemisPeutRepliques = distanceEntrePointsHexagonaux(unites[i]->getX(), unites[i]->getY(), unites[i]->getOrdre()->getPos().first, unites[i]->getOrdre()->getPos().second) 
+                        <= _armees[j]->getUnites()[k]->getPortee();
+                        combat(unites[i], i,_armees[j]->getUnites()[k], j, ennemisPeutRepliques);
+                    }
+                }
+                
+            }else
+                std::cout << "Portée pas assez grande pour attaquer."<<std::endl;
+            
         }
         unites[i]->initialiserMouvement(chemin);
     }
@@ -351,9 +364,10 @@ Pour le combat on cherche les alliés/ennemis que voit l'unité
 
 */
 //U1 attaque, U2 se défend
-void Carte::combat(std::shared_ptr<Unite> u1,unsigned int idTeam1, std::shared_ptr<Unite> u2, unsigned int idTeam2){
+void Carte::combat(std::shared_ptr<Unite> u1,unsigned int idTeam1, std::shared_ptr<Unite> u2, unsigned int idTeam2, bool peutReplique){
     //on applique mtn les calculs du nombre (par exemple si il y a plus d'ennemis, on va un peu perdre du morale)
     u1->setMoral(u1->getMoral()+(ratioAlliesAdversaires(u1, 5, idTeam1)*6-15));//moral baisse ou augmente de 15
+    
     u2->setMoral(u2->getMoral()+(ratioAlliesAdversaires(u2, 5, idTeam2)*6-15));//moral baisse ou augmente de 15
  
     //calcul de base
@@ -368,7 +382,8 @@ void Carte::combat(std::shared_ptr<Unite> u1,unsigned int idTeam1, std::shared_p
     degats.second = static_cast<float>(degats.second)*(static_cast<float>(100+(100-defense))/100);
 
     u1->infligerDegats(degats.first);
-    u2->infligerDegats(degats.second);
+    if (peutReplique)
+        u2->infligerDegats(degats.second);
 
     std::cout << degats.first<< " : "<<degats.second<<std::endl;
 }

@@ -30,7 +30,7 @@ void Jeu::jouer() {
             //Il faut calculer le brouillard de guerre par ici
             //_carte.ravitaillerArmee();
             _carte.appliquerAttritionArmee();
-            //_carte.executerOrdresArmee();
+            _carte.executerOrdresArmee();
             _carte.afficherArmee();
             std::cout<<std::endl;
         }  

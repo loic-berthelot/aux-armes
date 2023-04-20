@@ -21,7 +21,7 @@ int main() {
     unites.push_back(armee1);
     unites.push_back(armee2);
 
-    Jeu jeu(unites, 15);
+    Jeu jeu(unites, 3);
     //jeu.jouer();
 
     //std::cout << c.ratioAlliesAdversaires(uPointeur, 5, 0);

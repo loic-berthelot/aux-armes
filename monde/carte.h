@@ -20,7 +20,6 @@ public:
 
     std::shared_ptr<Graphe> getGraphe(accessibilite acces);
 
-    Carte(int rayon, std::vector<std::shared_ptr<Armee>> const &armees);
 
     Carte(int rayon);
     Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees);
@@ -52,7 +51,7 @@ public:
     //fait combattre 2 unités
 
     void combat(std::shared_ptr<Unite> u1,unsigned int idTeam1, 
-    std::shared_ptr<Unite> u2, unsigned int idTeam2);
+    std::shared_ptr<Unite> u2, unsigned int idTeam2, bool peutReplique);
 
     /*Methode de la carte (MAP ) =============================*/
 

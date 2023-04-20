@@ -20,6 +20,7 @@ class Unite{
     int _attaque;//100 de base
     int _defense;//100 de base
     int _distanceVue;
+    unsigned int _portee = 3;
     int _rayonRavitaillement;
     float _vitesseDeplacement = 0.2;
     float _pointsMouvement;
@@ -76,6 +77,8 @@ public:
 
     int getY()const;
 
+
+
     int getDistanceVue()const;
 
     int getRayonRavitaillement() const;
@@ -105,4 +108,6 @@ public:
     void setY(int y){
         _posY = y;
     }
+
+    unsigned int getPortee()const;
 };
