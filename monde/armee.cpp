@@ -21,6 +21,16 @@ void Armee::ajoutUnite(std::shared_ptr<Unite> u){
     _unites.push_back(u);
 }
 
+void Armee::retirerUnitesMortes() {
+    for (auto it = _unites.begin(); it != _unites.end(); ) {
+        if ((*it)->estVivant()) it++;
+        else _unites.erase(it);
+    }
+}
+
+bool Armee::estEliminee() const {
+    return (_unites.empty());
+}
 
     /*GETTERS = ===================*/
 std::vector<std::shared_ptr<Unite>> Armee::getUnites()  {

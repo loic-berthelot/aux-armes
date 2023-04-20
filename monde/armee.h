@@ -11,6 +11,9 @@ public :
     
     void ajoutUnite(std::shared_ptr<Unite> u);
 
+    void retirerUnitesMortes();
+
+    bool estEliminee() const;
     /*GETTERS*/   
     std::vector<std::shared_ptr<Unite>> getUnites();    
     std::shared_ptr<Unite> getUnite(unsigned int i) const;

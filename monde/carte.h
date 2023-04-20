@@ -22,8 +22,8 @@ public:
 
 
     Carte(int rayon);
-    Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees);
 
+    std::pair<int,int> positionAleatoireCarte();
     /*Méthode armée ============================================*/
 
     //créer une armée vide
@@ -32,6 +32,8 @@ public:
     void afficherArmee() const;
 
     void afficherArmees() const;
+
+    unsigned int nombreArmeesVivantes() const;
 
     void selectionnerArmee(unsigned int indiceArmee);
 
@@ -48,6 +50,7 @@ public:
     //execute l'ordre du tour
     void executerOrdresArmee();
 
+    void retirerCadavres();
     //fait combattre 2 unités
 
     void combat(std::shared_ptr<Unite> u1,unsigned int idTeam1, 

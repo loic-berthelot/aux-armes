@@ -15,7 +15,8 @@ void Jeu::ajouterJoueur(bool estHumain) {
 }
 
 bool Jeu::partieFinie() {
-    return _toursPasses > 10;
+    //return _toursPasses > 2;
+    return (_carte.nombreArmeesVivantes() <= 1);
 }
 
 void Jeu::jouer() {
@@ -28,10 +29,12 @@ void Jeu::jouer() {
             _joueurs[i]->jouerArmee(_carte);
 
             //Il faut calculer le brouillard de guerre par ici
-            //_carte.ravitaillerArmee();
+            _carte.ravitaillerArmee();
             _carte.appliquerAttritionArmee();
             _carte.executerOrdresArmee();
-            _carte.afficherArmee();
+            
+            _carte.retirerCadavres();
+            _carte.afficherArmee();            
             std::cout<<std::endl;
         }  
         _toursPasses++;

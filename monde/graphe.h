@@ -5,6 +5,7 @@
 #include <math.h>
 #include <algorithm>
 #include <memory>
+#include "exception.h"
 
 float distanceRepereOrthonorme(float dx, float dy);
 

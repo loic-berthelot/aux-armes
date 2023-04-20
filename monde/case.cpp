@@ -3,7 +3,7 @@
 
 
 Case::Case(std::string nomFichier):
-    _nom(nomFichier), _coutDeplacement(100){
+    _nom(nomFichier), _coutDeplacement(100), _capaciteAccueil(100){
     nomFichier = "../monde/Cases/"+nomFichier+".case";
     
 
@@ -109,4 +109,8 @@ accessibilite Case::stringToAccessibilite(std::string const &s) {
 bool Case::estDepartRavitaillement() const {
     return (_nom == "Ville");
     //return _departRavitaillement;
+}
+
+int Case::getCapaciteAccueil() const {
+    return _capaciteAccueil;
 }
