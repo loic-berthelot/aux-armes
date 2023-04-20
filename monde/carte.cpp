@@ -3,17 +3,16 @@
 Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _rayon(taille), _indiceArmee(0), _armees(armees) {
     
     	
-    srand(time(NULL));
     // Code pour générer la carte en utilisant la fonction perlin2D
     int debut = -_rayon+1;
     int fin = 0;
     for (int j = _rayon-1; j > -_rayon; j--) {
         for (int i = debut; i <= fin; i++) {
-                double x = static_cast<double>(i) / taille;
-                double y = static_cast<double>(j) / taille;
-                double value = perlin2D(x, y); // Appel de la fonction perlin2D pour obtenir la valeur de bruit de Perlin
-                // Utilisation de la valeur de bruit de Perlin pour créer la case correspondante dans la carte
-                _cases[std::make_pair(i, j)] = std::make_shared<Case>(valueToCaseNom(value));
+            double x = static_cast<double>(i) / taille;
+            double y = static_cast<double>(j) / taille;
+            double value = perlin2D(x, y); // Appel de la fonction perlin2D pour obtenir la valeur de bruit de Perlin
+            // Utilisation de la valeur de bruit de Perlin pour créer la case correspondante dans la carte
+            _cases[std::make_pair(i, j)] = std::make_shared<Case>(valueToCaseNom(value));
         }
         if (j>0) fin++;
         else debut++;        
@@ -30,8 +29,9 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
     std::vector<std::pair<int, int>> villes;
     
     for (int n = 0; n < nbVilles;n++) {
-        int i = rand() % (taille * 2) - taille + 1; // Coordonnée i aléatoire
-        int j = rand() % (taille * 2) - taille + 1; // Coordonnée j aléatoire
+        std::pair<int,int> pos = positionAleatoireCarte();
+        int i = pos.first;
+        int j = pos.second;
         double distanceDuBord = std::abs(distanceEntrePointsHexagonaux(0, 0, i, j)); // Distance du point au bord de la carte
         bool estTropPresDuBord = distanceDuBord < distanceMinDuBord; // Vérification si le point est trop près du bord
 
@@ -111,7 +111,7 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
         }
    }
 
-   _grapheAir = creerGraphe(accessibilite::Air);
+    _grapheAir = creerGraphe(accessibilite::Air);
     _grapheTerre = creerGraphe(accessibilite::Terre);
     _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
     _grapheEau = creerGraphe(accessibilite::Eau);
@@ -190,6 +190,22 @@ Carte::Carte(int rayon) : _rayon(rayon), _indiceArmee(0) {
 */
 }
 
+std::pair<int,int> Carte::positionAleatoireCarte() { //méthode de complexité O(n) avec n le rayon, à utiliser avec modération
+    long int indiceLineaireCase = rand()%(3*_rayon*_rayon-3*_rayon+1); // dans la carte, il y a 3r²-3r+1 cases, avec r le rayon
+    int debut = -_rayon+1;
+    int fin = 0;
+    for (int j = _rayon-1; j > -_rayon; j--) { //on parcourt toutes les lignes jusqu'à tomber sur
+        if (debut+indiceLineaireCase <= fin) { // si on se trouve sur la bonne ligne, on renvoie la position calculée
+            return std::make_pair(debut+indiceLineaireCase,j);
+        } else { //sinon on retire à l'indice linéaire de la case le nombre de cases sur la ligne courante
+            indiceLineaireCase -= (fin-debut)+1;
+        }
+        if (j>0) fin++;
+        else debut++;        
+    }
+    throw Exception("Erreur dans Carte::positionAleatoireCarte() : depassement de "+std::to_string(indiceLineaireCase)+" cases.");
+}
+
 void Carte::creerArmee() {     
     _armees.emplace_back(std::make_shared<Armee>()); 
 }
@@ -201,6 +217,14 @@ void Carte::afficherArmees() const{ //n'affiche pour l'instant que les armées, 
 
 void Carte::afficherArmee() const{
     getArmee()->afficher();
+}
+
+unsigned int Carte::nombreArmeesVivantes() const {
+    unsigned int compt = 0;
+    for (unsigned int i = 0; i < _armees.size(); i++) {
+        if (! _armees[i]->estEliminee()) compt++;
+    }
+    return compt;
 }
 
 void Carte::selectionnerArmee(unsigned int indiceArmee) {
@@ -270,22 +294,20 @@ void Carte::appliquerAttritionArmee(){
     for (unsigned int i = 0; i < unites.size(); i++) {
         casesOccupees[unites[i]->getPos()] += unites[i]->getEspaceOccupe();
     }
-    // on recupere une seule fois la capacite d'accueil de chaque case sur laquelle se trouvent des unités de l'armée
-    std::map<std::pair<int,int>, int> capacitesCases;
-    for (const auto & paire : casesOccupees) {
-        capacitesCases[paire.first] = getCase(paire.first.first, paire.first.second)->getCapaciteAccueil();
-    }
     // pour chacune des unites de l'armee, on calcule et applique l'attrition
     int capaciteAcceuil, occupation;
+    std::pair<int,int> pos;
     for (unsigned int i = 0; i < unites.size(); i++) {
-        occupation = casesOccupees.at(unites[i]->getPos());
-        capaciteAcceuil = capacitesCases.at(unites[i]->getPos());
-        if (occupation > capaciteAcceuil) unites[i]->subirAttrition(50*(occupation/capaciteAcceuil-1));       
+        pos = unites[i]->getPos();
+        occupation = casesOccupees.at(pos);
+        capaciteAcceuil = getCase(pos.first, pos.second)->getCapaciteAccueil();
+        if (occupation > capaciteAcceuil) unites[i]->subirAttrition(50*(occupation/capaciteAcceuil-1)); //taux d'attrition à ajuster  
     }
 }
 
 void Carte::retirerCadavres(){
-
+    std::vector<std::shared_ptr<Unite>> unites;
+    for (unsigned int i = 0; i < _armees.size(); i++) _armees[i]->retirerUnitesMortes();
 }
 
 void Carte::executerOrdresArmee() {

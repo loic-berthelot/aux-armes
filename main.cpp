@@ -8,7 +8,7 @@ int main() {
     srand(time(0));
     //Carte c(6);
 
-    std::shared_ptr<Unite> uPointeur = std::make_shared<Unite>("Garde Royale", 0, 0);
+    //std::shared_ptr<Unite> uPointeur = std::make_shared<Unite>("Garde Royale", 0, 0);
 
     //c.ajoutUniteTeam(0,u1);
     //Armée1 : 
@@ -22,7 +22,7 @@ int main() {
     unites.push_back(armee2);
 
     Jeu jeu(unites, 15);
-    //jeu.jouer();
+    jeu.jouer();
 
     //std::cout << c.ratioAlliesAdversaires(uPointeur, 5, 0);
     

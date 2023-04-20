@@ -143,16 +143,15 @@ std::vector<std::pair<int,int>> Graphe::zoneRavitaillement(std::vector<std::pair
 
         //on initialise la variable _obstacle
         for (unsigned int i = 0; i < obstacles.size(); i++) _obstacles[obstacles.at(i)] = true;
-
         _sommetsParcours.clear();
-        for (unsigned int i = 0; i < departs.size(); i++) {            
-            _sommetDepart = creerSommetZoneRavitaillement(_sommetsGraphe.at(departs[i])); 
-            _sommetsParcours[departs[i]] = _sommetDepart;  
+        for (unsigned int i = 0; i < departs.size(); i++) {    
+            _sommetDepart = creerSommetZoneRavitaillement(_sommetsGraphe.at(departs[i]));
+            _sommetsParcours[departs[i]] = _sommetDepart;
             if (relais[_sommetDepart->_sommetGraphe->_pos]) _sommetDepart->_coutChemin = -relais.at(_sommetDepart->_sommetGraphe->_pos); 
             for (const auto paire : _sommetDepart->_sommetGraphe->_suivants) ajouterSommetParcours(paire.first);
             sommetsOuverts.push_back(_sommetDepart);
         }        
-    
+        
         //on cherche toutes les cases accessibles
         std::shared_ptr<SommetParcours> sommetCourant;
         while (! sommetsOuverts.empty()) {
@@ -164,7 +163,6 @@ std::vector<std::pair<int,int>> Graphe::zoneRavitaillement(std::vector<std::pair
             if (sommetCourant->_coutChemin <= 0 && ! contient(sommetsFermes, sommetCourant)) sommetsFermes.push_back(sommetCourant);
             retirerSommet(sommetsOuverts, sommetCourant);        
         } 
-        
         //on retourne la position des sommets accessibles
         std::vector<std::pair<int,int>> zone;
         for (unsigned int i = 0; i < sommetsFermes.size(); i++) zone.push_back(sommetsFermes[i]->_sommetGraphe->_pos);

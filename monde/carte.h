@@ -24,6 +24,7 @@ public:
 
     Carte(int rayon);
 
+    std::pair<int,int> positionAleatoireCarte();
     /*Méthode armée ============================================*/
 
     //créer une armée vide
@@ -32,6 +33,8 @@ public:
     void afficherArmee() const;
 
     void afficherArmees() const;
+
+    unsigned int nombreArmeesVivantes() const;
 
     void selectionnerArmee(unsigned int indiceArmee);
 
