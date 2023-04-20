@@ -1,8 +1,6 @@
 #include "carte.h"
 
 Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _rayon(taille), _indiceArmee(0), _armees(armees) {
-    
-    	
     // Code pour générer la carte en utilisant la fonction perlin2D
     int debut = -_rayon+1;
     int fin = 0;
@@ -32,13 +30,13 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
         std::pair<int,int> pos = positionAleatoireCarte();
         int i = pos.first;
         int j = pos.second;
-        double distanceDuBord = std::abs(distanceEntrePointsHexagonaux(0, 0, i, j)); // Distance du point au bord de la carte
+        double distanceDuBord = std::abs(distance(std::make_pair(0, 0), std::make_pair(i, j))); // Distance du point au bord de la carte
         bool estTropPresDuBord = distanceDuBord < distanceMinDuBord; // Vérification si le point est trop près du bord
 
         // Vérification si le point est assez éloigné des autres villes
         bool estAssezEloigneDesVilles = true;
         for (const auto& ville : villes) {
-            double distanceEntreVilles = distanceEntrePointsHexagonaux(i, j, ville.first, ville.second);
+            double distanceEntreVilles = distance(std::make_pair(i, j), ville);
             if (distanceEntreVilles < distanceMinEntreVilles) {
                 estAssezEloigneDesVilles = false;
                 break;
@@ -299,6 +297,7 @@ void Carte::appliquerAttritionArmee(){
         occupation = casesOccupees.at(pos);
         capaciteAcceuil = getCase(pos.first, pos.second)->getCapaciteAccueil();
         if (occupation > capaciteAcceuil) unites[i]->subirAttrition(50*(occupation/capaciteAcceuil-1)); //taux d'attrition à ajuster  
+        else unites[i]->subirAttrition(0);//il faut quand même appeler subirAttrition() pour chaque unité à chaque tour
     }
 }
 
@@ -317,17 +316,15 @@ void Carte::executerOrdresArmee() {
             chemin = getGraphe(unites[i]-> getCategorie())->aEtoile(debut, fin);
         }else if (unites[i]->getOrdre()->getType() == TypeOrdre::ATTAQUER){
 
-            if (distanceEntrePointsHexagonaux(unites[i]->getOrdre()->getPos().first, unites[i]->getOrdre()->getPos().second, 
-            unites[i]->getX(), unites[i]->getY()) 
-            <= unites[i]->getPortee()){
+            if (distance(unites[i]->getOrdre()->getPos(), unites[i]->getPos()) <= unites[i]->getPortee()){
                 for (unsigned int j = 0; j < _armees.size();j++){
-                    for (unsigned int k = 0;k < _armees[j]->getUnites().size();k++){
-                        bool ennemisPeutRepliques = distanceEntrePointsHexagonaux(unites[i]->getX(), unites[i]->getY(), unites[i]->getOrdre()->getPos().first, unites[i]->getOrdre()->getPos().second) 
-                        <= _armees[j]->getUnites()[k]->getPortee();
-                        combat(unites[i], i,_armees[j]->getUnites()[k], j, ennemisPeutRepliques);
-                    }
-                }
-                
+                    if (j != _indiceArmee) {//on vérifie que l'armée courante n'est pas l'armée du joueur qui attaque
+                        for (unsigned int k = 0;k < _armees[j]->getUnites().size();k++){
+                            bool ennemiPeutRepliquer = distance(unites[i]->getPos(), unites[i]->getOrdre()->getPos()) <= _armees[j]->getUnites()[k]->getPortee();
+                            combat(unites[i], i,_armees[j]->getUnites()[k], j, ennemiPeutRepliquer);
+                        }
+                    }                    
+                }                
             }else
                 std::cout << "Portée pas assez grande pour attaquer."<<std::endl;
             
@@ -336,7 +333,9 @@ void Carte::executerOrdresArmee() {
     }
     for (unsigned int pm = 0; pm < 100; pm++) { //on distribue un par un 100 points de mouvement aux unités
         for (unsigned int i = 0; i < unites.size(); i++) {
-            unites[i]->avancer();
+            if (unites[i]->avancer()) {
+                //à compléter
+            }
         }        
     }
 }
@@ -395,15 +394,6 @@ void Carte::genererCarteVide(std::string const &typeCase, unsigned int taille){
     std::cout << "_CASES : "<<_cases.size()<<std::endl;
 }
 
-
-double Carte::distanceEntrePointsHexagonaux(int i, int j, int k, int l) {
-    double x1 = i * 1.5;
-    double y1 = (j - i / 2.0) * std::sqrt(3);
-    double x2 = k * 1.5;
-    double y2 = (l - k / 2.0) * std::sqrt(3);
-    return std::sqrt(std::pow(x2 - x1, 2) + std::pow(y2 - y1, 2));
-}
-
 /*
 Pour le combat on cherche les alliés/ennemis que voit l'unité
 
@@ -433,7 +423,8 @@ void Carte::combat(std::shared_ptr<Unite> u1,unsigned int idTeam1, std::shared_p
     std::cout << degats.first<< " : "<<degats.second<<std::endl;
 }
 
-
+void Carte::combat(std::shared_ptr<Unite> u,unsigned int idTeam1, std::shared_ptr<Case> c) {
+}
 
 void Carte::brouillardDeGuerreUnite(std::shared_ptr<Unite> unite, std::vector<std::pair<int, int>> &vecteur)const{
     std::vector<std::pair<int, int>> vue;

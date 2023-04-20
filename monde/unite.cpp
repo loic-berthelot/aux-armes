@@ -3,7 +3,7 @@
 Unite::Unite(std::string name, accessibilite categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, 
     int defense, int distanceVue): 
 _categorie(categorie), _types(types), _posX(posX), _posY(posY), _sante(santeInitiale), _maxSante(santeInitiale), _attaque(attaque), 
-_defense(defense), _distanceVue(distanceVue), _nom(name), _maxMoral(100), _moral(_maxMoral), _vitesseDeplacement(0.2), _enVie(true), _espaceOccupe(1) {
+_defense(defense), _distanceVue(distanceVue), _nom(name), _maxMoral(100), _moral(_maxMoral), _vitesseDeplacement(0.2), _enVie(true), _espaceOccupe(1), _estRavitaille(false) {
     
 };
 
@@ -155,18 +155,20 @@ accessibilite Unite::getCategorie() const {
     return _categorie;
 }
 
-void Unite::avancer() {
+bool Unite::avancer() {
     if (_chemin.empty()) {
         _pointsMouvement = 0;
-    } else {
-        _pointsMouvement += _vitesseDeplacement;
-        if (_pointsMouvement > _chemin[0].second) {
-            _pointsMouvement = 0;
-            _posX = _chemin[0].first.first;
-            _posY = _chemin[0].first.second;
-            _chemin.erase(_chemin.begin());
-        }
+        return false;
     }
+    _pointsMouvement += _vitesseDeplacement;
+    if (_pointsMouvement > _chemin[0].second) {
+        _pointsMouvement = 0;
+        _posX = _chemin[0].first.first;
+        _posY = _chemin[0].first.second;
+        _chemin.erase(_chemin.begin());
+        return true;
+    }
+    return false;
 }
 
 void Unite::initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>> chemin) {
@@ -200,14 +202,15 @@ void Unite::infligerDegats(unsigned int degats) {
 
 void Unite::subirAttrition(float attrition) {
     unsigned int degats = static_cast<unsigned int>(attrition);
-    infligerDegats(degats);
+    infligerDegats(degats); // on inflige d'abord des dégâts équivalents à l'attrition dûr à la surpopulation
+    if (! _estRavitaille) infligerDegats(10); // puis on inflige 10 dégâts supplémentaires si l'unité n'est pas ravitaillée
+    _estRavitaille = false;
 }
 
 void Unite::ravitailler() {
     std::cout<<"unite ravitaillee !"<<std::endl;
-
+    _estRavitaille = true;
     regenererMoral(10);
-    regenererSante(10);
 }
 
 unsigned int Unite::getPortee()const{

@@ -28,6 +28,7 @@ class Unite{
     float _pointsMouvement;
     int _espaceOccupe;
     bool _enVie;
+    bool _estRavitaille;
     std::vector<std::pair<std::pair<int,int>, int>> _chemin;
 public:
     Unite(std::string nom,accessibilite categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, 
@@ -40,7 +41,7 @@ public:
     std::string toString() const;
     void donnerOrdre(std::shared_ptr<Ordre> ordre);
     std::pair<int, int> resultatCombatSimple(std::shared_ptr<Unite> ennemy)const;
-    void avancer();
+    bool avancer();
     void initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>> chemin);
 
 
