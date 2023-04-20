@@ -316,18 +316,7 @@ void Carte::executerOrdresArmee() {
             chemin = getGraphe(unites[i]-> getCategorie())->aEtoile(debut, fin);
         }else if (unites[i]->getOrdre()->getType() == TypeOrdre::ATTAQUER){
 
-            if (distance(unites[i]->getOrdre()->getPos(), unites[i]->getPos()) <= unites[i]->getPortee()){
-                for (unsigned int j = 0; j < _armees.size();j++){
-                    if (j != _indiceArmee) {//on vérifie que l'armée courante n'est pas l'armée du joueur qui attaque
-                        for (unsigned int k = 0;k < _armees[j]->getUnites().size();k++){
-                            bool ennemiPeutRepliquer = distance(unites[i]->getPos(), unites[i]->getOrdre()->getPos()) <= _armees[j]->getUnites()[k]->getPortee();
-                            combat(unites[i], i,_armees[j]->getUnites()[k], j, ennemiPeutRepliquer);
-                        }
-                    }                    
-                }                
-            }else
-                std::cout << "Portée pas assez grande pour attaquer."<<std::endl;
-            
+            combat(unites[i], _indiceArmee, unites[i]->getOrdre()->getPos().first, unites[i]->getOrdre()->getPos().second);
         }
         unites[i]->initialiserMouvement(chemin);
     }
@@ -399,31 +388,41 @@ Pour le combat on cherche les alliés/ennemis que voit l'unité
 
 */
 //U1 attaque, U2 se défend
-void Carte::combat(std::shared_ptr<Unite> u1,unsigned int idTeam1, std::shared_ptr<Unite> u2, unsigned int idTeam2, bool peutReplique){
-    //on applique mtn les calculs du nombre (par exemple si il y a plus d'ennemis, on va un peu perdre du morale)
-    u1->setMoral(u1->getMoral()+(ratioAlliesAdversaires(u1, 5, idTeam1)*6-15));//moral baisse ou augmente de 15
-    
-    u2->setMoral(u2->getMoral()+(ratioAlliesAdversaires(u2, 5, idTeam2)*6-15));//moral baisse ou augmente de 15
- 
-    //calcul de base
-    std::pair<int, int> degats = u1->resultatCombatSimple(u2);
-    int defense = 100;
-    //on applique les calculs du terrain du défenseur
-    for (const auto& pair : _cases) {
-        if (pair.first.first == u2->getX() && pair.first.second == u2->getY())
-            defense = pair.second->getDefense();
-    }
-    degats.first = static_cast<float>(degats.first)*(static_cast<float>(defense)/100);
-    degats.second = static_cast<float>(degats.second)*(static_cast<float>(100+(100-defense))/100);
 
-    u1->infligerDegats(degats.first);
-    if (peutReplique)
-        u2->infligerDegats(degats.second);
+void Carte::combat(std::shared_ptr<Unite> u1, unsigned int idTeam, int x, int y){
 
-    std::cout << degats.first<< " : "<<degats.second<<std::endl;
-}
+    if (distance(u1->getOrdre()->getPos(), u1->getPos()) <= u1->getPortee()){
+        for (unsigned int j = 0; j < _armees.size();j++){
+            for (unsigned int k = 0;k < _armees[j]->getUnites().size();k++){
+                if (_armees[j]->getUnites()[k]->getX() == u1->getOrdre()->getPos().first && 
+                    _armees[j]->getUnites()[k]->getY() == u1->getOrdre()->getPos().second){
+                    bool ennemiPeutRepliquer = distance(u1->getPos(), u1->getOrdre()->getPos()) <= _armees[j]->getUnites()[k]->getPortee();
+                    u1->setMoral(u1->getMoral()+(ratioAlliesAdversaires(u1, 5, idTeam)*6-15));//moral baisse ou augmente de 15
+                    _armees[j]->getUnites()[k]->setMoral(_armees[j]->getUnites()[k]->getMoral()+(ratioAlliesAdversaires(_armees[j]->getUnites()[k], 5, j)*6-15));//moral baisse ou augmente de 15
 
-void Carte::combat(std::shared_ptr<Unite> u,unsigned int idTeam1, std::shared_ptr<Case> c) {
+                    //calcul de base
+                    std::pair<int, int> degats = u1->resultatCombatSimple(_armees[j]->getUnites()[k]);
+                    int defense = 100;
+                    //on applique les calculs du terrain du défenseur
+                    for (const auto& pair : _cases) {
+                        if (pair.first.first == _armees[j]->getUnites()[k]->getX() && pair.first.second == _armees[j]->getUnites()[k]->getY())
+                            defense = pair.second->getDefense();
+                    }
+                    degats.first = static_cast<float>(degats.first)*(static_cast<float>(defense)/100);
+                    degats.second = static_cast<float>(degats.second)*(static_cast<float>(100+(100-defense))/100);
+
+                    u1->infligerDegats(degats.first);
+                    if (ennemiPeutRepliquer)
+                        _armees[j]->getUnites()[k]->infligerDegats(degats.second);
+
+                    std::cout << degats.first<< " : "<<degats.second<<std::endl;
+                }
+            }                 
+        }                
+    }else
+        std::cout << "Portée pas assez grande pour attaquer."<<std::endl;
+            
+
 }
 
 void Carte::brouillardDeGuerreUnite(std::shared_ptr<Unite> unite, std::vector<std::pair<int, int>> &vecteur)const{

@@ -54,10 +54,7 @@ public:
     void retirerCadavres();
     //fait combattre 2 unités
 
-    void combat(std::shared_ptr<Unite> u1,unsigned int idTeam1, 
-    std::shared_ptr<Unite> u2, unsigned int idTeam2, bool peutReplique);
-
-    void combat(std::shared_ptr<Unite> u,unsigned int idTeam1, std::shared_ptr<Case> c);
+    void combat(std::shared_ptr<Unite> u1, unsigned int idTeam, int x, int y);
 
     /*Methode de la carte (MAP ) =============================*/
 
