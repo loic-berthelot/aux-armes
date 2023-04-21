@@ -7,6 +7,10 @@
 #include "case.h"
 #include "exception.h"
 
+static accessibilite stringToCategorie(std::string const &s);
+
+static std::string CategorieToString(accessibilite const c);
+
 class Unite{
     std::string _nom;
     accessibilite _categorie;
@@ -22,8 +26,8 @@ class Unite{
     int _attaque;//100 de base
     int _defense;//100 de base
     int _distanceVue;
-    unsigned int _portee = 3;
-    int _rayonRavitaillement;
+    unsigned int _portee;
+    int _distanceRavitaillement;
     float _vitesseDeplacement = 0.2;
     float _pointsMouvement;
     int _espaceOccupe = 1;
@@ -33,8 +37,6 @@ class Unite{
     std::pair<int,int> _positionPrecedente = std::make_pair(_posX, _posY);
 
 public:
-    Unite(std::string nom,accessibilite categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, int defense, int distanceVue);
-    
     ~Unite() {std::cout<<"destruction de l'Unite"<<std::endl; }
 
     Unite(std::string name, int x, int y);
@@ -49,32 +51,11 @@ public:
 
     void initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>> chemin);
 
-    static accessibilite stringToCategorie(std::string const &s){
-        if (s == "Air")
-            return accessibilite::Air;
-        else if (s == "Eau")
-            return accessibilite::Eau;
-        else if (s == "Terre")
-            return accessibilite::Terre;
-        else return accessibilite::EauEtTerre;
-    }
-    static std::string CategorieToString(accessibilite const c){
-        if (c == accessibilite::Air)
-            return "Air";
-        else if (c == accessibilite::Eau)
-            return "Eau";
-        else if (c == accessibilite::Terre)
-            return "Terre";
-        else return "EauEtTerre";
-    }
-
-    static void CreationNouvelleUnite(std::string const &nom, std::vector<Type> const &types, int sante, accessibilite categorie, int attaque, int defense, int distanceVue, int pointsMouvement);
+    static void CreationNouvelleUnite(std::string const &nom, std::vector<Type> const &types, int sante, accessibilite categorie, int attaque, int defense, int distanceVue, int pointsMouvement, int distanceRavitaillement);
 
     /*GETTERS AND SETTERS ================================*/
 
-    int getMoral()const{
-        return _moral;
-    }
+    int getMoral()const;
 
     int getX()const;
 
@@ -82,19 +63,17 @@ public:
 
     int getDistanceVue()const;
 
-    int getRayonRavitaillement() const;
+    int getDistanceRavitaillement() const;
 
     accessibilite getCategorie() const;
 
-    void setDistanceVue(int distanceVue){
-        _distanceVue = distanceVue;
-    }
+    void setDistanceVue(int distanceVue);
+
     std::shared_ptr<Ordre> getOrdre() const;
+    
     std::pair<int,int> getPos() const;
 
-    std::vector<Type> getTypes()const{
-        return _types;
-    }
+    std::vector<Type> getTypes()const;
 
     void regenererSante(int pointsSante);
 
@@ -106,15 +85,12 @@ public:
 
     void subirAttrition(float attrition);
 
-    void setX(int x){
-        _posX = x;
-    }
+    void setX(int x);
 
-    void setY(int y){
-        _posY = y;
-    }
+    void setY(int y);
 
     unsigned int getPortee()const;
+
     bool estVivant() const;
 
     int getEspaceOccupe() const;

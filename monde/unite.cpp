@@ -1,9 +1,23 @@
 #include "unite.h"
 
-Unite::Unite(std::string name, accessibilite categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, int defense, int distanceVue): 
-_categorie(categorie), _types(types), _posX(posX), _posY(posY), _sante(santeInitiale), _maxSante(santeInitiale), _attaque(attaque), 
-_defense(defense), _distanceVue(distanceVue), _nom(name) {
-};
+static accessibilite stringToCategorie(std::string const &s){
+        if (s == "Air")
+            return accessibilite::Air;
+        else if (s == "Eau")
+            return accessibilite::Eau;
+        else if (s == "Terre")
+            return accessibilite::Terre;
+        else return accessibilite::EauEtTerre;
+}
+static std::string CategorieToString(accessibilite const c){
+    if (c == accessibilite::Air)
+        return "Air";
+    else if (c == accessibilite::Eau)
+        return "Eau";
+    else if (c == accessibilite::Terre)
+        return "Terre";
+    else return "EauEtTerre";
+}
 
 //lecture du fichier
 Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ordreRecu(nullptr){
@@ -35,6 +49,14 @@ std::ifstream fichier("../monde/Unites/"+name+".txt");
     std::getline(fichier, ligne);//index pm
     std::getline(fichier, ligne);//pm
     _pointsMouvement = std::stoi(ligne);
+
+    std::getline(fichier, ligne);//index distanceRavitaillement
+    std::getline(fichier, ligne);//distanceRavitaillement
+    _distanceRavitaillement = std::stoi(ligne);
+
+    std::getline(fichier, ligne);//index portee
+    std::getline(fichier, ligne);//portee
+    _portee = std::stoi(ligne);
     
 
     std::getline(fichier, ligne);//index typeUnité
@@ -48,7 +70,7 @@ std::ifstream fichier("../monde/Unites/"+name+".txt");
 }
 
 std::string Unite::toString() const {
-    return "X : "+ std::to_string(_posX)+"Y : "+std::to_string(_posY);
+    return "Unite en ("+ std::to_string(_posX)+","+std::to_string(_posY)+") avec "+std::to_string(_sante)+"/"+std::to_string(_maxSante)+" sante et "+std::to_string(_moral)+"/"+std::to_string(_maxMoral)+" moral.";
 }
 
 //on considère que le combat est équilibré. Les boots ou autres changements seront fais dans la méthode combat de la classe Map
@@ -80,10 +102,8 @@ std::pair<int, int> Unite::resultatCombatSimple(std::shared_ptr<Unite> ennemi)co
     return resultat;
 }
 
-
-
 void Unite::CreationNouvelleUnite(std::string const &nom, std::vector<Type> const &types, int sante, accessibilite categorie,
-int attaque, int defense, int distanceVue, int pointsMouvement){
+int attaque, int defense, int distanceVue, int pointsMouvement, int distanceRavitaillement){
     std::ofstream fichier("../monde/Unites/"+nom+".txt");
 
     if (fichier.is_open()) {
@@ -100,6 +120,8 @@ int attaque, int defense, int distanceVue, int pointsMouvement){
         fichier << std::to_string(distanceVue)<<std::endl;
         fichier << "Point de mouvement:" << std::endl;
         fichier << std::to_string(pointsMouvement)<<std::endl;
+        fichier << "Distance de ravitaillement:" << std::endl;
+        fichier << std::to_string(distanceRavitaillement)<<std::endl;
 
         for (unsigned int i = 0; i < types.size();i++){
             fichier << types[i].getNom()<<std::endl;
@@ -132,9 +154,8 @@ int Unite::getDistanceVue()const{
     return _distanceVue;
 }
 
-int Unite::getRayonRavitaillement() const {
-    if (_nom == "Caravane") return 10;
-    return 0;
+int Unite::getDistanceRavitaillement() const {
+    return _distanceRavitaillement;
 }
 
 accessibilite Unite::getCategorie() const {
@@ -209,6 +230,14 @@ void Unite::ravitailler() {
     regenererMoral(10);
 }
 
+void Unite::setX(int x){
+    _posX = x;
+}
+
+void Unite::setY(int y){
+    _posY = y;
+}
+
 unsigned int Unite::getPortee()const{
     return _portee;
 }
@@ -219,4 +248,16 @@ bool Unite::estVivant() const {
 
 int Unite::getEspaceOccupe() const {
     return _espaceOccupe;
+}
+
+int Unite::getMoral()const {
+    return _moral;
+}
+
+void Unite::setDistanceVue(int distanceVue) {
+    _distanceVue = distanceVue;
+}
+
+std::vector<Type> Unite::getTypes()const {
+    return _types;
 }

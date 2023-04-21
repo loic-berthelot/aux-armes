@@ -254,7 +254,7 @@ std::map<std::pair<int,int>, int> Carte::getRelaisRavitaillement() const {
     int rayon;
     for (unsigned int i = 0; i < unites.size(); i++) {
         pos = unites[i]->getPos();
-        rayon = unites[i]->getRayonRavitaillement();
+        rayon = unites[i]->getDistanceRavitaillement();
         if (relais.count(pos) == 0) {
             if ( rayon > 0) relais[pos] = rayon;
         } else if (relais.at(pos) < rayon) {
