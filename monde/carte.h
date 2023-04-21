@@ -59,7 +59,7 @@ public:
     void retirerCadavres();
     //fait combattre 2 unités
 
-    void combat(std::shared_ptr<Unite> u1, unsigned int idTeam, int x, int y);
+    void combat(std::shared_ptr<Unite> u1, unsigned int idTeam, std::pair<int,int> positionCombat);
 
     /*Methode de la carte (MAP ) =============================*/
 
@@ -74,6 +74,8 @@ public:
 
     //Attention les X et Y sont les coordonnées en fonction du milieu
     std::shared_ptr<Case> getCase(int x, int y)const;
+
+    std::shared_ptr<Case> getCase(std::pair<int,int> pos) const;
 
     void affichageSeulementCarte()const;
 

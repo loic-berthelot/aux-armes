@@ -47,7 +47,7 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
         bool estAccessibleParTerre = false;
         std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(i, j);
         for (const auto& voisin : voisins) {
-            if (getCase(voisin.first, voisin.second) && getCase(voisin.first, voisin.second)->accessibleTerre()) {
+            if (getCase(voisin) && getCase(voisin)->accessibleTerre()) {
                 estAccessibleParTerre = true;
                 break;
             }
@@ -136,7 +136,7 @@ std::shared_ptr<Graphe> Carte::creerGraphe(accessibilite acces) const {
         std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(paire.first, paire.second);
         for (const auto voisin : voisins) {
             if (std::find(sommets.begin(), sommets.end(), voisin) != sommets.end()) {
-                graphe->ajouterSuivant(paire, voisin, getCase(voisin.first, voisin.second)->getCoutDeplacement());
+                graphe->ajouterSuivant(paire, voisin, getCase(voisin)->getCoutDeplacement());
             }
         }
     }
@@ -265,8 +265,6 @@ std::map<std::pair<int,int>, int> Carte::getRelaisRavitaillement() const {
 }
 
 void Carte::ravitaillerArmee() {
-
-    std::cout<<"RAVITAILLEMENT"<<std::endl;
     std::vector<std::pair<int,int>> departs = getDepartsRavitaillement();
     std::vector<std::pair<int,int>> obstacles = getPositionsEnnemis();
     std::map<std::pair<int,int>,int> relais = getRelaisRavitaillement();
@@ -295,14 +293,13 @@ void Carte::appliquerAttritionArmee(){
     for (unsigned int i = 0; i < unites.size(); i++) {
         pos = unites[i]->getPos();
         occupation = casesOccupees.at(pos);
-        capaciteAcceuil = getCase(pos.first, pos.second)->getCapaciteAccueil();
+        capaciteAcceuil = getCase(pos)->getCapaciteAccueil();
         if (occupation > capaciteAcceuil) unites[i]->subirAttrition(50*(occupation/capaciteAcceuil-1)); //taux d'attrition à ajuster  
         else unites[i]->subirAttrition(0);//il faut quand même appeler subirAttrition() pour chaque unité à chaque tour
     }
 }
 
 void Carte::retirerCadavres(){
-    std::vector<std::shared_ptr<Unite>> unites;
     for (unsigned int i = 0; i < _armees.size(); i++) _armees[i]->retirerUnitesMortes();
 }
 
@@ -316,7 +313,7 @@ void Carte::executerOrdresArmee() {
             chemin = getGraphe(unites[i]-> getCategorie())->aEtoile(debut, fin);
         }else if (unites[i]->getOrdre()->getType() == TypeOrdre::ATTAQUER){
 
-            combat(unites[i], _indiceArmee, unites[i]->getOrdre()->getPos().first, unites[i]->getOrdre()->getPos().second);
+            combat(unites[i], _indiceArmee, unites[i]->getOrdre()->getPos());
         }
         unites[i]->initialiserMouvement(chemin);
     }
@@ -325,8 +322,8 @@ void Carte::executerOrdresArmee() {
             bool seDeplace = unites[i]->avancer(); //l'unité avance (elle accumue des points de mouvement et avance parfois d'une case)
             if (seDeplace) { //si en avançant l'unité arrive sur une nouvelle case, on vérifie si cette case est tenue par un ennemi
                 if (ennemiSurCase(unites[i]->getPos())) {
-                    combat(unites[i], _indiceArmee, unites[i]->getOrdre()->getPos().first, unites[i]->getOrdre()->getPos().second); //on lance alors un combat
-                    if (ennemiSurCase(unites[i]->getPos())) unites[i]->reculer(); //si l'une des unités ennemies survit, elle repousse l'attaque(l'unité courante doit reculer)
+                    combat(unites[i], _indiceArmee, unites[i]->getPos()); //on lance alors un combat
+                    //if (ennemiSurCase(unites[i]->getPos())) unites[i]->reculer(); //si l'une des unités ennemies survit, elle repousse l'attaque(l'unité courante doit reculer)
                 }
             }
         }        
@@ -336,9 +333,9 @@ void Carte::executerOrdresArmee() {
 bool Carte::ennemiSurCase(std::pair<int,int> pos) const {
     for (unsigned int i = 0; i < _armees.size(); i++) {
         if (i != _indiceArmee) {
-            std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
+            std::vector<std::shared_ptr<Unite>> unites = _armees[i]->getUnites();
             for (unsigned int j = 0; j < unites.size(); j++) {
-                if (unites[i]->getPos() == pos) return true;
+                if (unites[j]->getPos() == pos) return true;
             }
         }
     }
@@ -357,14 +354,18 @@ std::vector<std::pair<int, int>> Carte::getCoordonneesVoisins(int posX, int posY
     return resultat;
 }
 
-std::shared_ptr<Case> Carte::getCase(int x, int y)const{
-    if (-_rayon >= y || y >= _rayon) return nullptr;
-    if (y>=0) {
-        if (-_rayon >= x || x >= _rayon-y) return nullptr;
+std::shared_ptr<Case> Carte::getCase(std::pair<int,int> pos) const {
+    if (-_rayon >= pos.second || pos.second >= _rayon) return nullptr;
+    if (pos.second>=0) {
+        if (-_rayon >= pos.first || pos.first >= _rayon-pos.second) return nullptr;
     } else {
-        if (-_rayon - y >= x || x >= _rayon) return nullptr;
+        if (-_rayon - pos.second >= pos.first || pos.first >= _rayon) return nullptr;
     }
-    return _cases.at(std::make_pair(x,y));    
+    return _cases.at(pos);    
+}
+
+std::shared_ptr<Case> Carte::getCase(int x, int y)const{
+    return getCase(std::make_pair(x,y));    
 }
 
 void Carte::affichageSeulementCarte()const{
@@ -405,32 +406,29 @@ Pour le combat on cherche les alliés/ennemis que voit l'unité
 */
 //U1 attaque, U2 se défend
 
-void Carte::combat(std::shared_ptr<Unite> u1, unsigned int idTeam, int x, int y){
-
-    if (distance(u1->getOrdre()->getPos(), u1->getPos()) <= u1->getPortee()){
+void Carte::combat(std::shared_ptr<Unite> u1, unsigned int idTeam, std::pair<int,int> positionCombat){
+    if (distance(positionCombat, u1->getPos()) <= u1->getPortee()){
         for (unsigned int j = 0; j < _armees.size();j++){
             std::vector<std::shared_ptr<Unite>> unites = _armees[j]->getUnites();
             for (unsigned int k = 0; k < unites.size(); k++){
-                if (_armees[j]->getUnite(k)->getPos() == u1->getOrdre()->getPos()){
-                    bool ennemiPeutRepliquer = distance(u1->getPos(), u1->getOrdre()->getPos()) <= _armees[j]->getUnite(k)->getPortee();
+                if (unites[k]->getPos() == positionCombat){
+                    bool ennemiPeutRepliquer = distance(u1->getPos(), positionCombat) <= unites[k]->getPortee();
                     u1->regenererMoral(ratioAlliesAdversaires(u1, 5, idTeam)*6-15);//moral baisse ou augmente de 15
-                    _armees[j]->getUnite(k)->regenererMoral(ratioAlliesAdversaires(_armees[j]->getUnite(k), 5, j)*6-15);//moral baisse ou augmente de 15
+                    unites[k]->regenererMoral(ratioAlliesAdversaires(unites[k], 5, j)*6-15);//moral baisse ou augmente de 15
 
                     //calcul de base
-                    std::pair<int, int> degats = u1->resultatCombatSimple(_armees[j]->getUnite(k));
-                    int defense = 100;
+                    std::pair<int, int> degats = u1->resultatCombatSimple(unites[k]);
+
                     //on applique les calculs du terrain du défenseur
-                    for (const auto& pair : _cases) {
-                        if (pair.first == _armees[j]->getUnite(k)->getPos()) defense = pair.second->getDefense();
-                    }
+                    int defense = getCase(unites[k]->getPos())->getDefense();
                     degats.first = static_cast<float>(degats.first)*(static_cast<float>(defense)/100);
                     degats.second = static_cast<float>(degats.second)*(static_cast<float>(100+(100-defense))/100);
 
                     u1->infligerDegats(degats.first);
                     if (ennemiPeutRepliquer)
-                        _armees[j]->getUnite(k)->infligerDegats(degats.second);
+                        unites[k]->infligerDegats(degats.second);
 
-                    std::cout << degats.first<< " : "<<degats.second<<std::endl;
+                    std::cout << "Une unite inflige "<<degats.first<< " degats et en recoit "<<degats.second<<" en retour."<<std::endl;
                 }
             }                 
         }                
@@ -506,15 +504,15 @@ float Carte::ratioAlliesAdversaires(std::shared_ptr<Unite> unite, unsigned int z
     unsigned int nbEnnemis = 0;
 
     for (unsigned int i = 0; i < vision.size();i++)
-        for (unsigned int j = 0; j < _armees.size();j++)
+        for (unsigned int j = 0; j < _armees.size();j++){
             for (unsigned int k = 0; k < _armees[j]->size();k++)
-                if (_armees[i]->getUnite(k)->getX() == vision[i].first && _armees[i]->getUnite(k)->getY() == vision[i].second){
+                if (_armees[j]->getUnite(k)->getPos() == vision[i]){
                     if (j == idEquipeJoueur)
                         nbAllies++;
                     else 
                         nbEnnemis++;
                 }
-
+        }
     unite->setDistanceVue(ancienneVision);
 
     if (nbEnnemis == 0)return 1;

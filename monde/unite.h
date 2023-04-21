@@ -14,9 +14,9 @@ class Unite{
     //Les coordonnées de la case centrale du plateau sont (0,0). Les axes sont dirigés vers le haut et la droite.
     int _posX;
     int _posY;
-    std::shared_ptr<Ordre> _ordreRecu;
-    int _moral;
-    int _maxMoral;
+    std::shared_ptr<Ordre> _ordreRecu;    
+    int _maxMoral = 100;
+    int _moral = _maxMoral;
     int _sante;
     int _maxSante;
     int _attaque;//100 de base
@@ -24,27 +24,30 @@ class Unite{
     int _distanceVue;
     unsigned int _portee = 3;
     int _rayonRavitaillement;
-    float _vitesseDeplacement;
+    float _vitesseDeplacement = 0.2;
     float _pointsMouvement;
-    int _espaceOccupe;
-    bool _enVie;
-    bool _estRavitaille;
+    int _espaceOccupe = 1;
+    bool _enVie = true;;
+    bool _estRavitaille = false;
     std::vector<std::pair<std::pair<int,int>, int>> _chemin;
-    std::pair<int,int> _positionPrecedente;
-public:
-    Unite(std::string nom,accessibilite categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, 
-    int defense, int distanceVue);
+    std::pair<int,int> _positionPrecedente = std::make_pair(_posX, _posY);
 
+public:
+    Unite(std::string nom,accessibilite categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, int defense, int distanceVue);
+    
+    ~Unite() {std::cout<<"destruction de l'Unite"<<std::endl; }
 
     Unite(std::string name, int x, int y);
 
-
     std::string toString() const;
-    void donnerOrdre(std::shared_ptr<Ordre> ordre);
-    std::pair<int, int> resultatCombatSimple(std::shared_ptr<Unite> ennemy)const;
-    bool avancer();
-    void initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>> chemin);
 
+    void donnerOrdre(std::shared_ptr<Ordre> ordre);
+
+    std::pair<int, int> resultatCombatSimple(std::shared_ptr<Unite> ennemi)const;
+
+    bool avancer();
+
+    void initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>> chemin);
 
     static accessibilite stringToCategorie(std::string const &s){
         if (s == "Air")
@@ -65,12 +68,9 @@ public:
         else return "EauEtTerre";
     }
 
-
-    static void CreationNouvelleUnite(std::string const &nom, std::vector<Type> const &types, int sante, accessibilite categorie,
-    int attaque, int defense, int distanceVue, int pointsMouvement);
+    static void CreationNouvelleUnite(std::string const &nom, std::vector<Type> const &types, int sante, accessibilite categorie, int attaque, int defense, int distanceVue, int pointsMouvement);
 
     /*GETTERS AND SETTERS ================================*/
-
 
     int getMoral()const{
         return _moral;

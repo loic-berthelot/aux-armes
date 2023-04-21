@@ -2,9 +2,7 @@
 
 Unite::Unite(std::string name, accessibilite categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, int defense, int distanceVue): 
 _categorie(categorie), _types(types), _posX(posX), _posY(posY), _sante(santeInitiale), _maxSante(santeInitiale), _attaque(attaque), 
-_defense(defense), _distanceVue(distanceVue), _nom(name), _maxMoral(100), _moral(_maxMoral), _vitesseDeplacement(0.2), _enVie(true), 
-_espaceOccupe(1), _estRavitaille(false),_positionPrecedente(std::make_pair(_posX, _posY)) {
-    
+_defense(defense), _distanceVue(distanceVue), _nom(name) {
 };
 
 //lecture du fichier
@@ -54,21 +52,16 @@ std::string Unite::toString() const {
 }
 
 //on considère que le combat est équilibré. Les boots ou autres changements seront fais dans la méthode combat de la classe Map
-std::pair<int, int> Unite::resultatCombatSimple(std::shared_ptr<Unite> ennemy)const{
-
+std::pair<int, int> Unite::resultatCombatSimple(std::shared_ptr<Unite> ennemi)const{
     //calcul du coefficient
-
-
     float moy = 1;
     float nb = 0;
     float nbBuffer = 0;
     float moyBuffer = 1;
-    for (unsigned int i = 0; i < _types.size();i++){
-        
-        for (unsigned int j = 0; j <ennemy->getTypes().size();j++){
-            moyBuffer+=_types[i].getCoefficients(ennemy->getTypes()[j].getNom());
+    for (unsigned int i = 0; i < _types.size();i++){        
+        for (unsigned int j = 0; j <ennemi->getTypes().size();j++){
+            moyBuffer+=_types[i].getCoefficients(ennemi->getTypes()[j].getNom());
             nbBuffer++;
-
         }
         if (nbBuffer != 0){
             moy+=(moyBuffer/nbBuffer);
@@ -78,20 +71,13 @@ std::pair<int, int> Unite::resultatCombatSimple(std::shared_ptr<Unite> ennemy)co
         }
     }
     int coef;
-    if (nb != 0){
-        coef = 1;
-    }else{
-        coef = moy/nb;
-    }
-
-
+    if (nb == 0) coef = 1;
+    else coef = moy/nb;
     std::pair<int, int> resultat;
     //1er int correspond aux dégâts que recoit l'unité this et le deuxième aux dégats de l'unité
-    resultat.first = (static_cast<float>(ennemy->_attaque)*(1.0 / ( static_cast<float>(_defense) ) ) )*static_cast<float>(ennemy->_moral)*coef;
-    resultat.second = (static_cast<float>(_attaque)*(1.0 / ( static_cast<float>(ennemy->_defense) ) ) )*static_cast<float>(_moral)*coef;
-
+    resultat.first = static_cast<float>(ennemi->_attaque) / (static_cast<float>(_defense)) * static_cast<float>(ennemi->_moral)*coef;
+    resultat.second = static_cast<float>(_attaque) / (static_cast<float>(ennemi->_defense)) * static_cast<float>(_moral)*coef;
     return resultat;
-
 }
 
 
@@ -197,19 +183,22 @@ void Unite::regenererMoral(int pointsMoral) {
 }
 
 void Unite::regenererSante(int pointsSante) {
+    if (pointsSante < 0) throw Exception ("Erreur : points de sante negatifs dans Unite::regenererSante.");
     _sante += pointsSante;
     if (_sante > _maxSante) _sante = _maxSante;
 }
 
 void Unite::infligerDegats(unsigned int degats) {
     if (degats < 0) throw Exception ("Erreur : degats negatifs dans Unite::infligerDegats.");
-    _sante -= degats;
-    if (_sante <= 0) _enVie = false;
+    if (degats >= _sante)  {
+        _sante = 0;
+        _enVie = false;
+    } else  _sante -= degats;    
 }
 
 void Unite::subirAttrition(float attrition) {
     unsigned int degats = static_cast<unsigned int>(attrition);
-    infligerDegats(degats); // on inflige d'abord des dégâts équivalents à l'attrition dûr à la surpopulation
+    infligerDegats(degats); // on inflige d'abord des dégâts équivalents à l'attrition dûe à la surpopulation
     if (! _estRavitaille) infligerDegats(10); // puis on inflige 10 dégâts supplémentaires si l'unité n'est pas ravitaillée
     _estRavitaille = false;
 }
