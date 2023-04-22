@@ -10,4 +10,8 @@ Distance de vue:
 4
 Point de mouvement:
 100
+Distance ravitaillement:
+0
+Portée:
+0
 Infanterie

@@ -1,11 +1,23 @@
 #include "unite.h"
 
-Unite::Unite(std::string name, accessibilite categorie, const std::vector<Type> & types, int posX, int posY, int santeInitiale, int attaque, int defense, int distanceVue): 
-_categorie(categorie), _types(types), _posX(posX), _posY(posY), _sante(santeInitiale), _maxSante(santeInitiale), _attaque(attaque), 
-_defense(defense), _distanceVue(distanceVue), _nom(name), _maxMoral(100), _moral(_maxMoral), _vitesseDeplacement(0.2), _enVie(true), 
-_espaceOccupe(1), _estRavitaille(false),_positionPrecedente(std::make_pair(_posX, _posY)) {
-    
-};
+static accessibilite stringToCategorie(std::string const &s){
+        if (s == "Air")
+            return accessibilite::Air;
+        else if (s == "Eau")
+            return accessibilite::Eau;
+        else if (s == "Terre")
+            return accessibilite::Terre;
+        else return accessibilite::EauEtTerre;
+}
+static std::string CategorieToString(accessibilite const c){
+    if (c == accessibilite::Air)
+        return "Air";
+    else if (c == accessibilite::Eau)
+        return "Eau";
+    else if (c == accessibilite::Terre)
+        return "Terre";
+    else return "EauEtTerre";
+}
 
 //lecture du fichier
 Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ordreRecu(nullptr){
@@ -37,6 +49,14 @@ std::ifstream fichier("../monde/Unites/"+name+".txt");
     std::getline(fichier, ligne);//index pm
     std::getline(fichier, ligne);//pm
     _pointsMouvement = std::stoi(ligne);
+
+    std::getline(fichier, ligne);//index distanceRavitaillement
+    std::getline(fichier, ligne);//distanceRavitaillement
+    _distanceRavitaillement = std::stoi(ligne);
+
+    std::getline(fichier, ligne);//index portee
+    std::getline(fichier, ligne);//portee
+    _portee = std::stoi(ligne);
     
 
     std::getline(fichier, ligne);//index typeUnité
@@ -50,25 +70,20 @@ std::ifstream fichier("../monde/Unites/"+name+".txt");
 }
 
 std::string Unite::toString() const {
-    return "X : "+ std::to_string(_posX)+"Y : "+std::to_string(_posY);
+    return "Unite en ("+ std::to_string(_posX)+","+std::to_string(_posY)+") avec "+std::to_string(_sante)+"/"+std::to_string(_maxSante)+" sante et "+std::to_string(_moral)+"/"+std::to_string(_maxMoral)+" moral.";
 }
 
 //on considère que le combat est équilibré. Les boots ou autres changements seront fais dans la méthode combat de la classe Map
-std::pair<int, int> Unite::resultatCombatSimple(std::shared_ptr<Unite> ennemy)const{
-
+std::pair<int, int> Unite::resultatCombatSimple(std::shared_ptr<Unite> ennemi)const{
     //calcul du coefficient
-
-
     float moy = 1;
     float nb = 0;
     float nbBuffer = 0;
     float moyBuffer = 1;
-    for (unsigned int i = 0; i < _types.size();i++){
-        
-        for (unsigned int j = 0; j <ennemy->getTypes().size();j++){
-            moyBuffer+=_types[i].getCoefficients(ennemy->getTypes()[j].getNom());
+    for (unsigned int i = 0; i < _types.size();i++){        
+        for (unsigned int j = 0; j <ennemi->getTypes().size();j++){
+            moyBuffer+=_types[i].getCoefficients(ennemi->getTypes()[j].getNom());
             nbBuffer++;
-
         }
         if (nbBuffer != 0){
             moy+=(moyBuffer/nbBuffer);
@@ -78,26 +93,17 @@ std::pair<int, int> Unite::resultatCombatSimple(std::shared_ptr<Unite> ennemy)co
         }
     }
     int coef;
-    if (nb != 0){
-        coef = 1;
-    }else{
-        coef = moy/nb;
-    }
-
-
+    if (nb == 0) coef = 1;
+    else coef = moy/nb;
     std::pair<int, int> resultat;
     //1er int correspond aux dégâts que recoit l'unité this et le deuxième aux dégats de l'unité
-    resultat.first = (static_cast<float>(ennemy->_attaque)*(1.0 / ( static_cast<float>(_defense) ) ) )*static_cast<float>(ennemy->_moral)*coef;
-    resultat.second = (static_cast<float>(_attaque)*(1.0 / ( static_cast<float>(ennemy->_defense) ) ) )*static_cast<float>(_moral)*coef;
-
+    resultat.first = static_cast<float>(ennemi->_attaque) / (static_cast<float>(_defense)) * static_cast<float>(ennemi->_moral)*coef;
+    resultat.second = static_cast<float>(_attaque) / (static_cast<float>(ennemi->_defense)) * static_cast<float>(_moral)*coef;
     return resultat;
-
 }
 
-
-
 void Unite::CreationNouvelleUnite(std::string const &nom, std::vector<Type> const &types, int sante, accessibilite categorie,
-int attaque, int defense, int distanceVue, int pointsMouvement){
+int attaque, int defense, int distanceVue, int pointsMouvement, int distanceRavitaillement){
     std::ofstream fichier("../monde/Unites/"+nom+".txt");
 
     if (fichier.is_open()) {
@@ -114,6 +120,8 @@ int attaque, int defense, int distanceVue, int pointsMouvement){
         fichier << std::to_string(distanceVue)<<std::endl;
         fichier << "Point de mouvement:" << std::endl;
         fichier << std::to_string(pointsMouvement)<<std::endl;
+        fichier << "Distance de ravitaillement:" << std::endl;
+        fichier << std::to_string(distanceRavitaillement)<<std::endl;
 
         for (unsigned int i = 0; i < types.size();i++){
             fichier << types[i].getNom()<<std::endl;
@@ -155,9 +163,8 @@ int Unite::getDistanceVue()const{
     return _distanceVue;
 }
 
-int Unite::getRayonRavitaillement() const {
-    if (_nom == "Caravane") return 10;
-    return 0;
+int Unite::getDistanceRavitaillement() const {
+    return _distanceRavitaillement;
 }
 
 accessibilite Unite::getCategorie() const {
@@ -206,19 +213,22 @@ void Unite::regenererMoral(int pointsMoral) {
 }
 
 void Unite::regenererSante(int pointsSante) {
+    if (pointsSante < 0) throw Exception ("Erreur : points de sante negatifs dans Unite::regenererSante.");
     _sante += pointsSante;
     if (_sante > _maxSante) _sante = _maxSante;
 }
 
 void Unite::infligerDegats(unsigned int degats) {
     if (degats < 0) throw Exception ("Erreur : degats negatifs dans Unite::infligerDegats.");
-    _sante -= degats;
-    if (_sante <= 0) _enVie = false;
+    if (degats >= _sante)  {
+        _sante = 0;
+        _enVie = false;
+    } else  _sante -= degats;    
 }
 
 void Unite::subirAttrition(float attrition) {
     unsigned int degats = static_cast<unsigned int>(attrition);
-    infligerDegats(degats); // on inflige d'abord des dégâts équivalents à l'attrition dûr à la surpopulation
+    infligerDegats(degats); // on inflige d'abord des dégâts équivalents à l'attrition dûe à la surpopulation
     if (! _estRavitaille) infligerDegats(10); // puis on inflige 10 dégâts supplémentaires si l'unité n'est pas ravitaillée
     _estRavitaille = false;
 }
@@ -227,6 +237,14 @@ void Unite::ravitailler() {
     std::cout<<"unite ravitaillee !"<<std::endl;
     _estRavitaille = true;
     regenererMoral(10);
+}
+
+void Unite::setX(int x){
+    _posX = x;
+}
+
+void Unite::setY(int y){
+    _posY = y;
 }
 
 unsigned int Unite::getPortee()const{
@@ -239,4 +257,16 @@ bool Unite::estVivant() const {
 
 int Unite::getEspaceOccupe() const {
     return _espaceOccupe;
+}
+
+int Unite::getMoral()const {
+    return _moral;
+}
+
+void Unite::setDistanceVue(int distanceVue) {
+    _distanceVue = distanceVue;
+}
+
+std::vector<Type> Unite::getTypes()const {
+    return _types;
 }
