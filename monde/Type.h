@@ -37,6 +37,7 @@ class Type{
             return 1.0;
     }
 
+    bool possedeSpecificite(Specificite s)const;
     
 
 };

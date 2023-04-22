@@ -127,6 +127,15 @@ int attaque, int defense, int distanceVue, int pointsMouvement){
     }
 }
 
+
+bool Unite::possedeSpecificite(Specificite e)const{
+    for (unsigned int i = 0; i < _types.size();i++)
+        if (_types[i].possedeSpecificite(e))
+            return true;
+
+    return false;
+}
+
 /*Getters / SETTERS*/
 
 
