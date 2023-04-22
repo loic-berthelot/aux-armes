@@ -25,7 +25,6 @@ Jeu::Jeu(unsigned int tailleMap, std::string const &armeeDesc){
     }
     std::cout << "Buffer : fin"<<buffer.size()<<std::endl;
     
-    _carte = Carte(tailleMap, buffer);
     for (unsigned int i = 0; i < team;i++){
         ajouterJoueur();
     }
