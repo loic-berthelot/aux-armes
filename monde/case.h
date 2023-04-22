@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include "exception.h"
 
 enum class accessibilite{Eau, Air, Terre, EauEtTerre};
 
@@ -14,8 +15,8 @@ private:
     bool _departRavitaillement; 
     accessibilite _typeAccessibilité;
     int _capaciteAccueil;
+    bool _zoneFurtivite = false;
 public:
-
     Case(std::string nomFichier);//on part du build
 
     static bool creerCaseEtSauvegardeFichier(std::string const &nom, accessibilite access,int coutDeplacement, int defense);
@@ -23,6 +24,8 @@ public:
     bool accessibleTerre()const;
 
     bool accessibleEau()const;
+
+    bool obstacleVision() const;
 
     /*Getters and setters*/
 
@@ -39,4 +42,6 @@ public:
     bool estDepartRavitaillement() const;
 
     int getCapaciteAccueil() const;
+
+    bool permetFurtivite() const;
 };

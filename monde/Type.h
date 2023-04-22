@@ -7,11 +7,13 @@
 #include <iostream>
 #include <stdexcept>
 #include <fstream>
-
+#include "exception.h"
 
 enum class Specificite{
-    invisibleForet,
-    inconnu
+    furtif,
+    degatsDeZone,
+    incendiaire,
+    inflammable
 };
 
 class Type{

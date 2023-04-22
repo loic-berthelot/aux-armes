@@ -21,7 +21,7 @@ static std::string CategorieToString(accessibilite const c){
 
 //lecture du fichier
 Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ordreRecu(nullptr){
-std::ifstream fichier("../monde/Unites/"+name+".txt");
+    std::ifstream fichier("../monde/Unites/"+name+".txt");
     
     if (!fichier.is_open()) {
         throw std::invalid_argument("Erreur : L'unité n'existe pas." + name);
@@ -65,6 +65,13 @@ std::ifstream fichier("../monde/Unites/"+name+".txt");
         _types.push_back(Type(ligne));
     }
     
+    for (unsigned int i = 0; i < _types.size(); i++) {
+        if (_types[i].possedeSpecificite(Specificite::degatsDeZone)) _degatsDeZone = true;
+        if (_types[i].possedeSpecificite(Specificite::furtif)) _furtif = true;
+        if (_types[i].possedeSpecificite(Specificite::inflammable)) _degatsDeZone = true;
+        if (_types[i].possedeSpecificite(Specificite::incendiaire)) _incendiaire = true;
+    }
+
     // Fermer le fichier
     fichier.close();
 }
@@ -165,6 +172,14 @@ int Unite::getDistanceVue()const{
 
 int Unite::getDistanceRavitaillement() const {
     return _distanceRavitaillement;
+}
+
+int Unite::getAttaque() const {
+    return _attaque;
+}
+
+int Unite::getDefense() const {
+    return _defense;
 }
 
 accessibilite Unite::getCategorie() const {
@@ -276,24 +291,45 @@ std::vector<Type> Unite::getTypes()const {
     return _types;
 }
 
+bool Unite::possedeDegatsDeZone() const {
+    return _degatsDeZone;
+}
 
+bool Unite::estFurtif() const {
+    return _furtif;
+}
 
-    accessibilite Unite::stringToCategorie(std::string const &s){
-        if (s == "Air")
-            return accessibilite::Air;
-        else if (s == "Eau")
-            return accessibilite::Eau;
-        else if (s == "Terre")
-            return accessibilite::Terre;
-        else return accessibilite::EauEtTerre;
+bool Unite::estIncendiaire() const {
+    return _incendiaire;
+}
+
+void Unite::recevoirBrulure() {
+    if (_inflammable) _effetBrulure = 3;
+}
+
+void Unite::evolutionBrulure() {
+    if (_effetBrulure > 0) {
+        _effetBrulure--;
+        infligerDegats(50);
     }
+}
 
-    std::string Unite::CategorieToString(accessibilite const c){
-        if (c == accessibilite::Air)
-            return "Air";
-        else if (c == accessibilite::Eau)
-            return "Eau";
-        else if (c == accessibilite::Terre)
-            return "Terre";
-        else return "EauEtTerre";
-    }
+accessibilite Unite::stringToCategorie(std::string const &s){
+    if (s == "Air")
+        return accessibilite::Air;
+    else if (s == "Eau")
+        return accessibilite::Eau;
+    else if (s == "Terre")
+        return accessibilite::Terre;
+    else return accessibilite::EauEtTerre;
+}
+
+std::string Unite::CategorieToString(accessibilite const c){
+    if (c == accessibilite::Air)
+        return "Air";
+    else if (c == accessibilite::Eau)
+        return "Eau";
+    else if (c == accessibilite::Terre)
+        return "Terre";
+    else return "EauEtTerre";
+}

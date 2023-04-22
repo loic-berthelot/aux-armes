@@ -25,6 +25,7 @@ Jeu::Jeu(unsigned int tailleMap, std::string const &armeeDesc){
     }
     std::cout << "Buffer : fin"<<buffer.size()<<std::endl;
     
+    _carte = std::make_unique<Carte>(tailleMap, buffer);
     for (unsigned int i = 0; i < team;i++){
         ajouterJoueur();
     }
@@ -40,7 +41,7 @@ void Jeu::ajouterJoueur(bool estHumain) {
 
 bool Jeu::partieFinie() {
     //return _toursPasses > 2;
-    return (_carte.nombreArmeesVivantes() <= 1);
+    return (_carte->nombreArmeesVivantes() <= 1);
 }
 
 void Jeu::jouer() {
@@ -49,16 +50,17 @@ void Jeu::jouer() {
         std::cout<<"---Tour n°"<<_toursPasses<<"---"<<std::endl;
         for (unsigned int i = 0; i < _joueurs.size(); i++) {
             std::cout<<"Tour du joueur "<<i<<" : "<<std::endl;
-            _carte.selectionnerArmee(i);
-            _joueurs[i]->jouerArmee(_carte);
+            _carte->selectionnerArmee(i);
+            _joueurs[i]->jouerArmee(*_carte);
 
             //Il faut calculer le brouillard de guerre par ici
-            _carte.ravitaillerArmee();
-            _carte.appliquerAttritionArmee();
-            _carte.executerOrdresArmee();
+            _carte->evolutionMoralArmee();
+            _carte->ravitaillerArmee();
+            _carte->appliquerAttritionArmee();
+            _carte->executerOrdresArmee();
             
-            _carte.retirerCadavres();
-            _carte.afficherArmee();            
+            _carte->retirerCadavres();
+            _carte->afficherArmee();            
             std::cout<<std::endl;
         }  
         _toursPasses++;

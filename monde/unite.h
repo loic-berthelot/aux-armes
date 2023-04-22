@@ -5,7 +5,6 @@
 #include "Type.h"
 #include "ordre.h"
 #include "case.h"
-#include "exception.h"
 
 static accessibilite stringToCategorie(std::string const &s);
 
@@ -31,10 +30,15 @@ class Unite{
     float _vitesseDeplacement = 0.2;
     float _pointsMouvement;
     int _espaceOccupe = 1;
-    bool _enVie = true;;
+    bool _enVie = true;
     bool _estRavitaille = false;
     std::vector<std::pair<std::pair<int,int>, int>> _chemin;
     std::pair<int,int> _positionPrecedente = std::make_pair(_posX, _posY);
+    bool _degatsDeZone  = false;
+    bool _incendiaire = false;
+    bool _inflammable = false;
+    bool _furtif = false;
+    int _effetBrulure = 0;
 
 public:
     ~Unite() {std::cout<<"destruction de l'Unite"<<std::endl; }
@@ -52,8 +56,8 @@ public:
     void initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>> chemin);
 
     static accessibilite stringToCategorie(std::string const &s);
-    static std::string CategorieToString(accessibilite const c);
 
+    static std::string CategorieToString(accessibilite const c);
 
     bool possedeSpecificite(Specificite e)const;
 
@@ -72,6 +76,10 @@ public:
     int getDistanceVue()const;
 
     int getDistanceRavitaillement() const;
+
+    int getAttaque() const;
+
+    int getDefense() const;
 
     accessibilite getCategorie() const;
 
@@ -104,4 +112,14 @@ public:
     int getEspaceOccupe() const;
 
     void reculer();
+
+    bool possedeDegatsDeZone() const;
+
+    bool estFurtif() const;
+
+    bool estIncendiaire() const;
+
+    void recevoirBrulure();
+
+    void evolutionBrulure();
 };

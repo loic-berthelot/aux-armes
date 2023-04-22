@@ -3,43 +3,34 @@
 Type::Type(std::string const &nomFichier):_nom(nomFichier){
     std::ifstream fichier("../monde/TypeUnite/"+nomFichier+".txt");
     
-    if (!fichier.is_open()) {
-        throw std::invalid_argument("Erreur : Le type n'existe pas." + nomFichier);
-    }
+    if (!fichier.is_open()) throw std::invalid_argument("Erreur : Le type n'existe pas." + nomFichier);
     
     std::string ligne;
     bool specificiteSection = false;
-    while (std::getline(fichier, ligne)) {
-        
+    while (std::getline(fichier, ligne)) {        
         if (ligne != ""){
             if (ligne == "Specificites")
                 specificiteSection = true;
             if (specificiteSection){
-                _specificites.push_back(Type::stringToSpecificite(ligne));
+                _specificites.push_back(stringToSpecificite(ligne));
             }else{
                 std::string nomType = ligne;
                 std::getline(fichier, ligne);
                 float valCoeff = std::stof(ligne);
         
-                _coefficients[nomType] = valCoeff;
-        
+                _coefficients[nomType] = valCoeff;        
             }
         }
-
-    }
-    
-    // Fermer le fichier
-    fichier.close();
-    
+    }    
+    fichier.close();  // Fermer le fichier  
 }
 
 Specificite Type::stringToSpecificite(std::string const &s){
-    if (s == "invisibleForet")
-        return Specificite::invisibleForet;
-    else{
-        std::cout << "Spécificité inconnu : "<<s<<std::endl;
-        return Specificite::inconnu;
-    }
+    if (s == "furtif") return Specificite::furtif;
+    if (s == "degats de zone") return Specificite::degatsDeZone;
+    if (s == "incendiaire") return Specificite::incendiaire;
+    if (s == "inflammable") return Specificite::inflammable;
+    throw Exception ("Specificite inconnue : "+s);
 }
 
 float Type::getCoefficients(std::string const &key) const {

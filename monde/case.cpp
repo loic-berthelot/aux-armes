@@ -1,35 +1,27 @@
 #include "case.h"
 
-
-
-Case::Case(std::string nomFichier):
-    _nom(nomFichier), _coutDeplacement(100), _capaciteAccueil(100){
-    nomFichier = "../monde/Cases/"+nomFichier+".case";
-    
-
+Case::Case(std::string nomFichier) : _nom(nomFichier), _coutDeplacement(100), _capaciteAccueil(100){
+    nomFichier = "../monde/Cases/"+nomFichier+".case";  
     std::ifstream fichier(nomFichier); // Ouverture du fichier en lecture
-    if (fichier.is_open()) { // Vérification si le fichier est ouvert
-        std::string ligne;
-        std::getline(fichier, ligne);//index typeAccessibilité
-        std::getline(fichier, ligne);
-        _typeAccessibilité = stringToAccessibilite(ligne);
-        std::getline(fichier, ligne);//index coutDeplacement
-        std::getline(fichier, ligne);//valeur coutDeplacement
+    if (! fichier.is_open()) throw Exception("Impossible d'ouvrir le fichier "+nomFichier);
 
-        _coutDeplacement = std::stoi(ligne);
+    std::string ligne;
+    std::getline(fichier, ligne);//index typeAccessibilité
+    std::getline(fichier, ligne);
+    _typeAccessibilité = stringToAccessibilite(ligne);
+    std::getline(fichier, ligne);//index coutDeplacement
+    std::getline(fichier, ligne);//valeur coutDeplacement
 
-        std::getline(fichier, ligne);//index defense
-        std::getline(fichier, ligne);//valeur Defense
+    _coutDeplacement = std::stoi(ligne);
 
-        _defense = std::stoi(ligne);
+    std::getline(fichier, ligne);//index defense
+    std::getline(fichier, ligne);//valeur Defense
 
-        
-        fichier.close(); // Fermeture du fichier
-    } else {
-        
-        std::cout << "Impossible d'ouvrir le fichier : " <<nomFichier<< std::endl;
+    _defense = std::stoi(ligne);
+    while (std::getline(fichier, ligne)) {
+        if (ligne == "Permet furtivite") _zoneFurtivite = true;
     }
-    
+    fichier.close(); // Fermeture du fichier
 }
 
 
@@ -67,6 +59,10 @@ bool Case::accessibleTerre()const{
     return (_typeAccessibilité == accessibilite::Terre || _typeAccessibilité == accessibilite::EauEtTerre);
 }
 
+bool Case::obstacleVision() const {
+    return _typeAccessibilité != accessibilite::Terre && _typeAccessibilité != accessibilite::Eau && _typeAccessibilité != accessibilite::EauEtTerre;
+}
+
 /*GETTERS AND SETTERS  ======*/
 
 
@@ -78,20 +74,15 @@ std::string Case::getNom()const{
     return _nom;
 }
 
-
 int Case::getCoutDeplacement()const{
     return _coutDeplacement;
 }
 
 std::string Case::accessibiliteToString(accessibilite const e){
-    if (e == accessibilite::Eau)
-        return "Eau";
-    else if (e == accessibilite::Air)
-        return "Air";
-    else if (e == accessibilite::Terre)
-        return "Terre";
-    else
-        return "EauEtTerre";
+    if (e == accessibilite::Eau) return "Eau";
+    if (e == accessibilite::Air) return "Air";
+    if (e == accessibilite::Terre)return "Terre";
+    return "EauEtTerre";
 }
 
 
@@ -113,4 +104,8 @@ bool Case::estDepartRavitaillement() const {
 
 int Case::getCapaciteAccueil() const {
     return _capaciteAccueil;
+}
+
+bool Case::permetFurtivite() const {
+    return _zoneFurtivite;
 }

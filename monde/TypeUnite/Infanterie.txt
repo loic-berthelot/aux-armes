@@ -1,6 +1,6 @@
 Cavalerie
 1.2
-Specificite
+Specificites
 inflammable
 rien
-invisibleForet
+furtif
