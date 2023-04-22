@@ -23,10 +23,13 @@ Jeu::Jeu(unsigned int tailleMap, std::string const &armeeDesc){
             indexPrecedent = i+1;
         }
     }
+    std::cout << "Buffer : fin"<<buffer.size()<<std::endl;
+    
     _carte = Carte(tailleMap, buffer);
     for (unsigned int i = 0; i < team;i++){
         ajouterJoueur();
     }
+    std::cout << "Fin du constructeur jeu: "<<std::endl;
     
 }
 

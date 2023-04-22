@@ -51,24 +51,8 @@ public:
 
     void initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>> chemin);
 
-    static accessibilite stringToCategorie(std::string const &s){
-        if (s == "Air")
-            return accessibilite::Air;
-        else if (s == "Eau")
-            return accessibilite::Eau;
-        else if (s == "Terre")
-            return accessibilite::Terre;
-        else return accessibilite::EauEtTerre;
-    }
-    static std::string CategorieToString(accessibilite const c){
-        if (c == accessibilite::Air)
-            return "Air";
-        else if (c == accessibilite::Eau)
-            return "Eau";
-        else if (c == accessibilite::Terre)
-            return "Terre";
-        else return "EauEtTerre";
-    }
+    static accessibilite stringToCategorie(std::string const &s);
+    static std::string CategorieToString(accessibilite const c);
 
 
     bool possedeSpecificite(Specificite e)const;
@@ -80,6 +64,8 @@ public:
     int getMoral()const;
 
     int getX()const;
+
+    void ajoutMoralMax(int pointsMoral);
 
     int getY()const;
 

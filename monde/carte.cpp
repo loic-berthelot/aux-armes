@@ -61,7 +61,6 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
         }
     }
 
-    affichageSeulementCarte();
 
 
     /*Placement des unités*/
@@ -70,6 +69,7 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
         emplacements.push_back(std::make_pair(villes[i].first, villes[i].second));
         unsigned int indexEmplacements = 0;
         for (unsigned int j = 0; j < _armees[i]->getUnites().size();j++){
+           
             
             while(indexEmplacements >= emplacements.size() || !peutEtreEn(emplacements[indexEmplacements].first, emplacements[indexEmplacements].second, _armees[i]->getUnites()[j])){
                 indexEmplacements++;
@@ -100,11 +100,17 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
                     }
                 }
             }
+             std::cout<<" i : "<<i << "j : "<<j<< " x: "<<emplacements[indexEmplacements].first<<std::endl;
             _armees[i]->getUnites()[j]->setX(emplacements[indexEmplacements].first);
+            
             _armees[i]->getUnites()[j]->setY(emplacements[indexEmplacements].second);
+
             indexEmplacements++;
         }
-   }
+    }
+    std::cout << "Armee : "<<_armees[0]->getUnites()[0]->getX()<<std::endl;
+
+    affichageSeulementCarte();
 
     _grapheAir = creerGraphe(accessibilite::Air);
     _grapheTerre = creerGraphe(accessibilite::Terre);
@@ -427,10 +433,16 @@ void Carte::combat(std::shared_ptr<Unite> u1, unsigned int idTeam, std::pair<int
                     u1->infligerDegats(degats.first);
                     if (ennemiPeutRepliquer)
                         unites[k]->infligerDegats(degats.second);
-
+                    if (degats.first > degats.second){
+                        u1->ajoutMoralMax(-20);
+                        unites[k]->ajoutMoralMax(20);
+                    }else if (degats.first < degats.second){
+                        u1->ajoutMoralMax(20);
+                        unites[k]->ajoutMoralMax(-20);
+                    }
                     std::cout << "Une unite inflige "<<degats.first<< " degats et en recoit "<<degats.second<<" en retour."<<std::endl;
                 }
-            }                 
+            }
         }                
     }else
         throw Exception("Portée pas assez grande pour attaquer.");
@@ -604,4 +616,9 @@ bool Carte::caseAvecUnite(int x, int y)const{
                 return true;
     
     return false;
+}
+
+bool Carte::peutEtreEn(int x, int y, std::shared_ptr<Unite> u1){
+    return (u1->getCategorie() == accessibilite::Air)||((u1->getCategorie() == accessibilite::Eau || u1->getCategorie() == accessibilite::EauEtTerre) && _cases[std::make_pair(x, y)]->accessibleEau())
+    || ((u1->getCategorie() == accessibilite::Terre || u1->getCategorie() == accessibilite::EauEtTerre) && _cases[std::make_pair(x, y)]->accessibleTerre());
 }

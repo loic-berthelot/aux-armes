@@ -30,12 +30,7 @@ class Type{
 
     static Specificite stringToSpecificite(std::string const &s);
 
-    float getCoefficients(std::string const &key) const {
-        if (_coefficients.find(key) != _coefficients.end())
-            return _coefficients.at(key); // Utiliser la fonction at() pour accéder à la valeur associée à la clé
-        else
-            return 1.0;
-    }
+    float getCoefficients(std::string const &key) const;
 
     bool possedeSpecificite(Specificite s)const;
     

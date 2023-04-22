@@ -16,6 +16,8 @@ private:
     unsigned int _indiceArmee;
 
 public:
+
+    ~Carte() {std::cout<<"destruction de la carte"<<std::endl; }
     std::shared_ptr<Graphe> creerGraphe(accessibilite acces) const;
 
     std::shared_ptr<Graphe> getGraphe(accessibilite acces);
@@ -115,11 +117,7 @@ public:
     static std::string valueToCaseNom(float Value);
 
 
-    bool peutEtreEn(int x, int y, std::shared_ptr<Unite> u1){
-        return (u1->getCategorie() == accessibilite::Air)||((u1->getCategorie() == accessibilite::Eau || u1->getCategorie() == accessibilite::EauEtTerre) && _cases[std::make_pair(x, y)]->accessibleEau())
-        || ((u1->getCategorie() == accessibilite::Terre || u1->getCategorie() == accessibilite::EauEtTerre) && _cases[std::make_pair(x, y)]->accessibleTerre());
-    }
-
+    bool peutEtreEn(int x, int y, std::shared_ptr<Unite> u1);
     bool caseAvecUnite(int x, int y)const;
     
     

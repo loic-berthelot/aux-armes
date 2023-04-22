@@ -42,6 +42,14 @@ Specificite Type::stringToSpecificite(std::string const &s){
     }
 }
 
+float Type::getCoefficients(std::string const &key) const {
+    if (_coefficients.find(key) != _coefficients.end())
+        return _coefficients.at(key); // Utiliser la fonction at() pour accéder à la valeur associée à la clé
+    else
+        return 1.0;
+}
+
+
 
 bool Type::possedeSpecificite(Specificite s)const{
     for (unsigned int i = 0; i < _specificites.size();i++)

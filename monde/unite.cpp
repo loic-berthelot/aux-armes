@@ -212,7 +212,12 @@ void Unite::regenererMoral(int pointsMoral) {
     if (_moral < 0) _moral = 0;
 }
 
+void Unite::ajoutMoralMax(int pointsMoral){
+    _moral+=pointsMoral;
+}
+
 void Unite::regenererSante(int pointsSante) {
+    throw Exception ("Erreur : LOIC POURQUOI TU AS UTILISE CETTE FONCTION ON A DIT QUON REGENERAIT PAS LA SANTE.");
     if (pointsSante < 0) throw Exception ("Erreur : points de sante negatifs dans Unite::regenererSante.");
     _sante += pointsSante;
     if (_sante > _maxSante) _sante = _maxSante;
@@ -270,3 +275,25 @@ void Unite::setDistanceVue(int distanceVue) {
 std::vector<Type> Unite::getTypes()const {
     return _types;
 }
+
+
+
+    accessibilite Unite::stringToCategorie(std::string const &s){
+        if (s == "Air")
+            return accessibilite::Air;
+        else if (s == "Eau")
+            return accessibilite::Eau;
+        else if (s == "Terre")
+            return accessibilite::Terre;
+        else return accessibilite::EauEtTerre;
+    }
+
+    std::string Unite::CategorieToString(accessibilite const c){
+        if (c == accessibilite::Air)
+            return "Air";
+        else if (c == accessibilite::Eau)
+            return "Eau";
+        else if (c == accessibilite::Terre)
+            return "Terre";
+        else return "EauEtTerre";
+    }

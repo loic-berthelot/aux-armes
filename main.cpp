@@ -24,7 +24,7 @@ int main() {
 */
 
     Jeu jeu(5,"1:Caravane,;1:Caravane,;1:Caravane,;");
-    jeu.jouer();
+    //jeu.jouer();
 
     
     
