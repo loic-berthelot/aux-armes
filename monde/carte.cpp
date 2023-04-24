@@ -67,7 +67,7 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
     /*Placement des unités*/
    for (unsigned int i = 0; i < _armees.size();i++){
         std::vector<std::pair<int, int>> emplacements;
-        emplacements.push_back(std::make_pair(villes[i].first, villes[i].second));
+        emplacements.push_back(villes[i]);
         unsigned int indexEmplacements = 0;
         for (unsigned int j = 0; j < _armees[i]->getUnites().size();j++){
             
@@ -75,8 +75,8 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
                 indexEmplacements++;
             
                 if (indexEmplacements < emplacements.size()){
-                    _armees[i]->getUnites()[j]->setX(emplacements[j].first);
-                    _armees[i]->getUnites()[j]->setY(emplacements[j].second);
+                    _armees[i]->getUnite(j)->setX(emplacements[j].first);
+                    _armees[i]->getUnite(j)->setY(emplacements[j].second);
                 }else{//pas d'emplacements donc on élargit la zone
                     //on ajoute les voisins qui n'ont pas d'unités et qui ne sont pas des villes et qui sont accessible pour l'unité
                     std::vector<std::pair<int, int>> emplacementsBuffer;
@@ -266,7 +266,6 @@ void Carte::ravitaillerArmee() {
     std::map<std::pair<int,int>,int> relais = getRelaisRavitaillement();
 
     std::vector<std::pair<int,int>> zoneRavitaillement = _grapheEauEtTerre->zoneRavitaillement(departs, obstacles, relais);
-    for (const auto & paire : zoneRavitaillement) std::cout<<paire.first<<", "<<paire.second<<std::endl;
 
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
     for (unsigned int i = 0; i < unites.size(); i++) {
@@ -306,14 +305,14 @@ void Carte::executerOrdresArmee() {
     for (unsigned int i = 0; i < unites.size(); i++) {
         std::vector<std::pair<std::pair<int,int>, int>> chemin;
         if (unites[i]->getOrdre()->getType() == TypeOrdre::DEPLACER) {
-            std::pair<int,int> debut = unites[i]->getPos();
+            std::pair<int,int> debut = unites[i]->getPos(); 
             std::pair<int,int> fin = unites[i]->getOrdre()->getPos();
             chemin = getGraphe(unites[i]-> getCategorie())->aEtoile(debut, fin);
         }else if (unites[i]->getOrdre()->getType() == TypeOrdre::ATTAQUER){
             combat(unites[i], _indiceArmee, unites[i]->getOrdre()->getPos());
         }
-        unites[i]->initialiserMouvement(chemin);        
-    }
+        unites[i]->initialiserMouvement(chemin);            }
+    
     for (unsigned int pm = 0; pm < 100; pm++) { //on distribue un par un 100 points de mouvement aux unités
         for (unsigned int i = 0; i < unites.size(); i++) {
             if (unites[i]->getOrdre()->getType() == TypeOrdre::DEPLACER && unites[i]->estVivant()) { // on ne fait bouger que les unités vivantes

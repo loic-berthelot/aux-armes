@@ -95,6 +95,10 @@ std::shared_ptr<SommetParcours> Graphe::plusFaibleScore(const std::vector<std::s
 std::vector<std::pair<std::pair<int,int>, int>> Graphe::aEtoile(std::pair<int,int> depart, std::pair<int,int> arrivee) {
     try {
         _typeOperation = A_ETOILE;
+        if (_sommetsGraphe.count(depart) == 0 || _sommetsGraphe.count(arrivee) == 0) {
+            std::vector<std::pair<std::pair<int,int>, int>> vecteurVide;
+            return vecteurVide;
+        }
         
         //on initialise les sommets de départ et d'arrivée, ainsi que l'ensemble des sommets-parcours
         _sommetDepart = creerSommetAEtoile(_sommetsGraphe.at(depart), _sommetsGraphe.at(depart), _sommetsGraphe.at(arrivee));
