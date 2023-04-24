@@ -396,7 +396,7 @@ void Carte::genererCarteVide(std::string const &typeCase, unsigned int taille){
         if (j>0) fin++;
         else debut++;        
     }
-    std::cout << "_CASES : "<<_cases.size()<<std::endl;
+    
 }
 
 void Carte::evolutionMoralArmee() {

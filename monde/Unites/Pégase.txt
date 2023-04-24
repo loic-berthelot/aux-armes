@@ -1,0 +1,17 @@
+Catégorie:
+Air
+Santé:
+160
+Attaque:
+300
+Défense:
+100
+Distance de vue:
+5
+Point de mouvement:
+150
+Distance ravitaillement:
+10
+Portée:
+0
+Cavalerie

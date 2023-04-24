@@ -62,7 +62,8 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
     std::getline(fichier, ligne);//index typeUnité
 
     while (std::getline(fichier, ligne)) {
-        _types.push_back(Type(ligne));
+        if (ligne != "")
+            _types.push_back(Type(ligne));
     }
     
     for (unsigned int i = 0; i < _types.size(); i++) {

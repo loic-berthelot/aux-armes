@@ -1,0 +1,17 @@
+Catégorie:
+Eau
+Santé:
+2000
+Attaque:
+120
+Défense:
+100
+Distance de vue:
+7
+Point de mouvement:
+200
+Distance ravitaillement:
+20
+Portée:
+4
+Infanterie

@@ -23,8 +23,8 @@ int main() {
     unites.push_back(armee2);
 */
 
-    Jeu jeu(5,"1:Caravane,;1:Caravane,;1:Caravane,;");
-    //jeu.jouer();
+    Jeu jeu(5,"2:Caravane,2:Pégase,Galère,;1:Caravane,;1:Caravane,;");
+    jeu.jouer();
 
     
     
