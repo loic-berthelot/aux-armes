@@ -3,7 +3,7 @@
 void Humain::jouerArmee(Carte & carte) {
     std::shared_ptr<Armee> armee = carte.getArmee();
     for (unsigned int i = 0; i < armee->taille(); i++) {
-        std::cout<<"Donnez un ordre a l'unite "<<i<<" : ";
+        std::cout<<"Donnez un ordre à l'unite "<<i<<" ("<<armee->getUnite(i)->getNom()<<") : ";
         std::string typeOrdre;
         int val1, val2;
         std::cin>>typeOrdre>>val1>>val2;

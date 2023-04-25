@@ -318,7 +318,7 @@ void Carte::executerOrdresArmee() {
                 if (seDeplace) { //si en avançant l'unité arrive sur une nouvelle case, on vérifie si cette case est tenue par un ennemi
                     if (ennemiSurCase(unites[i]->getPos())) {
                         combat(unites[i], _indiceArmee, unites[i]->getPos()); //on lance alors un combat
-                        //if (ennemiSurCase(unites[i]->getPos())) unites[i]->reculer(); //si l'une des unités ennemies survit, elle repousse l'attaque(l'unité courante doit reculer)
+                        if (ennemiSurCase(unites[i]->getPos())) unites[i]->reculer(); //si l'une des unités ennemies survit, elle repousse l'attaque(l'unité courante doit reculer)
                     }
                 }
             }            
@@ -409,6 +409,7 @@ void Carte::combat(std::shared_ptr<Unite> u, unsigned int idTeam, std::pair<int,
 
     std::vector<std::shared_ptr<Unite>> unites = unitesSurCase(positionCombat);
     for (unsigned int k = 0; k < unites.size(); k++){
+        if (unites[k] == u) continue; //L'unité u ne doit pas s'attaquer elle-même
         bool ennemiPeutRepliquer = distance(u->getPos(), positionCombat) <= unites[k]->getPortee();        
         std::pair<int, int> degats = u->resultatCombatSimple(unites[k]);//calcul de base
 
@@ -426,7 +427,7 @@ void Carte::combat(std::shared_ptr<Unite> u, unsigned int idTeam, std::pair<int,
             u->infligerDegats(degats.second);
             if (unites[k]->estIncendiaire()) u->recevoirBrulure();
         }
-        std::cout << "Une unite inflige "<<degats.first<< " degats et en recoit "<<degats.second<<" en retour."<<std::endl;
+        std::cout << "Un " <<u->getNom()<<" inflige "<<degats.first<< " degats et en recoit "<<degats.second<<" en retour."<<std::endl;
     }   
     if (u->possedeDegatsDeZone()) infligerDegatsDeZone(positionCombat, 0.5*u->getAttaque()); // u inflige des dégâts de zone
 }
@@ -449,7 +450,7 @@ void Carte::infligerDegatsDeZone(std::pair<int,int> pos, int degats) {
         std::vector<std::shared_ptr<Unite>> unites = unitesSurCase(cases[i]);
         for (unsigned int j = 0; j < unites.size(); j++) {
             unites[j]->infligerDegats(degats/getCase(cases[i])->getDefense());
-            std::cout<<"Une unite en ("<<cases[i].first<<","<<cases[i].second<<") recoit "<<degats/getCase(cases[i])->getDefense()<<" degats."<<std::endl;
+            std::cout<<"Un "<< unites[j]->getNom()<<"("<<cases[i].first<<","<<cases[i].second<<") recoit "<<degats/getCase(cases[i])->getDefense()<<" degats de zone."<<std::endl;
         }
     }
 }

@@ -61,8 +61,7 @@ public:
 
     bool possedeSpecificite(Specificite e)const;
 
-    static void CreationNouvelleUnite(std::string const &nom, std::vector<Type> const &types, int sante, accessibilite categorie, int attaque, int defense, int distanceVue, int pointsMouvement, int distanceRavitaillement);
-
+    static void CreationNouvelleUnite(std::string const &nom, std::vector<Type> const &types, int sante, accessibilite categorie, int attaque, int defense, int distanceVue, int pointsMouvement, int distanceRavitaillement, float vitesseDeplacement, int espaceOccupe);
     /*GETTERS AND SETTERS ================================*/
 
     int getMoral()const;
@@ -122,4 +121,6 @@ public:
     void recevoirBrulure();
 
     void evolutionBrulure();
+
+    std::string getNom() const;
 };
