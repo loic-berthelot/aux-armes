@@ -2,6 +2,10 @@ taille:
 10
 seed:
 5
+Nombre de villes par cases:
+3
+Nombre de tours Max:
+100
 Cases:
 -0.2
 Ocean

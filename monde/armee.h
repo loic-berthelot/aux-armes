@@ -3,6 +3,9 @@
 
 class Armee {
     std::vector<std::shared_ptr<Unite>> _unites;
+
+    int _score = 0;
+
 public :
     Armee();
 
@@ -18,9 +21,14 @@ public :
 
     bool estEliminee() const;
     /*GETTERS*/   
+
+    int getScore()const;
+
     std::vector<std::shared_ptr<Unite>> getUnites();    
 
     std::shared_ptr<Unite> getUnite(unsigned int i) const;
 
     unsigned int size()const;
+
+    void ajoutScore(int modif);
 };

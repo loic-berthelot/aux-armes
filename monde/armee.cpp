@@ -44,3 +44,12 @@ std::shared_ptr<Unite> Armee::getUnite(unsigned int i) const {
 unsigned int Armee::size()const{
     return _unites.size();
 }
+
+void Armee::ajoutScore(int modif){
+    _score+=modif;
+}
+
+
+int Armee::getScore()const{
+    return _score;
+}

@@ -7,10 +7,13 @@ class Jeu {
     std::vector<std::shared_ptr<Joueur>> _joueurs;
     unsigned int _toursPasses = 0;
 public:
-    Jeu(const std::string & joueurs, unsigned int tailleMap, std::string const &armeeDesc);
 
-    Jeu(std::string const &configurationMap, std::string const &armeeDesc);
+    Jeu(std::string const & joueurs,std::string const &configurationMap, std::string const &armeeDesc);
     void ajouterJoueur(bool estHumain = false);
     bool partieFinie();
     void jouer();
+
+
+    static bool compareScoreDecroissant(const std::pair<unsigned int, int>& a, const std::pair<unsigned int, int>& b);
+
 };

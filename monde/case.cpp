@@ -13,7 +13,7 @@ Case::Case(std::string nomFichier) : _nom(nomFichier), _coutDeplacement(100), _c
     std::getline(fichier, ligne);//valeur coutDeplacement
     try {
         _coutDeplacement = std::stoi(ligne);
-    } catch (const std::invalid_argument& e) {
+    } catch (...) {
         throw std::invalid_argument("Cout déplacement pas en int dans la case : " + nomFichier+" pour la valeur : "+ligne);
     }
     
@@ -22,7 +22,7 @@ Case::Case(std::string nomFichier) : _nom(nomFichier), _coutDeplacement(100), _c
     std::getline(fichier, ligne);//valeur Defense
     try {
         _defense = std::stoi(ligne);
-    } catch (const std::invalid_argument& e) {
+    } catch (...) {
         throw std::invalid_argument("Défense pas en int dans la case : " + nomFichier+" pour la valeur : "+ligne);
     }
     

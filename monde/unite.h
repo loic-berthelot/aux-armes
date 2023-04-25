@@ -41,8 +41,7 @@ class Unite{
     int _effetBrulure = 0;
 
 public:
-    ~Unite() {std::cout<<"destruction de l'Unite"<<std::endl; }
-
+    
     Unite(std::string name, int x, int y);
 
     std::string toString() const;
