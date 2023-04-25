@@ -25,7 +25,7 @@ void LancerJeu(){
 
 int main() {
 
-    Jeu jeu("iii","gen1","2:Caravane,2:Pégase,Galère,;1:Caravane,;1:Caravane,;");
+    Jeu jeu("hi","gen1","1:Garde Royale,;1:Garde Royale,;");
     jeu.jouer();
     //LancerJeu();
 

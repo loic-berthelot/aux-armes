@@ -12,9 +12,9 @@ void IA::jouerUnite(Carte & carte, std::shared_ptr<Unite> unite) {
     }
   }
   std::vector<std::pair<int,int>> casesAccessibles = carte.positionsAccessibles(unite);
-  for (unsigned int i = 0; i < casesVoisines.size(); i++) {// On essaie de faire marcher l'unité sur une position tenue par un ennemi accessible en un tour
-    if (carte.caseAvecEnnemi(casesVoisines[i].first, casesVoisines[i].second)) {
-      poursuivreEnnemi(unite, casesVoisines[i]);
+  for (unsigned int i = 0; i < casesAccessibles.size(); i++) {// On essaie de faire marcher l'unité sur une position tenue par un ennemi accessible en un tour
+    if (carte.caseAvecEnnemi(casesAccessibles[i].first, casesAccessibles[i].second)) {
+      poursuivreEnnemi(unite, casesAccessibles[i]);
       return;
     } 
   }
@@ -45,7 +45,7 @@ int IA::nombreVoisinsInexplores(std::pair<int,int> pos, Carte & carte) {
   int compt = 0;
   std::vector<std::pair<int,int>> voisins = carte.getCoordonneesVoisins(pos.first, pos.second);
   for (unsigned int i = 0; i < voisins.size(); i++) {
-    if (carte.caseVisible(voisins[i])) compt++;
+    if (! carte.caseVisible(voisins[i])) compt++;
   }
   return compt;
 }
@@ -58,7 +58,7 @@ void IA::explorer(std::shared_ptr<Unite> unite, Carte & carte) {
     int voisinsInexplores = nombreVoisinsInexplores(positionsAccessibles[i], carte);
     if (voisinsInexplores > score) {
       position = positionsAccessibles[i];
-      score = voisinsInexplores;
+      score = voisinsInexplores;      
     }
   }
   unite->donnerOrdre(std::make_shared<Ordre>(TypeOrdre::DEPLACER, position.first, position.second));

@@ -1,7 +1,7 @@
 Catégorie:
 Terre
 Santé:
-1000
+100
 Attaque:
 150
 Défense:
