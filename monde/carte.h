@@ -15,6 +15,10 @@ private:
     std::shared_ptr<Graphe> _grapheEau;
     int _rayon;
     unsigned int _indiceArmee;
+
+    std::map<float, std::string> _valeursCasesGenerateurs;//utilisé dans le bruit de Perlin
+    std::string _mapDernierCase;
+
 public:
     ~Carte() {std::cout<<"destruction de la carte"<<std::endl; }
 
@@ -25,6 +29,9 @@ public:
     Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees);
 
     Carte(int rayon);
+
+    Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Armee>> const &armees);
+
 
     void initialiserVisibilite();
 
@@ -103,7 +110,7 @@ public:
     // Fonction pour calculer la valeur de bruit de Perlin en 2D
     double perlin2D(double x, double y) const;
 
-    static std::string valueToCaseNom(float Value);
+    std::string valueToCaseNom(float Value);
 
     bool peutEtreEn(int x, int y, std::shared_ptr<Unite> u1);
 

@@ -68,7 +68,6 @@ void Jeu::jouer() {
 
 
 Jeu::Jeu(std::string const &configurationMap, std::string const &armeeDesc){
-    /*
     unsigned int team = 0;
     std::vector<std::shared_ptr<Armee>> buffer;
     std::shared_ptr<Armee> armeeCourante = std::make_shared<Armee>();
@@ -91,9 +90,8 @@ Jeu::Jeu(std::string const &configurationMap, std::string const &armeeDesc){
         }
     }
     
-    _carte = std::make_unique<Carte>(tailleMap, buffer);
+    _carte = std::make_unique<Carte>(configurationMap, buffer);
     for (unsigned int i = 0; i < team;i++){
         ajouterJoueur();
     }
-    */
 }

@@ -1,0 +1,17 @@
+taille:
+10
+seed:
+5
+Cases:
+-0.2
+Ocean
+0
+Plaine
+45
+Plaine
+50
+Foret
+100
+Marecage
+Dernière:
+Montagne

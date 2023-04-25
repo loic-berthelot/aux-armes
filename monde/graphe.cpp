@@ -17,6 +17,7 @@ std::shared_ptr<SommetGraphe> Graphe::creerSommetGraphe(const std::pair<int,int>
 }
 
 std::shared_ptr<SommetParcours> Graphe::creerSommetAEtoile(std::shared_ptr<SommetGraphe> sommetGraphe, std::shared_ptr<SommetGraphe> depart, std::shared_ptr<SommetGraphe> arrivee) {
+    std::cout << "On est dans le sommet"<<std::endl;
     std::shared_ptr<SommetParcours> sommetParcours = std::make_shared<SommetParcours>();
     sommetParcours->_sommetGraphe = sommetGraphe;    
     sommetParcours->_visite = (sommetGraphe == depart);
@@ -94,15 +95,21 @@ std::shared_ptr<SommetParcours> Graphe::plusFaibleScore(const std::vector<std::s
 
 std::vector<std::pair<std::pair<int,int>, int>> Graphe::aEtoile(std::pair<int,int> depart, std::pair<int,int> arrivee) {
     try {
+
         _typeOperation = A_ETOILE;
-        
         //on initialise les sommets de départ et d'arrivée, ainsi que l'ensemble des sommets-parcours
+        
+        
+        std::cout << "Avant"<<" départ: "<<depart.first<<" y: "<<depart.second<<" E"<<std::endl;        
         _sommetDepart = creerSommetAEtoile(_sommetsGraphe.at(depart), _sommetsGraphe.at(depart), _sommetsGraphe.at(arrivee));
+        std::cout << "Après"<<std::endl;
         _sommetArrivee = creerSommetAEtoile(_sommetsGraphe.at(arrivee), _sommetsGraphe.at(depart), _sommetsGraphe.at(arrivee));
         _sommetsParcours.clear();
+        
         _sommetsParcours[depart] = _sommetDepart;
         _sommetsParcours[arrivee] = _sommetArrivee;
         for (const auto paire : _sommetDepart->_sommetGraphe->_suivants) ajouterSommetParcours(paire.first);
+        
         
         //on initialise les vecteurs de sommets-parcours sommetsOuverts et sommetsFermes, ainsi que le plus court chemin qui sera renvoyé
         std::vector<std::shared_ptr<SommetParcours>> sommetsOuverts = {_sommetDepart};
@@ -118,6 +125,7 @@ std::vector<std::pair<std::pair<int,int>, int>> Graphe::aEtoile(std::pair<int,in
             retirerSommet(sommetsOuverts, sommetCourant);
             sommetCourant = plusFaibleScore(sommetsOuverts);
         }   
+
         
         //on calcule le plus court chemin        
         while (sommetCourant->_parent != nullptr) {
