@@ -5,7 +5,7 @@ seed:
 Nombre de villes par cases:
 3
 Nombre de tours Max:
-100
+300
 Cases:
 -0.2
 Ocean
