@@ -9,15 +9,19 @@ Case::Case(std::string nomFichier) : _nom(nomFichier), _coutDeplacement(100), _c
     std::getline(fichier, ligne);//index typeAccessibilité
     std::getline(fichier, ligne);
     _typeAccessibilité = stringToAccessibilite(ligne);
+
     std::getline(fichier, ligne);//index coutDeplacement
     std::getline(fichier, ligne);//valeur coutDeplacement
-
     _coutDeplacement = std::stoi(ligne);
 
     std::getline(fichier, ligne);//index defense
     std::getline(fichier, ligne);//valeur Defense
-
     _defense = std::stoi(ligne);
+
+    std::getline(fichier, ligne);//index capacité d'accueil
+    std::getline(fichier, ligne);//valeur capacité d'accueil
+    _capaciteAccueil = std::stoi(ligne);
+
     while (std::getline(fichier, ligne)) {
         if (ligne == "Permet furtivite") _zoneFurtivite = true;
     }
@@ -40,6 +44,8 @@ bool Case::creerCaseEtSauvegardeFichier(std::string const &nom, accessibilite ac
             fichier << "coutDeplacement:" << std::endl; 
             fichier << std::to_string(coutDeplacement) << std::endl; 
             fichier << "Défense:"<<std::endl;
+            fichier << std::to_string(defense)<<std::endl;
+            fichier << "capacitéAccueil:"<<std::endl;
             fichier << std::to_string(defense)<<std::endl;
             fichier.close(); // Fermeture du fichier
         } else {

@@ -23,7 +23,8 @@ int main() {
     unites.push_back(armee2);
 */
 
-    Jeu jeu("iih", 5,"2:Caravane,2:Pégase,Galère,;1:Caravane,;1:Caravane,;");
+    Jeu jeu("hh", 3,"1:Garde Royale,;1:Garde Royale,;");
+    //std::cout<<"\033[31m";
     jeu.jouer();
 
     

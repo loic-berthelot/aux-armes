@@ -10,5 +10,6 @@ void Humain::jouerArmee(Carte & carte) {
         if (typeOrdre == "deplacer") armee->donnerOrdre(i, std::make_shared<Ordre>(TypeOrdre::DEPLACER, val1, val2));
         else if (typeOrdre == "attaquer") armee->donnerOrdre(i, std::make_shared<Ordre>(TypeOrdre::ATTAQUER, val1, val2));
         else if (typeOrdre == "immobiliser") armee->donnerOrdre(i, std::make_shared<Ordre>(TypeOrdre::IMMOBILISER, val1, val2));
+        else armee->donnerOrdre(i, std::make_shared<Ordre>(TypeOrdre::IMMOBILISER, val1, val2));
     }      
 }

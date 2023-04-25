@@ -262,11 +262,9 @@ std::vector<std::shared_ptr<Unite>> Carte::getUnitesVisibles() {
 
 void Carte::ravitaillerArmee() {
     std::vector<std::pair<int,int>> departs = getDepartsRavitaillement();
-    std::vector<std::pair<int,int>> obstacles = getPositionsEnnemis();
+    std::vector<std::pair<int,int>> obstacles = getPositionsEnnemis();    
     std::map<std::pair<int,int>,int> relais = getRelaisRavitaillement();
-
     std::vector<std::pair<int,int>> zoneRavitaillement = _grapheEauEtTerre->zoneRavitaillement(departs, obstacles, relais);
-
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
     for (unsigned int i = 0; i < unites.size(); i++) {
         if (std::find(zoneRavitaillement.begin(), zoneRavitaillement.end(), unites[i]->getPos()) != zoneRavitaillement.end()) {
@@ -277,12 +275,12 @@ void Carte::ravitaillerArmee() {
 
 void Carte::appliquerAttritionArmee(){
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
-    // on calcule l'occupation totale de chaque case occupée par une unité de l'arméee
+    // on calcule l'occupation totale de chaque case occupée par une unité de l'armée
     std::map<std::pair<int,int>, int> casesOccupees;
     for (unsigned int i = 0; i < unites.size(); i++) {
         casesOccupees[unites[i]->getPos()] += unites[i]->getEspaceOccupe();
     }
-    // pour chacune des unites de l'armee, on calcule et applique l'attrition
+    // pour chacune des unites de l'armée, on calcule et applique l'attrition
     int capaciteAcceuil, occupation;
     std::pair<int,int> pos;
     for (unsigned int i = 0; i < unites.size(); i++) {
