@@ -16,8 +16,13 @@ Type::Type(std::string const &nomFichier):_nom(nomFichier){
             }else{
                 std::string nomType = ligne;
                 std::getline(fichier, ligne);
-                float valCoeff = std::stof(ligne);
-        
+                float valCoeff = 0;
+                try{
+                    valCoeff = std::stof(ligne);
+                }catch(...){
+                    throw new Exception("Erreur : La valeur n'est pas un flaot : "+ligne+" dans le fichier Type : "+nomFichier);
+                }
+                
                 _coefficients[nomType] = valCoeff;        
             }
         }

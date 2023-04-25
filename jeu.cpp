@@ -1,7 +1,7 @@
 #include "jeu.h"
 
 
-Jeu::Jeu(const std::string & joueurs, unsigned int tailleMap, std::string const &armeeDesc){
+Jeu::Jeu(std::string const & joueurs,std::string const &configurationMap, std::string const &armeeDesc){
     unsigned int team = 0;
     std::vector<std::shared_ptr<Armee>> buffer;
     std::shared_ptr<Armee> armeeCourante = std::make_shared<Armee>();
@@ -24,7 +24,7 @@ Jeu::Jeu(const std::string & joueurs, unsigned int tailleMap, std::string const 
         }
     }
     
-    _carte = std::make_unique<Carte>(tailleMap, buffer);
+    _carte = std::make_unique<Carte>(configurationMap, buffer);
     for (unsigned int i = 0; i < joueurs.size(); i++){
         switch(joueurs[i]) {
             case 'i' : ajouterJoueur(); break;
@@ -48,7 +48,7 @@ bool Jeu::partieFinie() {
 
 void Jeu::jouer() {
     std::cout<<"Debut de la partie !"<<std::endl;
-    while (!partieFinie()) {
+    while (!partieFinie() && _toursPasses <= _carte->getMaxTours()) {
         std::cout<<"---Tour n°"<<_toursPasses<<"---"<<std::endl;
         for (unsigned int i = 0; i < _joueurs.size(); i++) {
             std::cout<<"Tour du joueur "<<i<<" : "<<std::endl;
@@ -67,37 +67,38 @@ void Jeu::jouer() {
         }  
         _toursPasses++;
     }
-    std::cout<<"Fin de la partie !"<<std::endl;
+    std::cout<<"Fin de la partie ! Affichage des résultats. ----------------"<<std::endl<<"Survivant(s) : "<<std::endl;
+    for (unsigned int i = 0; i < _carte->getNbArmee();i++)
+        if (_carte->getArmee(i)->taille() > 0)
+            std::cout << "Equipe : "<<i<<std::endl;
+        
+    //affichage classement
+    std::cout <<"Classement\n";
+    std::vector<std::pair<unsigned int, int>> scoreEquipe = _carte->getScoreEquipe();
+    int places = 1;
+    std::sort(scoreEquipe.begin(), scoreEquipe.end(), compareScoreDecroissant);
+    bool estMort = false;
+    for (unsigned int i = 0; i < scoreEquipe.size();i++)
+        if (i > 1 && scoreEquipe[i].second == scoreEquipe[i-1].second)
+            std::cout << " Equipe : "<<scoreEquipe[i].first<< ";";
+        else{
+            if (scoreEquipe[i].second < 0 && !estMort){
+                std::cout << "\n\nEquipe éliminée (en fonction de leurs dégâts) -------------\n";
+                places = 1;
+            }if (scoreEquipe[i].second < 0){
+                estMort = true;
+                std::cout << "\nPlace : "<<places<<" - Equipe : "<<scoreEquipe[i].first;
+            }
+            else
+                std::cout << "\nPlace : "<<places<<"- Score : "<<scoreEquipe[i].second<<" Equipe : "<<scoreEquipe[i].first;
+            places++;
+        }
+    
+    std::cout << "\n";
+
 }
 
 
-Jeu::Jeu(std::string const &configurationMap, std::string const &armeeDesc){
-    /*
-    unsigned int team = 0;
-    std::vector<std::shared_ptr<Armee>> buffer;
-    std::shared_ptr<Armee> armeeCourante = std::make_shared<Armee>();
-    unsigned int nbUnites = 0;
-    unsigned int indexPrecedent = 0;
-    for (unsigned int i = 0; i < armeeDesc.size();i++){
-        
-        if (armeeDesc[i] == ';'){
-            buffer.push_back(armeeCourante);
-            armeeCourante = std::make_shared<Armee>();
-            team++;
-            indexPrecedent = i+1;
-        }else if (armeeDesc[i] == ':'){
-            nbUnites = std::stoul(armeeDesc.substr(indexPrecedent, i-indexPrecedent));
-            indexPrecedent = i+1;
-        }else if (armeeDesc[i] == ','){
-            for (unsigned int j = 0; j < nbUnites;j++)
-                armeeCourante->ajoutUnite(std::make_shared<Unite>(armeeDesc.substr(indexPrecedent ,i-indexPrecedent), 0, 0));
-            indexPrecedent = i+1;
-        }
-    }
-    
-    _carte = std::make_unique<Carte>(tailleMap, buffer);
-    for (unsigned int i = 0; i < team;i++){
-        ajouterJoueur();
-    }
-    */
+bool Jeu::compareScoreDecroissant(const std::pair<unsigned int, int>& a, const std::pair<unsigned int, int>& b) {
+    return a.second > b.second;
 }

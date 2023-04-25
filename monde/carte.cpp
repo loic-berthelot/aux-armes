@@ -1,7 +1,65 @@
 #include "carte.h"
 
-Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _rayon(taille), _indiceArmee(0), _armees(armees) {
-    // Code pour générer la carte en utilisant la fonction perlin2D
+
+
+Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Armee>> const &armees):_indiceArmee(0), _armees(armees){
+    std::string nomFichier = "../monde/génération/"+nomFichierConfig+".txt";  
+
+    std::ifstream fichier(nomFichier); // Ouverture du fichier en lecture
+    if (! fichier.is_open()) throw Exception("Impossible d'ouvrir le fichier "+nomFichier);
+
+    std::string ligne;
+    std::getline(fichier, ligne);//index taille
+    std::getline(fichier, ligne);//taille valeur
+
+    try{
+        _rayon = std::stoi(ligne);
+    }catch (...){
+        throw new Exception(ligne+" n'est pas un int pour le rayon dans le fichier : "+nomFichier);
+    }
+
+    int taille = _rayon;
+    std::getline(fichier, ligne);//index seed
+    std::getline(fichier, ligne);//seed valeur
+    int seed;
+    try{
+        seed = std::stoi(ligne);
+    }catch (...){
+        throw new Exception(ligne+" n'est pas un int pour seed dans le fichier : "+nomFichier);
+    }
+    
+    srand(seed);
+
+    std::getline(fichier, ligne);//index nbVilles
+    std::getline(fichier, ligne);//val nbVilles
+    int nbVilles;
+    try{
+        nbVilles = armees.size()*std::stoi(ligne);
+    }catch (...){
+        throw new Exception(ligne+" n'est pas un int pour nbVilles dans le fichier : "+nomFichier);
+    }
+
+    std::getline(fichier, ligne);//index toursMax
+    std::getline(fichier, ligne);//val toursMax 
+    
+    try{
+        _nbToursMax = std::stoul(ligne);
+    }catch (...){
+        throw new Exception(ligne+" n'est pas un unsigned int pour nbToursMax dans le fichier : "+nomFichier);
+    }
+
+    std::getline(fichier, ligne);//valeurs index
+    while (std::getline(fichier, ligne) && ligne != "Dernière:"){
+        if (ligne != ""){
+            //std::cout << ligne << std::endl;
+            float caseVal = std::stof(ligne);
+            std::getline(fichier, ligne);
+            _valeursCasesGenerateurs[caseVal] = ligne;
+        }
+    }
+
+    _mapDernierCase = ligne;
+
     int debut = -_rayon+1;
     int fin = 0;
     for (int j = _rayon-1; j > -_rayon; j--) {
@@ -10,20 +68,17 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
             double y = static_cast<double>(j) / taille;
             double value = perlin2D(x, y); // Appel de la fonction perlin2D pour obtenir la valeur de bruit de Perlin
             // Utilisation de la valeur de bruit de Perlin pour créer la case correspondante dans la carte
+
             _cases[std::make_pair(i, j)] = std::make_shared<Case>(valueToCaseNom(value));
         }
         if (j>0) fin++;
         else debut++;        
     }
-               
-        
-
+    
     // Paramètres de génération des villes
-    //int nbVilles = armees.size(); // Nombre de villes à générer
-    int nbVilles = 10;
     double distanceMinDuBord = taille * 0.1; // Distance minimale du bord pour générer une ville (1/10 de la taille)
     double distanceMaxDuBord = taille * 0.2; // Distance maximale du bord pour générer une ville (1/5 de la taille)
-    double distanceMinEntreVilles = taille * 0.1; // Distance minimale entre deux villes (1/10 de la taille)
+    double distanceMinEntreVilles = taille * 0.5; // Distance minimale entre deux villes (1/10 de la taille)
     std::vector<std::pair<int, int>> villes;
     
     for (int n = 0; n < nbVilles;n++) {
@@ -60,9 +115,7 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
             n++;
         }
     }
-
     affichageSeulementCarte();
-
 
     /*Placement des unités*/
    for (unsigned int i = 0; i < _armees.size();i++){
@@ -70,10 +123,8 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
         emplacements.push_back(villes[i]);
         unsigned int indexEmplacements = 0;
         for (unsigned int j = 0; j < _armees[i]->getUnites().size();j++){
-            
             while(indexEmplacements >= emplacements.size() || !peutEtreEn(emplacements[indexEmplacements].first, emplacements[indexEmplacements].second, _armees[i]->getUnites()[j])){
                 indexEmplacements++;
-            
                 if (indexEmplacements < emplacements.size()){
                     _armees[i]->getUnite(j)->setX(emplacements[j].first);
                     _armees[i]->getUnite(j)->setY(emplacements[j].second);
@@ -110,6 +161,20 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
     _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
     _grapheEau = creerGraphe(accessibilite::Eau);
     initialiserVisibilite();
+
+}
+
+std::vector<std::pair<unsigned int, int>> Carte::getScoreEquipe()const{
+    std::vector<std::pair<unsigned int, int>> scoreEquipe;
+
+    for (unsigned int i = 0; i < _armees.size();i++){
+        if (_armees[i]->taille() > 0)
+            scoreEquipe.push_back(std::make_pair<unsigned int, int>(std::move(i),_armees[i]->getScore()));
+        else 
+            scoreEquipe.push_back(std::make_pair<unsigned int, int>(std::move(i),_armees[i]->getScore()-1000000000));
+    }
+    return scoreEquipe;
+
 }
 
 std::shared_ptr<Graphe> Carte::creerGraphe(accessibilite acces) const {
@@ -148,17 +213,6 @@ std::shared_ptr<Graphe> Carte::getGraphe(accessibilite acces) const {
         case accessibilite::Air : 
         default : return _grapheAir; break;
     }
-}
-
-Carte::Carte(int rayon) : _rayon(rayon), _indiceArmee(0) {
-    genererCarteVide("Plaine", _rayon);
-    affichageSeulementCarte();
-    //création du graphe qui représente les cases de la carte
-    _grapheAir = creerGraphe(accessibilite::Air);
-    _grapheTerre = creerGraphe(accessibilite::Terre);
-    _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
-    _grapheEau = creerGraphe(accessibilite::Eau);
-    initialiserVisibilite();
 }
 
 void Carte::initialiserVisibilite() {
@@ -273,6 +327,7 @@ void Carte::ravitaillerArmee() {
     std::vector<std::pair<int,int>> obstacles = getPositionsEnnemis();    
     std::map<std::pair<int,int>,int> relais = getRelaisRavitaillement();
     std::vector<std::pair<int,int>> zoneRavitaillement = _grapheEauEtTerre->zoneRavitaillement(departs, obstacles, relais);
+    
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
     for (unsigned int i = 0; i < unites.size(); i++) {
         if (std::find(zoneRavitaillement.begin(), zoneRavitaillement.end(), unites[i]->getPos()) != zoneRavitaillement.end()) {
@@ -404,26 +459,13 @@ void Carte::affichageSeulementCarte()const{
     }
 }
 
-//création d'une carte remplie de cases du même type
-void Carte::genererCarteVide(std::string const &typeCase, unsigned int taille){
-    int debut = -_rayon+1;
-    int fin = 0;
-    for (int j = _rayon-1; j > -_rayon; j--) {
-        for (int i = debut; i <= fin; i++) {
-            _cases[std::make_pair(i,j)] = std::make_shared<Case>(typeCase);
-        }
-        if (j>0) fin++;
-        else debut++;        
-    }
-    
-}
-
 void Carte::evolutionMoralArmee() {
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
     for (unsigned int i = 0; i < unites.size(); i++) {
         unites[i]->regenererMoral(ratioAlliesAdversaires(unites[i], 5, _indiceArmee)*6-15);//moral baisse ou augmente de 15 maximum
     }    
 }        
+
 
 //Pour le combat on cherche les alliés/ennemis que voit l'unité
 void Carte::combat(std::shared_ptr<Unite> u, unsigned int idTeam, std::pair<int,int> positionCombat){
@@ -444,7 +486,9 @@ void Carte::combat(std::shared_ptr<Unite> u, unsigned int idTeam, std::pair<int,
         unites[k]->infligerDegats(degats.first);
         if (u->estIncendiaire()) unites[k]->recevoirBrulure();
 
-        //C'est ensuite à l'ennemi d'infliger des dégâts
+        _armees[idTeam]->ajoutScore(degats.first);
+
+        //C'est ensuite à l'ennemi d'infliger des dégâts (s'il peut évidemment)
         if (ennemiPeutRepliquer) {
             u->infligerDegats(degats.second);
             if (unites[k]->estIncendiaire()) u->recevoirBrulure();
@@ -599,18 +643,20 @@ double Carte::perlin2D(double x, double y) const{
     
 }
 
+
+
 // Fonction pour interpoler
 double Carte::fade(double t) const{
     return t * t * t * (t * (t * 6 - 15) + 10);
 }
 
 std::string Carte::valueToCaseNom(float Value){
-    if (Value < -0.5) return "Ocean";
-    if (Value < 0) return "Plaine";
-    if (Value < 45) return "Plaine";
-    if (Value < 50) return "Foret";
-    if (Value < 0.91) return "Marecage";
-    return "Montagne";
+    for (auto it = _valeursCasesGenerateurs.begin(); it != _valeursCasesGenerateurs.end(); ++it) {
+        if (Value <= it->first)
+            return it->second;
+    }
+    
+    return _mapDernierCase;
 }
 
 bool Carte::caseAvecUnite(int x, int y)const{
@@ -638,4 +684,9 @@ bool Carte::peutEtreEn(int x, int y, std::shared_ptr<Unite> u1){
 
 bool Carte::caseVisible(std::pair<int,int> pos) const {
     return _casesVisibles.at(pos);
+}
+
+
+unsigned int Carte::getMaxTours()const{
+    return _nbToursMax;    
 }

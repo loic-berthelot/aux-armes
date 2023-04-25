@@ -15,16 +15,19 @@ private:
     std::shared_ptr<Graphe> _grapheEau;
     int _rayon;
     unsigned int _indiceArmee;
-public:
-    ~Carte() {std::cout<<"destruction de la carte"<<std::endl; }
 
+    unsigned int _nbToursMax;
+
+    std::map<float, std::string> _valeursCasesGenerateurs;//utilisé dans le bruit de Perlin
+    std::string _mapDernierCase;
+
+public:
+    
     std::shared_ptr<Graphe> creerGraphe(accessibilite acces) const;
 
     std::shared_ptr<Graphe> getGraphe(accessibilite acces) const;
 
-    Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees);
-
-    Carte(int rayon);
+    Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Armee>> const &armees);
 
     void initialiserVisibilite();
 
@@ -33,6 +36,16 @@ public:
     std::vector<std::pair<int,int>> positionsAccessibles(std::shared_ptr<Unite> unite) const;
 
     /*Méthode armée ============================================*/    
+    /*Méthode armée ============================================*/
+
+    std::shared_ptr<Armee> getArmee(unsigned int i)const{
+        return _armees[i];
+    }
+
+    unsigned int getNbArmee()const{
+        return _armees.size();
+    }
+
     void creerArmee();//créer une armée vide
     
     void afficherArmee() const;//ne marche pas encore donc à renseigner
@@ -40,6 +53,8 @@ public:
     void afficherArmees() const;
 
     unsigned int nombreArmeesVivantes() const;
+
+    unsigned int getMaxTours()const;
 
     void selectionnerArmee(unsigned int indiceArmee);
 
@@ -84,14 +99,13 @@ public:
 
     void affichageSeulementCarte()const;
 
-    void genererCarteVide(std::string const &typeCase, unsigned int taille);
-
     void ajoutUniteTeam(unsigned int IDarmee, std::shared_ptr<Unite> unite);
     
     float ratioAlliesAdversaires(std::shared_ptr<Unite> unite, unsigned int zoneAutour, unsigned int idEquipeJoueur)const;
 
     std::shared_ptr<Armee> getArmee() const;
 
+    std::vector<std::pair<unsigned int, int>> getScoreEquipe()const;
     /*
     Editeur de map
     */
@@ -107,7 +121,7 @@ public:
     // Fonction pour calculer la valeur de bruit de Perlin en 2D
     double perlin2D(double x, double y) const;
 
-    static std::string valueToCaseNom(float Value);
+    std::string valueToCaseNom(float Value);
 
     bool peutEtreEn(int x, int y, std::shared_ptr<Unite> u1);
 

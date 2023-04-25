@@ -33,38 +33,74 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
     _categorie = stringToCategorie(ligne);
     std::getline(fichier, ligne);//index santé
     std::getline(fichier, ligne);//santé 
-    _sante = std::stoi(ligne);
+    try{
+        _sante = std::stoi(ligne);
+    }catch(...){
+        throw new Exception("Erreur : La santé n'est pas un int : "+ligne+" dans le fichier unité : "+name);
+    }
     _maxSante = std::stoi(ligne);
     std::getline(fichier, ligne);//index attaque
     std::getline(fichier, ligne);//attaque
-    _attaque = std::stoi(ligne);
+    try{
+        _attaque = std::stoi(ligne);
+    }catch(...){
+        throw new Exception("Erreur : L'attaque n'est pas un int : "+ligne+" dans le fichier unité : "+name);
+    }
     std::getline(fichier, ligne);//index défense
     std::getline(fichier, ligne);//défense
-    _defense = std::stoi(ligne);
+    try{
+        _defense = std::stoi(ligne);
+    }catch(...){
+        throw new Exception("Erreur : La défense n'est pas un int : "+ligne+" dans le fichier unité : "+name);
+    }
 
     std::getline(fichier, ligne);//index distanceVue
     std::getline(fichier, ligne);//distanceVue
-    _distanceVue = std::stoi(ligne);
+    try{
+        _distanceVue = std::stoi(ligne);
+    }catch(...){
+        throw new Exception("Erreur : La distanceVue n'est pas un int : "+ligne+" dans le fichier unité : "+name);
+    }
     
     std::getline(fichier, ligne);//index pm
     std::getline(fichier, ligne);//pm
-    _pointsMouvement = std::stoi(ligne);
+    try{
+        _pointsMouvement = std::stoi(ligne);
+    }catch(...){
+        throw new Exception("Erreur : Les points de mouvement n'est pas un int : "+ligne+" dans le fichier unité : "+name);
+    }
 
     std::getline(fichier, ligne);//index distanceRavitaillement
     std::getline(fichier, ligne);//distanceRavitaillement
-    _distanceRavitaillement = std::stoi(ligne);
+    try{
+        _distanceRavitaillement = std::stoi(ligne);
+    }catch(...){
+        throw new Exception("Erreur : La distance de ravitaillement n'est pas un int : "+ligne+" dans le fichier unité : "+name);
+    }
 
     std::getline(fichier, ligne);//index portee
     std::getline(fichier, ligne);//portee
-    _portee = std::stoi(ligne);
+    try{
+        _portee = std::stoi(ligne);
+    }catch(...){
+        throw new Exception("Erreur : La portée n'est pas un int : "+ligne+" dans le fichier unité : "+name);
+    }
 
     std::getline(fichier, ligne);//index vitesse déplacement
     std::getline(fichier, ligne);//vitesse déplacement
-    _vitesseDeplacement = std::stof(ligne);
+    try{
+        _vitesseDeplacement = std::stof(ligne);
+    }catch(...){
+        throw new Exception("Erreur : La vitesse de déplacement n'est pas un int : "+ligne+" dans le fichier unité : "+name);
+    }
 
     std::getline(fichier, ligne);//index espace occupé
     std::getline(fichier, ligne);//espace occupé
-    _espaceOccupe = std::stoi(ligne);
+    try{
+        _espaceOccupe = std::stoi(ligne);
+    }catch(...){
+        throw new Exception("Erreur : L'espace occupé n'est pas un int : "+ligne+" dans le fichier unité : "+name);
+    }
     
 
     std::getline(fichier, ligne);//index typeUnité
@@ -269,7 +305,9 @@ void Unite::subirAttrition(float attrition) {
 void Unite::ravitailler() {
     std::cout<<"unite ravitaillee !"<<std::endl;
     _estRavitaille = true;
-    regenererMoral(10);
+    if (_moral <= 90)
+        _moral+=10;
+    
 }
 
 void Unite::setX(int x){

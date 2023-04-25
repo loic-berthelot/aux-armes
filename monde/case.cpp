@@ -4,7 +4,6 @@ Case::Case(std::string nomFichier) : _nom(nomFichier), _coutDeplacement(100), _c
     nomFichier = "../monde/Cases/"+nomFichier+".case";  
     std::ifstream fichier(nomFichier); // Ouverture du fichier en lecture
     if (! fichier.is_open()) throw Exception("Impossible d'ouvrir le fichier "+nomFichier);
-
     std::string ligne;
     std::getline(fichier, ligne);//index typeAccessibilité
     std::getline(fichier, ligne);
@@ -12,15 +11,29 @@ Case::Case(std::string nomFichier) : _nom(nomFichier), _coutDeplacement(100), _c
 
     std::getline(fichier, ligne);//index coutDeplacement
     std::getline(fichier, ligne);//valeur coutDeplacement
-    _coutDeplacement = std::stoi(ligne);
+    try {
+        _coutDeplacement = std::stoi(ligne);
+    } catch (...) {
+        throw std::invalid_argument("Cout déplacement pas en int dans la case : " + nomFichier+" pour la valeur : "+ligne);
+    }
+    
 
     std::getline(fichier, ligne);//index defense
     std::getline(fichier, ligne);//valeur Defense
-    _defense = std::stoi(ligne);
-
+    try {
+        _defense = std::stoi(ligne);
+    } catch (...) {
+        throw std::invalid_argument("Défense pas en int dans la case : " + nomFichier+" pour la valeur : "+ligne);
+    }
+    
     std::getline(fichier, ligne);//index capacité d'accueil
     std::getline(fichier, ligne);//valeur capacité d'accueil
-    _capaciteAccueil = std::stoi(ligne);
+
+    try {
+        _capaciteAccueil = std::stoi(ligne);
+    } catch (const std::invalid_argument& e) {
+        throw std::invalid_argument("Capacité d'accueil pas en int dans la case : " + nomFichier+ " Pour :"+ligne);
+    }
 
     while (std::getline(fichier, ligne)) {
         if (ligne == "Permet furtivite") _zoneFurtivite = true;

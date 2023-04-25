@@ -1,35 +1,37 @@
 #include "jeu.h"
 
+//Lit le fichier Launcher.txt et le fais joueur
+void LancerJeu(){
+    std::string nomFichier = "../Launcher.txt";  
+    std::ifstream fichier(nomFichier); // Ouverture du fichier en lecture
+    if (! fichier.is_open()) throw Exception("Impossible d'ouvrir le fichier : "+nomFichier);
+    std::string ligne;
+    std::getline(fichier, ligne);//index joueursInfos
+    std::getline(fichier, ligne);
+    std::string joueurInfo = ligne;
+
+    std::getline(fichier, ligne);//index génération FIchier
+    std::getline(fichier, ligne);
+    std::string generationInfo = ligne;
+    
+    std::getline(fichier, ligne);//index armées
+    std::getline(fichier, ligne);
+    std::string armeeInfo = ligne;
+    
+    Jeu j(joueurInfo, generationInfo, armeeInfo);
+    j.jouer();
+    
+}
+
 int main() {
-/*
-    Jeu jeu;
+
+    Jeu jeu("iii","gen1","2:Caravane,2:Pégase,Galère,;1:Caravane,;1:Caravane,;");
     jeu.jouer();
-*/
-    srand(time(0));
-    //Carte c(6);
+    //LancerJeu();
 
-    //std::shared_ptr<Unite> uPointeur = std::make_shared<Unite>("Garde Royale", 0, 0);
-
-    //c.ajoutUniteTeam(0,u1);
-    //Armée1 : 
-    /*
-    std::shared_ptr<Armee> armee1 = std::make_shared<Armee>();
-    std::shared_ptr<Armee> armee2 = std::make_shared<Armee>();
-    armee1->ajoutUnite(std::make_shared<Unite>("Garde Royale", 0, 0));
-    armee1->ajoutUnite(std::make_shared<Unite>("Garde Royale", 0, 0));
-    armee2->ajoutUnite(std::make_shared<Unite>("Garde Royale", 0, 0));
-    std::vector<std::shared_ptr<Armee>> unites;
-    unites.push_back(armee1);
-    unites.push_back(armee2);
-*/
-
-    Jeu jeu("hi", 3,"1:Garde Royale,;1:Garde Royale,;");
-    //std::cout<<"\033[31m";
-    jeu.jouer();
-
-    
-    
 
     return 0;
 
 }
+
+
