@@ -14,4 +14,8 @@ Distance ravitaillement:
 10
 Portée:
 0
+Vitesse deplacement:
+1
+Espace occupé:
+5
 Infanterie

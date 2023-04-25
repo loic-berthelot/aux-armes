@@ -57,6 +57,14 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
     std::getline(fichier, ligne);//index portee
     std::getline(fichier, ligne);//portee
     _portee = std::stoi(ligne);
+
+    std::getline(fichier, ligne);//index vitesse déplacement
+    std::getline(fichier, ligne);//vitesse déplacement
+    _vitesseDeplacement = std::stof(ligne);
+
+    std::getline(fichier, ligne);//index espace occupé
+    std::getline(fichier, ligne);//espace occupé
+    _espaceOccupe = std::stoi(ligne);
     
 
     std::getline(fichier, ligne);//index typeUnité
@@ -78,7 +86,7 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
 }
 
 std::string Unite::toString() const {
-    return "Unite en ("+ std::to_string(_posX)+","+std::to_string(_posY)+") avec "+std::to_string(_sante)+"/"+std::to_string(_maxSante)+" sante et "+std::to_string(_moral)+"/"+std::to_string(_maxMoral)+" moral.";
+    return _nom+" en ("+ std::to_string(_posX)+","+std::to_string(_posY)+") avec "+std::to_string(_sante)+"/"+std::to_string(_maxSante)+" sante et "+std::to_string(_moral)+"/"+std::to_string(_maxMoral)+" moral.";
 }
 
 //on considère que le combat est équilibré. Les boots ou autres changements seront fais dans la méthode combat de la classe Map
@@ -111,7 +119,7 @@ std::pair<int, int> Unite::resultatCombatSimple(std::shared_ptr<Unite> ennemi)co
 }
 
 void Unite::CreationNouvelleUnite(std::string const &nom, std::vector<Type> const &types, int sante, accessibilite categorie,
-int attaque, int defense, int distanceVue, int pointsMouvement, int distanceRavitaillement){
+int attaque, int defense, int distanceVue, int pointsMouvement, int distanceRavitaillement, float vitesseDeplacement, int espaceOccupe){
     std::ofstream fichier("../monde/Unites/"+nom+".txt");
 
     if (fichier.is_open()) {
@@ -130,6 +138,10 @@ int attaque, int defense, int distanceVue, int pointsMouvement, int distanceRavi
         fichier << std::to_string(pointsMouvement)<<std::endl;
         fichier << "Distance de ravitaillement:" << std::endl;
         fichier << std::to_string(distanceRavitaillement)<<std::endl;
+        fichier << "Vitesse déplacement:" << std::endl;
+        fichier << std::to_string(vitesseDeplacement)<<std::endl;
+        fichier << "Espace occupé:" << std::endl;
+        fichier << std::to_string(espaceOccupe)<<std::endl;
 
         for (unsigned int i = 0; i < types.size();i++){
             fichier << types[i].getNom()<<std::endl;
@@ -333,4 +345,8 @@ std::string Unite::CategorieToString(accessibilite const c){
     else if (c == accessibilite::Terre)
         return "Terre";
     else return "EauEtTerre";
+}
+
+std::string Unite::getNom() const {
+    return _nom;
 }

@@ -1,7 +1,7 @@
 #include "jeu.h"
 
 
-Jeu::Jeu(unsigned int tailleMap, std::string const &armeeDesc){
+Jeu::Jeu(const std::string & joueurs, unsigned int tailleMap, std::string const &armeeDesc){
     unsigned int team = 0;
     std::vector<std::shared_ptr<Armee>> buffer;
     std::shared_ptr<Armee> armeeCourante = std::make_shared<Armee>();
@@ -25,8 +25,12 @@ Jeu::Jeu(unsigned int tailleMap, std::string const &armeeDesc){
     }
     
     _carte = std::make_unique<Carte>(tailleMap, buffer);
-    for (unsigned int i = 0; i < team;i++){
-        ajouterJoueur();
+    for (unsigned int i = 0; i < joueurs.size(); i++){
+        switch(joueurs[i]) {
+            case 'i' : ajouterJoueur(); break;
+            default:
+            case 'h' : ajouterJoueur(true); break;
+        }
     }
     
 }
@@ -52,7 +56,7 @@ void Jeu::jouer() {
             _joueurs[i]->jouerArmee(*_carte);
 
             //Il faut calculer le brouillard de guerre par ici
-            _carte->evolutionMoralArmee();
+            _carte->evolutionMoralArmee();            
             _carte->ravitaillerArmee();
             _carte->appliquerAttritionArmee();
             _carte->executerOrdresArmee();

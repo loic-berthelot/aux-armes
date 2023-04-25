@@ -31,6 +31,7 @@ std::shared_ptr<SommetParcours> Graphe::creerSommetAEtoile(std::shared_ptr<Somme
 std::shared_ptr<SommetParcours> Graphe::creerSommetZoneRavitaillement(std::shared_ptr<SommetGraphe> sommetGraphe) {
     std::shared_ptr<SommetParcours> sommetParcours = std::make_shared<SommetParcours>();
     sommetParcours->_sommetGraphe = sommetGraphe;
+    sommetParcours->_visite = false;
     sommetParcours->_passageAutorise =  ! _obstacles[sommetGraphe->_pos];
     sommetParcours->_coutChemin = 1;
     sommetParcours->_parent = nullptr;
@@ -97,6 +98,11 @@ std::vector<std::pair<std::pair<int,int>, int>> Graphe::aEtoile(std::pair<int,in
     try {
 
         _typeOperation = A_ETOILE;
+        if (_sommetsGraphe.count(depart) == 0 || _sommetsGraphe.count(arrivee) == 0) {
+            std::vector<std::pair<std::pair<int,int>, int>> vecteurVide;
+            return vecteurVide;
+        }
+        
         //on initialise les sommets de départ et d'arrivée, ainsi que l'ensemble des sommets-parcours
         
         
@@ -150,20 +156,23 @@ std::vector<std::pair<int,int>> Graphe::zoneRavitaillement(std::vector<std::pair
         std::vector<std::shared_ptr<SommetParcours>> sommetsFermes;
 
         //on initialise la variable _obstacle
+        _obstacles.clear();
         for (unsigned int i = 0; i < obstacles.size(); i++) _obstacles[obstacles.at(i)] = true;
         _sommetsParcours.clear();
-        for (unsigned int i = 0; i < departs.size(); i++) {    
-            _sommetDepart = creerSommetZoneRavitaillement(_sommetsGraphe.at(departs[i]));
-            _sommetsParcours[departs[i]] = _sommetDepart;
+        for (unsigned int i = 0; i < departs.size(); i++) {           
+            _sommetDepart = creerSommetZoneRavitaillement(_sommetsGraphe.at(departs[i]));  
+            _sommetDepart->_visite = true;          
             if (relais[_sommetDepart->_sommetGraphe->_pos]) _sommetDepart->_coutChemin = -relais.at(_sommetDepart->_sommetGraphe->_pos); 
+            else _sommetDepart->_coutChemin = 0;
             for (const auto paire : _sommetDepart->_sommetGraphe->_suivants) ajouterSommetParcours(paire.first);
             sommetsOuverts.push_back(_sommetDepart);
+            _sommetsParcours[departs[i]] = _sommetDepart;
         }        
         
         //on cherche toutes les cases accessibles
         std::shared_ptr<SommetParcours> sommetCourant;
         while (! sommetsOuverts.empty()) {
-            sommetCourant = sommetsOuverts[0];
+            sommetCourant = sommetsOuverts[0];            
             if (relais[sommetCourant->_sommetGraphe->_pos] > 0 && -relais[sommetCourant->_sommetGraphe->_pos] < sommetCourant->_coutChemin) {
                 sommetCourant->_coutChemin = -relais[sommetCourant->_sommetGraphe->_pos];
             }

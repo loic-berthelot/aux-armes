@@ -2,5 +2,4 @@ Cavalerie
 2
 Specificites
 inflammable
-rien
 furtif

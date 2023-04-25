@@ -7,7 +7,7 @@ class Jeu {
     std::vector<std::shared_ptr<Joueur>> _joueurs;
     unsigned int _toursPasses = 0;
 public:
-    Jeu(unsigned int tailleMap, std::string const &armeeDesc);
+    Jeu(const std::string & joueurs, unsigned int tailleMap, std::string const &armeeDesc);
 
     Jeu(std::string const &configurationMap, std::string const &armeeDesc);
     void ajouterJoueur(bool estHumain = false);

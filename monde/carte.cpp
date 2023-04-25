@@ -212,8 +212,8 @@ Carte::Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees) : _r
                 indexEmplacements++;
             
                 if (indexEmplacements < emplacements.size()){
-                    _armees[i]->getUnites()[j]->setX(emplacements[j].first);
-                    _armees[i]->getUnites()[j]->setY(emplacements[j].second);
+                    _armees[i]->getUnite(j)->setX(emplacements[j].first);
+                    _armees[i]->getUnite(j)->setY(emplacements[j].second);
                 }else{//pas d'emplacements donc on élargit la zone
                     //on ajoute les voisins qui n'ont pas d'unités et qui ne sont pas des villes et qui sont accessible pour l'unité
                     std::vector<std::pair<int, int>> emplacementsBuffer;
@@ -399,11 +399,13 @@ std::vector<std::shared_ptr<Unite>> Carte::getUnitesVisibles() {
 
 void Carte::ravitaillerArmee() {
     std::vector<std::pair<int,int>> departs = getDepartsRavitaillement();
-    std::vector<std::pair<int,int>> obstacles = getPositionsEnnemis();
+    std::vector<std::pair<int,int>> obstacles = getPositionsEnnemis();    
     std::map<std::pair<int,int>,int> relais = getRelaisRavitaillement();
-
     std::vector<std::pair<int,int>> zoneRavitaillement = _grapheEauEtTerre->zoneRavitaillement(departs, obstacles, relais);
+<<<<<<< HEAD
     
+=======
+>>>>>>> 9c5746220d6c3ac771e245bdb9d4d196317386d4
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
     for (unsigned int i = 0; i < unites.size(); i++) {
         if (std::find(zoneRavitaillement.begin(), zoneRavitaillement.end(), unites[i]->getPos()) != zoneRavitaillement.end()) {
@@ -414,12 +416,12 @@ void Carte::ravitaillerArmee() {
 
 void Carte::appliquerAttritionArmee(){
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
-    // on calcule l'occupation totale de chaque case occupée par une unité de l'arméee
+    // on calcule l'occupation totale de chaque case occupée par une unité de l'armée
     std::map<std::pair<int,int>, int> casesOccupees;
     for (unsigned int i = 0; i < unites.size(); i++) {
         casesOccupees[unites[i]->getPos()] += unites[i]->getEspaceOccupe();
     }
-    // pour chacune des unites de l'armee, on calcule et applique l'attrition
+    // pour chacune des unites de l'armée, on calcule et applique l'attrition
     int capaciteAcceuil, occupation;
     std::pair<int,int> pos;
     for (unsigned int i = 0; i < unites.size(); i++) {
@@ -442,14 +444,14 @@ void Carte::executerOrdresArmee() {
     for (unsigned int i = 0; i < unites.size(); i++) {
         std::vector<std::pair<std::pair<int,int>, int>> chemin;
         if (unites[i]->getOrdre()->getType() == TypeOrdre::DEPLACER) {
-            std::pair<int,int> debut = unites[i]->getPos();
+            std::pair<int,int> debut = unites[i]->getPos(); 
             std::pair<int,int> fin = unites[i]->getOrdre()->getPos();
             chemin = getGraphe(unites[i]-> getCategorie())->aEtoile(debut, fin);
         }else if (unites[i]->getOrdre()->getType() == TypeOrdre::ATTAQUER){
             combat(unites[i], _indiceArmee, unites[i]->getOrdre()->getPos());
         }
-        unites[i]->initialiserMouvement(chemin);        
-    }
+        unites[i]->initialiserMouvement(chemin);            }
+    
     for (unsigned int pm = 0; pm < 100; pm++) { //on distribue un par un 100 points de mouvement aux unités
         for (unsigned int i = 0; i < unites.size(); i++) {
             if (unites[i]->getOrdre()->getType() == TypeOrdre::DEPLACER && unites[i]->estVivant()) { // on ne fait bouger que les unités vivantes
@@ -457,7 +459,7 @@ void Carte::executerOrdresArmee() {
                 if (seDeplace) { //si en avançant l'unité arrive sur une nouvelle case, on vérifie si cette case est tenue par un ennemi
                     if (ennemiSurCase(unites[i]->getPos())) {
                         combat(unites[i], _indiceArmee, unites[i]->getPos()); //on lance alors un combat
-                        //if (ennemiSurCase(unites[i]->getPos())) unites[i]->reculer(); //si l'une des unités ennemies survit, elle repousse l'attaque(l'unité courante doit reculer)
+                        if (ennemiSurCase(unites[i]->getPos())) unites[i]->reculer(); //si l'une des unités ennemies survit, elle repousse l'attaque(l'unité courante doit reculer)
                     }
                 }
             }            
@@ -548,6 +550,7 @@ void Carte::combat(std::shared_ptr<Unite> u, unsigned int idTeam, std::pair<int,
 
     std::vector<std::shared_ptr<Unite>> unites = unitesSurCase(positionCombat);
     for (unsigned int k = 0; k < unites.size(); k++){
+        if (unites[k] == u) continue; //L'unité u ne doit pas s'attaquer elle-même
         bool ennemiPeutRepliquer = distance(u->getPos(), positionCombat) <= unites[k]->getPortee();        
         std::pair<int, int> degats = u->resultatCombatSimple(unites[k]);//calcul de base
 
@@ -565,7 +568,7 @@ void Carte::combat(std::shared_ptr<Unite> u, unsigned int idTeam, std::pair<int,
             u->infligerDegats(degats.second);
             if (unites[k]->estIncendiaire()) u->recevoirBrulure();
         }
-        std::cout << "Une unite inflige "<<degats.first<< " degats et en recoit "<<degats.second<<" en retour."<<std::endl;
+        std::cout << "Un " <<u->getNom()<<" inflige "<<degats.first<< " degats et en recoit "<<degats.second<<" en retour."<<std::endl;
     }   
     if (u->possedeDegatsDeZone()) infligerDegatsDeZone(positionCombat, 0.5*u->getAttaque()); // u inflige des dégâts de zone
 }
@@ -588,7 +591,7 @@ void Carte::infligerDegatsDeZone(std::pair<int,int> pos, int degats) {
         std::vector<std::shared_ptr<Unite>> unites = unitesSurCase(cases[i]);
         for (unsigned int j = 0; j < unites.size(); j++) {
             unites[j]->infligerDegats(degats/getCase(cases[i])->getDefense());
-            std::cout<<"Une unite en ("<<cases[i].first<<","<<cases[i].second<<") recoit "<<degats/getCase(cases[i])->getDefense()<<" degats."<<std::endl;
+            std::cout<<"Un "<< unites[j]->getNom()<<"("<<cases[i].first<<","<<cases[i].second<<") recoit "<<degats/getCase(cases[i])->getDefense()<<" degats de zone."<<std::endl;
         }
     }
 }
