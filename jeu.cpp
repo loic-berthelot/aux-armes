@@ -77,12 +77,20 @@ void Jeu::jouer() {
     std::vector<std::pair<unsigned int, int>> scoreEquipe = _carte->getScoreEquipe();
     int places = 1;
     std::sort(scoreEquipe.begin(), scoreEquipe.end(), compareScoreDecroissant);
-    //std::sort(scoreEquipe.begin(), scoreEquipe.end(), compareScoreDecroissant);
+    bool estMort = false;
     for (unsigned int i = 0; i < scoreEquipe.size();i++)
         if (i > 1 && scoreEquipe[i].second == scoreEquipe[i-1].second)
             std::cout << " Equipe : "<<scoreEquipe[i].first<< ";";
         else{
-            std::cout << "\nPlace : "<<places<<"- Score : "<<scoreEquipe[i].second<<" Equipe : "<<scoreEquipe[i].first;
+            if (scoreEquipe[i].second < 0 && !estMort){
+                std::cout << "\n\nEquipe éliminée (en fonction de leurs dégâts) -------------\n";
+                places = 1;
+            }if (scoreEquipe[i].second < 0){
+                estMort = true;
+                std::cout << "\nPlace : "<<places<<" - Equipe : "<<scoreEquipe[i].first;
+            }
+            else
+                std::cout << "\nPlace : "<<places<<"- Score : "<<scoreEquipe[i].second<<" Equipe : "<<scoreEquipe[i].first;
             places++;
         }
     
