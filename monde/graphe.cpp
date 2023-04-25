@@ -17,7 +17,6 @@ std::shared_ptr<SommetGraphe> Graphe::creerSommetGraphe(const std::pair<int,int>
 }
 
 std::shared_ptr<SommetParcours> Graphe::creerSommetAEtoile(std::shared_ptr<SommetGraphe> sommetGraphe, std::shared_ptr<SommetGraphe> depart, std::shared_ptr<SommetGraphe> arrivee) {
-    std::cout << "On est dans le sommet"<<std::endl;
     std::shared_ptr<SommetParcours> sommetParcours = std::make_shared<SommetParcours>();
     sommetParcours->_sommetGraphe = sommetGraphe;    
     sommetParcours->_visite = (sommetGraphe == depart);
@@ -105,10 +104,8 @@ std::vector<std::pair<std::pair<int,int>, int>> Graphe::aEtoile(std::pair<int,in
         
         //on initialise les sommets de départ et d'arrivée, ainsi que l'ensemble des sommets-parcours
         
-        
-        std::cout << "Avant"<<" départ: "<<depart.first<<" y: "<<depart.second<<" E"<<std::endl;        
+               
         _sommetDepart = creerSommetAEtoile(_sommetsGraphe.at(depart), _sommetsGraphe.at(depart), _sommetsGraphe.at(arrivee));
-        std::cout << "Après"<<std::endl;
         _sommetArrivee = creerSommetAEtoile(_sommetsGraphe.at(arrivee), _sommetsGraphe.at(depart), _sommetsGraphe.at(arrivee));
         _sommetsParcours.clear();
         

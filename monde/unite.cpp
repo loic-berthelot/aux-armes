@@ -26,7 +26,7 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
     if (!fichier.is_open()) {
         throw std::invalid_argument("Erreur : L'unité n'existe pas." + name);
     }
-    
+    try{
     std::string ligne;
     std::getline(fichier, ligne);//index catégorie
     std::getline(fichier, ligne);//valeurs catégorie
@@ -79,6 +79,9 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
         if (_types[i].possedeSpecificite(Specificite::furtif)) _furtif = true;
         if (_types[i].possedeSpecificite(Specificite::inflammable)) _degatsDeZone = true;
         if (_types[i].possedeSpecificite(Specificite::incendiaire)) _incendiaire = true;
+    }
+    }catch (Exception e){
+        throw new Exception("Unité : "+name+ " impossible à créeer");
     }
 
     // Fermer le fichier

@@ -4,6 +4,7 @@
 
 Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Armee>> const &armees):_indiceArmee(0), _armees(armees){
     std::string nomFichier = "../monde/génération/"+nomFichierConfig+".txt";  
+
     std::ifstream fichier(nomFichier); // Ouverture du fichier en lecture
     if (! fichier.is_open()) throw Exception("Impossible d'ouvrir le fichier "+nomFichier);
 
@@ -11,23 +12,33 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
     std::getline(fichier, ligne);//index taille
     std::getline(fichier, ligne);//taille valeur
 
-    _rayon = std::stoi(ligne);
+    try{
+        _rayon = std::stoi(ligne);
+    }catch (Exception e){
+        throw new Exception(ligne+" n'est pas un int pour le rayon dans le fichier : "+nomFichier);
+    }
+
     int taille = _rayon;
     std::getline(fichier, ligne);//index seed
     std::getline(fichier, ligne);//seed valeur
-
-    int seed = std::stoi(ligne);
-
+    int seed;
+    try{
+        seed = std::stoi(ligne);
+    }catch (Exception e){
+        throw new Exception(ligne+" n'est pas un int pour seed dans le fichier : "+nomFichier);
+    }
+    
     srand(seed);
     std::getline(fichier, ligne);//valeurs index
     while (std::getline(fichier, ligne) && ligne != "Dernière:"){
         if (ligne != ""){
-            std::cout << ligne << std::endl;
+            //std::cout << ligne << std::endl;
             float caseVal = std::stof(ligne);
             std::getline(fichier, ligne);
             _valeursCasesGenerateurs[caseVal] = ligne;
         }
     }
+
     _mapDernierCase = ligne;
 
     int debut = -_rayon+1;
@@ -38,11 +49,13 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
             double y = static_cast<double>(j) / taille;
             double value = perlin2D(x, y); // Appel de la fonction perlin2D pour obtenir la valeur de bruit de Perlin
             // Utilisation de la valeur de bruit de Perlin pour créer la case correspondante dans la carte
+
             _cases[std::make_pair(i, j)] = std::make_shared<Case>(valueToCaseNom(value));
         }
         if (j>0) fin++;
         else debut++;        
     }
+
                
     // Paramètres de génération des villes
     int nbVilles = armees.size()*3; // Nombre de villes à générer
@@ -86,7 +99,6 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
             n++;
         }
     }
-
     affichageSeulementCarte();
 
 
@@ -402,10 +414,7 @@ void Carte::ravitaillerArmee() {
     std::vector<std::pair<int,int>> obstacles = getPositionsEnnemis();    
     std::map<std::pair<int,int>,int> relais = getRelaisRavitaillement();
     std::vector<std::pair<int,int>> zoneRavitaillement = _grapheEauEtTerre->zoneRavitaillement(departs, obstacles, relais);
-<<<<<<< HEAD
     
-=======
->>>>>>> 9c5746220d6c3ac771e245bdb9d4d196317386d4
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
     for (unsigned int i = 0; i < unites.size(); i++) {
         if (std::find(zoneRavitaillement.begin(), zoneRavitaillement.end(), unites[i]->getPos()) != zoneRavitaillement.end()) {
@@ -724,7 +733,6 @@ double Carte::fade(double t) const{
 }
 
 std::string Carte::valueToCaseNom(float Value){
-    //std::cout <<"Value"<<Value<<std::endl;
     for (auto it = _valeursCasesGenerateurs.begin(); it != _valeursCasesGenerateurs.end(); ++it) {
         if (Value <= it->first)
             return it->second;
