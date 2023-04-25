@@ -350,3 +350,7 @@ std::string Unite::CategorieToString(accessibilite const c){
 std::string Unite::getNom() const {
     return _nom;
 }
+
+float Unite::getVitesse() const {
+    return _vitesseDeplacement;
+}

@@ -23,7 +23,7 @@ int main() {
     unites.push_back(armee2);
 */
 
-    Jeu jeu("hh", 3,"1:Garde Royale,;1:Garde Royale,;");
+    Jeu jeu("hi", 3,"1:Garde Royale,;1:Garde Royale,;");
     //std::cout<<"\033[31m";
     jeu.jouer();
 

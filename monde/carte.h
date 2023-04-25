@@ -20,7 +20,7 @@ public:
 
     std::shared_ptr<Graphe> creerGraphe(accessibilite acces) const;
 
-    std::shared_ptr<Graphe> getGraphe(accessibilite acces);
+    std::shared_ptr<Graphe> getGraphe(accessibilite acces) const;
 
     Carte(int taille, std::vector<std::shared_ptr<Armee>> const &armees);
 
@@ -30,6 +30,8 @@ public:
 
     std::pair<int,int> positionAleatoireCarte();
     
+    std::vector<std::pair<int,int>> positionsAccessibles(std::shared_ptr<Unite> unite) const;
+
     /*Méthode armée ============================================*/    
     void creerArmee();//créer une armée vide
     
@@ -45,9 +47,9 @@ public:
 
     std::vector<std::pair<int,int>> getPositionsEnnemis() const;
 
-    std::map<std::pair<int,int>, int> getRelaisRavitaillement() const;
+    std::map<std::pair<int,int>, int> getRelaisRavitaillement(std::shared_ptr<Unite> unite = nullptr) const;
 
-    std::vector<std::shared_ptr<Unite>> getUnitesVisibles();
+    std::map<std::pair<int,int>, std::shared_ptr<Unite>> getUnitesVisibles(bool allies = true);
 
     void ravitaillerArmee();
 
@@ -74,6 +76,8 @@ public:
     
     std::vector<std::pair<int, int>> getCoordonneesVoisins(int posX, int posY)const;//renvoie les coordonnées des voisins
     
+    std::vector<std::pair<int, int>> getCoordonneesRayon(std::pair<int,int> pos, int rayon)const;
+
     std::shared_ptr<Case> getCase(int x, int y)const;//Attention les X et Y sont les coordonnées en fonction du milieu
 
     std::shared_ptr<Case> getCase(std::pair<int,int> pos) const;
@@ -108,6 +112,8 @@ public:
     bool peutEtreEn(int x, int y, std::shared_ptr<Unite> u1);
 
     bool caseAvecUnite(int x, int y)const;
+
+    bool caseAvecEnnemi(int x, int y)const;
     
     bool caseVisible(std::pair<int,int> pos) const;
 };

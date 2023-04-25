@@ -140,7 +140,7 @@ std::shared_ptr<Graphe> Carte::creerGraphe(accessibilite acces) const {
     return graphe;
 }
 
-std::shared_ptr<Graphe> Carte::getGraphe(accessibilite acces) {
+std::shared_ptr<Graphe> Carte::getGraphe(accessibilite acces) const {
     switch (acces) {
         case accessibilite::Terre : return _grapheTerre; break;
         case accessibilite::EauEtTerre : return _grapheEauEtTerre; break;
@@ -179,6 +179,10 @@ std::pair<int,int> Carte::positionAleatoireCarte() { //méthode de complexité O
         else debut++;        
     }
     throw Exception("Erreur dans Carte::positionAleatoireCarte() : depassement de "+std::to_string(indiceLineaireCase)+" cases.");
+}
+
+std::vector<std::pair<int,int>> Carte::positionsAccessibles(std::shared_ptr<Unite> unite) const {
+    return getGraphe(unite->getCategorie())->positionsAccessibles(unite->getPos(), 100*unite->getVitesse());
 }
 
 void Carte::creerArmee() {     
@@ -227,35 +231,39 @@ std::vector<std::pair<int,int>> Carte::getPositionsEnnemis() const {
     return positionsEnnemis;
 }
 
-std::map<std::pair<int,int>, int> Carte::getRelaisRavitaillement() const {
+std::map<std::pair<int,int>, int> Carte::getRelaisRavitaillement(std::shared_ptr<Unite> unite) const {
     std::map<std::pair<int,int>, int> relais;
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
     std::pair<int,int> pos;
     int rayon;
     for (unsigned int i = 0; i < unites.size(); i++) {
-        pos = unites[i]->getPos();
-        rayon = unites[i]->getDistanceRavitaillement();
-        if (relais.count(pos) == 0) {
-            if ( rayon > 0) relais[pos] = rayon;
-        } else if (relais.at(pos) < rayon) {
-            relais[pos] = rayon;
-        }
+        if(unites[i] != unite) {
+            pos = unites[i]->getPos();
+            rayon = unites[i]->getDistanceRavitaillement();
+            if (relais.count(pos) == 0) {
+                if ( rayon > 0) relais[pos] = rayon;
+            } else if (relais.at(pos) < rayon) {
+                relais[pos] = rayon;
+            }
+        }        
     }    
     return relais;
 }
 
-std::vector<std::shared_ptr<Unite>> Carte::getUnitesVisibles() {
-    std::vector<std::shared_ptr<Unite>> unites;
+std::map<std::pair<int,int>, std::shared_ptr<Unite>> Carte::getUnitesVisibles(bool allies) {
+    std::map<std::pair<int,int>, std::shared_ptr<Unite>> unites;
     brouillardDeGuerreEquipe();
     for (unsigned int i = 0; i < _armees.size(); i++) {
-        std::vector<std::shared_ptr<Unite>> unitesArmee;
-        for (unsigned int j = 0; j < unitesArmee.size(); j++) {
-            if (j == _indiceArmee) {
-                unites.push_back(unitesArmee[j]);
-            } else if (caseVisible(unitesArmee[j]->getPos())) {
-                if (! unitesArmee[j]->estFurtif() || ! getCase(unitesArmee[j]->getPos())->permetFurtivite()) unites.push_back(unitesArmee[j]);
-            } 
-        }
+        if (allies || i != _indiceArmee) {
+            std::vector<std::shared_ptr<Unite>> unitesArmee;
+            for (unsigned int j = 0; j < unitesArmee.size(); j++) {
+                if (j == _indiceArmee) {
+                    unites[unitesArmee[j]->getPos()] = unitesArmee[j];
+                } else if (caseVisible(unitesArmee[j]->getPos())) {
+                    if (! unitesArmee[j]->estFurtif() || ! getCase(unitesArmee[j]->getPos())->permetFurtivite()) unites[unitesArmee[j]->getPos()] = unitesArmee[j];
+                } 
+            }
+        }        
     }
     return unites;
 }
@@ -347,6 +355,20 @@ std::vector<std::pair<int, int>> Carte::getCoordonneesVoisins(int posX, int posY
     if (getCase(posX+1, posY)) resultat.push_back(std::make_pair(posX+1, posY));
     if (getCase(posX, posY-1)) resultat.push_back(std::make_pair(posX, posY-1));
     if (getCase(posX+1, posY-1)) resultat.push_back(std::make_pair(posX+1, posY-1));
+    return resultat;
+}
+
+std::vector<std::pair<int, int>> Carte::getCoordonneesRayon(std::pair<int,int> pos, int rayon)const{
+    std::vector<std::pair<int, int>> resultat;
+    int debut = pos.first-rayon+1;
+    int fin = pos.first;
+    for (int j = pos.second+rayon-1; j > pos.second-rayon; j--) {
+        for (int i = debut; i <= fin; i++) {
+            if (getCase(i, j)) resultat.push_back(std::make_pair(i,j));
+        }
+        if (j>0) fin++;
+        else debut++;        
+    }    
     return resultat;
 }
 
@@ -596,6 +618,15 @@ bool Carte::caseAvecUnite(int x, int y)const{
         for (unsigned int j = 0; j < _armees[i]->getUnites().size();j++)
             if (_armees[i]->getUnites()[j]->getX() == x && _armees[i]->getUnites()[j]->getY() == y)
                 return true;
+    
+    return false;
+}
+
+bool Carte::caseAvecEnnemi(int x, int y)const{
+    for (unsigned int i = 0; i < _armees.size();i++)
+        for (unsigned int j = 0; j < _armees[i]->getUnites().size();j++)
+            if (_armees[i]->getUnites()[j]->getX() == x && _armees[i]->getUnites()[j]->getY() == y)
+                return i!=_indiceArmee;
     
     return false;
 }

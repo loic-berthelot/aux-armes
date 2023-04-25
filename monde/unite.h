@@ -123,4 +123,6 @@ public:
     void evolutionBrulure();
 
     std::string getNom() const;
+
+    float getVitesse() const;
 };
