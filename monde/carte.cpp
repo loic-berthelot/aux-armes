@@ -51,13 +51,12 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
     std::getline(fichier, ligne);//valeurs index
     while (std::getline(fichier, ligne) && ligne != "Dernière:"){
         if (ligne != ""){
-            //std::cout << ligne << std::endl;
             float caseVal = std::stof(ligne);
             std::getline(fichier, ligne);
             _valeursCasesGenerateurs[caseVal] = ligne;
         }
     }
-
+    std::getline(fichier, ligne);
     _mapDernierCase = ligne;
 
     int debut = -_rayon+1;
@@ -122,8 +121,9 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
         std::vector<std::pair<int, int>> emplacements;
         emplacements.push_back(villes[i]);
         unsigned int indexEmplacements = 0;
-        for (unsigned int j = 0; j < _armees[i]->getUnites().size();j++){
-            while(indexEmplacements >= emplacements.size() || !peutEtreEn(emplacements[indexEmplacements].first, emplacements[indexEmplacements].second, _armees[i]->getUnites()[j])){
+        for (unsigned int j = 0; j < _armees[i]->taille();j++){
+            
+            while(indexEmplacements >= emplacements.size() || !peutEtreEn(emplacements[indexEmplacements].first, emplacements[indexEmplacements].second, _armees[i]->getUnite(j))){
                 indexEmplacements++;
                 if (indexEmplacements < emplacements.size()){
                     _armees[i]->getUnite(j)->setX(emplacements[j].first);
@@ -151,11 +151,12 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
                     }
                 }
             }
-            _armees[i]->getUnites()[j]->setX(emplacements[indexEmplacements].first);
-            _armees[i]->getUnites()[j]->setY(emplacements[indexEmplacements].second);
+            _armees[i]->getUnite(j)->setX(emplacements[indexEmplacements].first);
+            _armees[i]->getUnite(j)->setY(emplacements[indexEmplacements].second);
             indexEmplacements++;
         }
    }
+   std::cout << "Graphe"<<std::endl;
     _grapheAir = creerGraphe(accessibilite::Air);
     _grapheTerre = creerGraphe(accessibilite::Terre);
     _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);

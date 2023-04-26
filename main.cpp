@@ -2,7 +2,7 @@
 
 //Lit le fichier Launcher.txt et le fais joueur
 void LancerJeu(){
-    std::string nomFichier = "../Launcher.txt";  
+    std::string nomFichier = "../options.txt";  
     std::ifstream fichier(nomFichier); // Ouverture du fichier en lecture
     if (! fichier.is_open()) throw Exception("Impossible d'ouvrir le fichier : "+nomFichier);
     std::string ligne;
@@ -25,13 +25,9 @@ void LancerJeu(){
 
 int main() {
 
-    Jeu jeu("iii","gen1","2:Caravane,2:Pégase,Galère,;1:Caravane,;1:Caravane,;");
-    jeu.jouer();
-    //LancerJeu();
+    LancerJeu();
 
 
     return 0;
 
 }
-
-
