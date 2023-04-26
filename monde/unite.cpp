@@ -134,7 +134,7 @@ std::pair<int, int> Unite::resultatCombatSimple(std::shared_ptr<Unite> ennemi)co
     float moyBuffer = 1;
     for (unsigned int i = 0; i < _types.size();i++){        
         for (unsigned int j = 0; j <ennemi->getTypes().size();j++){
-            moyBuffer+=_types[i].getCoefficients(ennemi->getTypes()[j].getNom());
+            moyBuffer+=_types[i].getCoefficients(ennemi->getType(j).getNom());
             nbBuffer++;
         }
         if (nbBuffer != 0){
@@ -298,7 +298,13 @@ void Unite::infligerDegats(unsigned int degats) {
 void Unite::subirAttrition(float attrition) {
     unsigned int degats = static_cast<unsigned int>(attrition);
     infligerDegats(degats); // on inflige d'abord des dégâts équivalents à l'attrition dûe à la surpopulation
-    if (! _estRavitaille) infligerDegats(10); // puis on inflige 10 dégâts supplémentaires si l'unité n'est pas ravitaillée
+    if (degats > 0) {
+        std::cout<<"Un "<<_nom<<" en ("<<_posX<<","<<_posY<<") subit "<<degats<<" degats à cause de l'attrition."<<std::endl;
+    }
+    if (! _estRavitaille) {
+        infligerDegats(static_cast<int>(0.1*_maxSante)); // puis on inflige des dégâts supplémentaires si l'unité n'est pas ravitaillée
+        std::cout<<"Un "<<_nom<<" en ("<<_posX<<","<<_posY<<") subit "<<static_cast<int>(0.1*_maxSante)<<" degats car il n'est pas ravitaillé."<<std::endl;
+    }
     _estRavitaille = false;
 }
 
@@ -340,6 +346,10 @@ void Unite::setDistanceVue(int distanceVue) {
 
 std::vector<Type> Unite::getTypes()const {
     return _types;
+}
+
+Type Unite::getType(int i) const {
+    return _types.at(i);
 }
 
 bool Unite::possedeDegatsDeZone() const {
@@ -387,4 +397,8 @@ std::string Unite::CategorieToString(accessibilite const c){
 
 std::string Unite::getNom() const {
     return _nom;
+}
+
+float Unite::getVitesse() const {
+    return _vitesseDeplacement;
 }

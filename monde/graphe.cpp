@@ -185,3 +185,12 @@ std::vector<std::pair<int,int>> Graphe::zoneRavitaillement(std::vector<std::pair
         throw Exception("Erreur dans Graphe::zoneRavitaillement.");
     }
 }
+
+std::vector<std::pair<int,int>> Graphe::positionsAccessibles(std::pair<int,int> pos, float distance) {
+    std::vector<std::pair<int,int>> departs;
+    departs.push_back(pos);
+    std::vector<std::pair<int,int>> obstacles;
+    std::map<std::pair<int,int>, int> relais;
+    relais[pos] = (int) distance;
+    return zoneRavitaillement(departs, obstacles, relais);
+}

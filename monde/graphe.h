@@ -47,4 +47,5 @@ public:
     std::shared_ptr<SommetParcours> plusFaibleScore(const std::vector<std::shared_ptr<SommetParcours>> & sommets) const;
     std::vector<std::pair<std::pair<int,int>, int>> aEtoile(std::pair<int,int> depart, std::pair<int,int>arrivee);
     std::vector<std::pair<int,int>> zoneRavitaillement(std::vector<std::pair<int,int>> departs, std::vector<std::pair<int,int>> obstacles, std::map<std::pair<int,int>,int> relais);
+    std::vector<std::pair<int,int>> positionsAccessibles(std::pair<int,int> pos, float distance);
 };
