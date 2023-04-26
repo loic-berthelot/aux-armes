@@ -13,17 +13,16 @@ private:
     std::shared_ptr<Graphe> _grapheTerre;
     std::shared_ptr<Graphe> _grapheEauEtTerre;
     std::shared_ptr<Graphe> _grapheEau;
+    std::shared_ptr<Graphe> _grapheVision;
     int _rayon;
     unsigned int _indiceArmee;
-
     unsigned int _nbToursMax;
-
     std::map<float, std::string> _valeursCasesGenerateurs;//utilisé dans le bruit de Perlin
     std::string _mapDernierCase;
 
 public:
-    
-    std::shared_ptr<Graphe> creerGraphe(accessibilite acces) const;
+
+    std::shared_ptr<Graphe> creerGraphe(accessibilite acces, bool coutDeplacement = true) const; 
 
     std::shared_ptr<Graphe> getGraphe(accessibilite acces) const;
 
@@ -76,8 +75,6 @@ public:
 
     void infligerDegatsDeZone(std::pair<int,int> pos, int degats);
 
-    bool ennemiSurCase(std::pair<int,int> pos) const;
-
     void retirerCadavres();
     
     void evolutionMoralArmee();
@@ -85,13 +82,13 @@ public:
     void combat(std::shared_ptr<Unite> u1, unsigned int idTeam, std::pair<int,int> positionCombat);//fait combattre 2 unités
 
     /*Methode de la carte (MAP ) =============================*/
-    void brouillardDeGuerreUnite(std::shared_ptr<Unite> unite, std::vector<std::pair<int,int>> &vecteur)const;
+    void brouillardDeGuerreUnite(std::shared_ptr<Unite> unite);
 
     void brouillardDeGuerreEquipe();
     
-    std::vector<std::pair<int, int>> getCoordonneesVoisins(int posX, int posY)const;//renvoie les coordonnées des voisins
+    std::vector<std::pair<int, int>> getCoordonneesVoisins(std::pair<int,int> pos)const;//renvoie les coordonnées des voisins
     
-    std::vector<std::pair<int, int>> getCoordonneesRayon(std::pair<int,int> pos, int rayon)const;
+    std::vector<std::pair<int, int>> getCoordonneesVoisins(std::pair<int,int> pos, int rayon)const;
 
     std::shared_ptr<Case> getCase(int x, int y)const;//Attention les X et Y sont les coordonnées en fonction du milieu
 
@@ -127,7 +124,9 @@ public:
 
     bool caseAvecUnite(int x, int y)const;
 
-    bool caseAvecEnnemi(int x, int y)const;
+    bool ennemiSurCase(int x, int y)const;
+
+    bool ennemiSurCase(std::pair<int,int> pos) const;
     
     bool caseVisible(std::pair<int,int> pos) const;
 };

@@ -52,13 +52,14 @@ void Jeu::jouer() {
         std::cout<<"---Tour n°"<<_toursPasses<<"---"<<std::endl;
         for (unsigned int i = 0; i < _joueurs.size(); i++) {
             std::cout<<"Tour du joueur "<<i<<" : "<<std::endl;
-            _carte->selectionnerArmee(i);
-            _joueurs[i]->jouerArmee(*_carte);
+            _carte->selectionnerArmee(i);            
 
             //Il faut calculer le brouillard de guerre par ici
             _carte->evolutionMoralArmee();            
             _carte->ravitaillerArmee();
             _carte->appliquerAttritionArmee();
+            _carte->brouillardDeGuerreEquipe();
+            _joueurs[i]->jouerArmee(*_carte);
             _carte->executerOrdresArmee();
             
             _carte->retirerCadavres();
@@ -83,7 +84,7 @@ void Jeu::jouer() {
             std::cout << " Equipe : "<<scoreEquipe[i].first<< ";";
         else{
             if (scoreEquipe[i].second < 0 && !estMort){
-                std::cout << "\n\nEquipe éliminée (en fonction de leurs dégâts) -------------\n";
+                std::cout << "\n\nEquipes éliminées (classées en fonction des dégâts infligés) -------------\n";
                 places = 1;
             }if (scoreEquipe[i].second < 0){
                 estMort = true;

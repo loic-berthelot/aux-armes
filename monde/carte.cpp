@@ -100,7 +100,7 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
 
         // Vérification si le point est accessible par la terre
         bool estAccessibleParTerre = false;
-        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(i, j);
+        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(std::make_pair(i, j));
         for (const auto& voisin : voisins) {
             if (getCase(voisin) && getCase(voisin)->accessibleTerre()) {
                 estAccessibleParTerre = true;
@@ -132,7 +132,7 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
                     //on ajoute les voisins qui n'ont pas d'unités et qui ne sont pas des villes et qui sont accessible pour l'unité
                     std::vector<std::pair<int, int>> emplacementsBuffer;
                     for (unsigned int k = 0; k < emplacements.size();k++){
-                        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(emplacements[k].first, emplacements[k].second);
+                        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(emplacements[k]);
                         for (unsigned int l = 0; l < voisins.size();l++){
                             //Mtn on vérifie si l'emplacement n'est pas déjà dans l'emplacement
                             bool appartientEmplacement = false;
@@ -156,10 +156,11 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
             indexEmplacements++;
         }
    }
-    _grapheAir = creerGraphe(accessibilite::Air);
+    _grapheAir = creerGraphe(accessibilite::Air, false);
     _grapheTerre = creerGraphe(accessibilite::Terre);
     _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
     _grapheEau = creerGraphe(accessibilite::Eau);
+    _grapheVision = creerGraphe(accessibilite::EauEtTerre, false);
     initialiserVisibilite();
 
 }
@@ -177,7 +178,7 @@ std::vector<std::pair<unsigned int, int>> Carte::getScoreEquipe()const{
 
 }
 
-std::shared_ptr<Graphe> Carte::creerGraphe(accessibilite acces) const {
+std::shared_ptr<Graphe> Carte::creerGraphe(accessibilite acces, bool coutDeplacement) const {
     //création d'un std::map qui recense tous les noeuds correspondant aux cases de la carte
     std::vector<std::pair<int,int>> sommets;
     int debut = -_rayon+1;
@@ -194,11 +195,11 @@ std::shared_ptr<Graphe> Carte::creerGraphe(accessibilite acces) const {
     std::shared_ptr<Graphe> graphe = std::make_shared<Graphe>(sommets); 
     //ajout des voisins
     for (auto & paire : sommets) {
-        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(paire.first, paire.second);
+        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(paire);
         for (const auto voisin : voisins) {
             if (std::find(sommets.begin(), sommets.end(), voisin) != sommets.end()) {
-                if (acces == accessibilite::Air) graphe->ajouterSuivant(paire, voisin, 1);
-                else graphe->ajouterSuivant(paire, voisin, getCase(voisin)->getCoutDeplacement());
+                if (coutDeplacement) graphe->ajouterSuivant(paire, voisin, getCase(voisin)->getCoutDeplacement());
+                else graphe->ajouterSuivant(paire, voisin, 1);
             }
         }
     }
@@ -306,18 +307,15 @@ std::map<std::pair<int,int>, int> Carte::getRelaisRavitaillement(std::shared_ptr
 
 std::map<std::pair<int,int>, std::shared_ptr<Unite>> Carte::getUnitesVisibles(bool allies) {
     std::map<std::pair<int,int>, std::shared_ptr<Unite>> unites;
-    brouillardDeGuerreEquipe();
     for (unsigned int i = 0; i < _armees.size(); i++) {
-        if (allies || i != _indiceArmee) {
-            std::vector<std::shared_ptr<Unite>> unitesArmee;
-            for (unsigned int j = 0; j < unitesArmee.size(); j++) {
-                if (j == _indiceArmee) {
-                    unites[unitesArmee[j]->getPos()] = unitesArmee[j];
-                } else if (caseVisible(unitesArmee[j]->getPos())) {
-                    if (! unitesArmee[j]->estFurtif() || ! getCase(unitesArmee[j]->getPos())->permetFurtivite()) unites[unitesArmee[j]->getPos()] = unitesArmee[j];
-                } 
-            }
-        }        
+        std::vector<std::shared_ptr<Unite>> unitesArmee;
+        for (unsigned int j = 0; j < unitesArmee.size(); j++) {
+            if (j == _indiceArmee) {
+                if (allies) unites[unitesArmee[j]->getPos()] = unitesArmee[j];
+            } else if (caseVisible(unitesArmee[j]->getPos())) {
+                if (! unitesArmee[j]->estFurtif() || ! getCase(unitesArmee[j]->getPos())->permetFurtivite()) unites[unitesArmee[j]->getPos()] = unitesArmee[j];
+            } 
+        }     
     }
     return unites;
 }
@@ -377,7 +375,7 @@ void Carte::executerOrdresArmee() {
     for (unsigned int pm = 0; pm < 100; pm++) { //on distribue un par un 100 points de mouvement aux unités
         for (unsigned int i = 0; i < unites.size(); i++) {
             if (unites[i]->getOrdre()->getType() == TypeOrdre::DEPLACER && unites[i]->estVivant()) { // on ne fait bouger que les unités vivantes
-                bool seDeplace = unites[i]->avancer(); //l'unité avance (elle accumue des points de mouvement et avance parfois d'une case)
+                bool seDeplace = unites[i]->avancer(); //l'unité avance (elle accumule des points de mouvement et avance parfois d'une case)
                 if (seDeplace) { //si en avançant l'unité arrive sur une nouvelle case, on vérifie si cette case est tenue par un ennemi
                     if (ennemiSurCase(unites[i]->getPos())) {
                         combat(unites[i], _indiceArmee, unites[i]->getPos()); //on lance alors un combat
@@ -389,31 +387,19 @@ void Carte::executerOrdresArmee() {
     }
 }
 
-bool Carte::ennemiSurCase(std::pair<int,int> pos) const {
-    for (unsigned int i = 0; i < _armees.size(); i++) {
-        if (i != _indiceArmee) {
-            std::vector<std::shared_ptr<Unite>> unites = _armees[i]->getUnites();
-            for (unsigned int j = 0; j < unites.size(); j++) {
-                if (unites[j]->getPos() == pos) return true;
-            }
-        }
-    }
-    return false;
-}
-
 //renvoie un vecteur contenant les coordonnées des 6 voisins (au plus) de la case choisie
-std::vector<std::pair<int, int>> Carte::getCoordonneesVoisins(int posX, int posY)const{
+std::vector<std::pair<int, int>> Carte::getCoordonneesVoisins(std::pair<int,int> pos)const{
     std::vector<std::pair<int, int>> resultat;
-    if (getCase(posX-1, posY+1)) resultat.push_back(std::make_pair(posX-1, posY+1));
-    if (getCase(posX, posY+1)) resultat.push_back(std::make_pair(posX, posY+1));
-    if (getCase(posX-1, posY)) resultat.push_back(std::make_pair(posX-1, posY));
-    if (getCase(posX+1, posY)) resultat.push_back(std::make_pair(posX+1, posY));
-    if (getCase(posX, posY-1)) resultat.push_back(std::make_pair(posX, posY-1));
-    if (getCase(posX+1, posY-1)) resultat.push_back(std::make_pair(posX+1, posY-1));
+    if (getCase(pos.first-1, pos.second+1)) resultat.push_back(std::make_pair(pos.first-1, pos.second+1));
+    if (getCase(pos.first, pos.second+1)) resultat.push_back(std::make_pair(pos.first, pos.second+1));
+    if (getCase(pos.first-1, pos.second)) resultat.push_back(std::make_pair(pos.first-1, pos.second));
+    if (getCase(pos.first+1, pos.second)) resultat.push_back(std::make_pair(pos.first+1, pos.second));
+    if (getCase(pos.first, pos.second-1)) resultat.push_back(std::make_pair(pos.first, pos.second-1));
+    if (getCase(pos.first+1, pos.second-1)) resultat.push_back(std::make_pair(pos.first+1, pos.second-1));
     return resultat;
 }
 
-std::vector<std::pair<int, int>> Carte::getCoordonneesRayon(std::pair<int,int> pos, int rayon)const{
+std::vector<std::pair<int, int>> Carte::getCoordonneesVoisins(std::pair<int,int> pos, int rayon)const{
     std::vector<std::pair<int, int>> resultat;
     int debut = pos.first-rayon+1;
     int fin = pos.first;
@@ -473,8 +459,7 @@ void Carte::combat(std::shared_ptr<Unite> u, unsigned int idTeam, std::pair<int,
 
     std::vector<std::shared_ptr<Unite>> unites = unitesSurCase(positionCombat);
     for (unsigned int k = 0; k < unites.size(); k++){
-        if (unites[k] == u) continue; //L'unité u ne doit pas s'attaquer elle-même
-        bool ennemiPeutRepliquer = distance(u->getPos(), positionCombat) <= unites[k]->getPortee();        
+        if (unites[k] == u) continue; //L'unité u ne doit pas s'attaquer elle-même          
         std::pair<int, int> degats = u->resultatCombatSimple(unites[k]);//calcul de base
 
         //on applique les calculs du terrain du défenseur
@@ -485,9 +470,9 @@ void Carte::combat(std::shared_ptr<Unite> u, unsigned int idTeam, std::pair<int,
         //L'unité u inflige d'abord des dégâts à l'unité ennemie
         unites[k]->infligerDegats(degats.first);
         if (u->estIncendiaire()) unites[k]->recevoirBrulure();
-
         _armees[idTeam]->ajoutScore(degats.first);
 
+        bool ennemiPeutRepliquer = (distance(u->getPos(), positionCombat) <= unites[k]->getPortee())&&unites[k]->estVivant();      
         //C'est ensuite à l'ennemi d'infliger des dégâts (s'il peut évidemment)
         if (ennemiPeutRepliquer) {
             u->infligerDegats(degats.second);
@@ -510,7 +495,7 @@ std::vector<std::shared_ptr<Unite>> Carte::unitesSurCase(std::pair<int,int> pos)
 }  
 
 void Carte::infligerDegatsDeZone(std::pair<int,int> pos, int degats) {
-    std::vector<std::pair<int,int>> cases = getCoordonneesVoisins(pos.first, pos.second);
+    std::vector<std::pair<int,int>> cases = getCoordonneesVoisins(pos);
     cases.push_back(pos);
     for (unsigned int i = 0; i < cases.size(); i++) {
         std::vector<std::shared_ptr<Unite>> unites = unitesSurCase(cases[i]);
@@ -521,44 +506,27 @@ void Carte::infligerDegatsDeZone(std::pair<int,int> pos, int degats) {
     }
 }
 
-void Carte::brouillardDeGuerreUnite(std::shared_ptr<Unite> unite, std::vector<std::pair<int, int>> &vecteur)const{
-    std::vector<std::pair<int, int>> vue;
-    std::vector<std::pair<int, int>> vueTampon;
-
-    vue.push_back(unite->getPos());
-    vecteur.push_back(unite->getPos());
-
-    for (unsigned int i = 0; i < unite->getDistanceVue(); i++){
-        for (unsigned int j = 0; j < vue.size();j++){
-            std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(vue[j].first, vue[j].second);
-            for (unsigned int k = 0; k < voisins.size();k++){
-                //si pas déjà dans la fonction et si c'est accessible
-                if (!(std::find(vue.begin(), vue.end(), voisins[k]) != vue.end()) && _cases.at(voisins[k])->obstacleVision()){
-                    vueTampon.push_back(voisins[k]);
-                    vecteur.push_back(voisins[k]);
-                }
-            }            
+/*
+remarques : 
+1 - C'est Giovanni qui a codé la méthode brouillardDeGuerreUnite
+2 - brouillardDeGuerreUnite ne renvoie pas (en théorie) les positions des cases dans le brouillard de guerre de l'unité, mais au contraire les cases qui ne sont pas dans le brouillard de guerre
+3 - Certaines positions de cases sont renvoyées plusieurs fois
+4 - En pratique cette méthode renvoie n'importe quoi sérieux, go réécrire tout le code
+*/
+void Carte::brouillardDeGuerreUnite(std::shared_ptr<Unite> unite){
+    std::vector<std::pair<int,int>> voisins = getCoordonneesVoisins(unite->getPos(), unite->getDistanceVue());
+    for (unsigned int i = 0; i < voisins.size(); i++) {
+        int distanceAuSol = _grapheVision->aEtoile(unite->getPos(), voisins[i]).size();
+        int distanceVolOiseau = _grapheAir->aEtoile(unite->getPos(), voisins[i]).size();
+        if (distanceAuSol == distanceVolOiseau) {
+            _casesVisibles[voisins.at(i)] = true;
         }
-        //On remet dans la vue ce qu'il y a dans le bufferVue
-        for (unsigned int k = 0; k < vueTampon.size();k++) vue.push_back(vueTampon[k]);
-        vueTampon.clear();
     }
-    //rajoute les montagnes si elles sont à une distance suffisante (on rajoute que la case MONTAGNE)
-    for (unsigned int i = 0; i < vue.size();i++){
-        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(vue[i].first, vue[i].second);
-        for (unsigned int j = 0; j < voisins.size();j++){
-            if (!(std::find(vue.begin(), vue.end(), voisins[j]) != vue.end()) && !_cases.at(voisins[j])->obstacleVision()) {
-                vecteur.push_back(voisins[j]);
-            }
-        }   
-    }    
 }
 
 void Carte::brouillardDeGuerreEquipe(){
     initialiserVisibilite();
-    std::vector<std::pair<int, int>> resultat;
-    for (unsigned int j = 0; j < getArmee()->size();j++) brouillardDeGuerreUnite(_armees[_indiceArmee]->getUnite(j), resultat);
-    for (unsigned int i = 0; i < resultat.size(); i++) _casesVisibles[resultat[i]] = true;
+    for (unsigned int j = 0; j < getArmee()->size();j++) brouillardDeGuerreUnite(_armees[_indiceArmee]->getUnite(j));
 }
 
 void Carte::ajoutUniteTeam(unsigned int IDarmee, std::shared_ptr<Unite> unite){
@@ -569,7 +537,7 @@ float Carte::ratioAlliesAdversaires(std::shared_ptr<Unite> unite, unsigned int z
     std::vector<std::pair<int, int>> vision;
     unsigned int ancienneVision = unite->getDistanceVue();
     unite->setDistanceVue(zoneAutour);
-    brouillardDeGuerreUnite(unite, vision);
+    //brouillardDeGuerreUnite(unite, vision);
     
     unsigned int nbAllies = 0;
     unsigned int nbEnnemis = 0;
@@ -668,13 +636,21 @@ bool Carte::caseAvecUnite(int x, int y)const{
     return false;
 }
 
-bool Carte::caseAvecEnnemi(int x, int y)const{
-    for (unsigned int i = 0; i < _armees.size();i++)
-        for (unsigned int j = 0; j < _armees[i]->getUnites().size();j++)
-            if (_armees[i]->getUnites()[j]->getX() == x && _armees[i]->getUnites()[j]->getY() == y)
-                return i!=_indiceArmee;
-    
+
+bool Carte::ennemiSurCase(std::pair<int,int> pos) const {
+    for (unsigned int i = 0; i < _armees.size(); i++) {
+        if (i != _indiceArmee) {
+            std::vector<std::shared_ptr<Unite>> unites = _armees[i]->getUnites();
+            for (unsigned int j = 0; j < unites.size(); j++) {
+                if (unites[j]->getPos() == pos && unites[j]->estVivant()) return true;
+            }
+        }
+    }
     return false;
+}
+
+bool Carte::ennemiSurCase(int x, int y)const{    
+    return ennemiSurCase(std::make_pair(x,y));
 }
 
 bool Carte::peutEtreEn(int x, int y, std::shared_ptr<Unite> u1){

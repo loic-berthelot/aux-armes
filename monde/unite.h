@@ -89,6 +89,8 @@ public:
 
     std::vector<Type> getTypes()const;
 
+    Type getType(int i)const;
+
     void regenererSante(int pointsSante);
 
     void regenererMoral(int pointsMoral);

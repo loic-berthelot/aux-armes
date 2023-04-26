@@ -1,31 +1,44 @@
 #include "IA.h"
 
+void melanger(std::vector<std::pair<int,int>> & v) {
+  std::random_device rd;
+  std::default_random_engine rng(rd());
+  std::shuffle(v.begin(), v.end(), rng);
+}
+
 void IA::jouerUnite(Carte & carte, std::shared_ptr<Unite> unite) { 
-  std::map<std::pair<int,int>, std::shared_ptr<Unite>> unitesVisibles = carte.getUnitesVisibles(false);//on récupère les unités visibles qui n'appartiennent pas à l'armée courante   
-  std::vector<std::pair<int,int>> casesVoisines = carte.getCoordonneesRayon(unite->getPos(), unite->getPortee());
+  std::map<std::pair<int,int>, std::shared_ptr<Unite>> ennemisVisibles = carte.getUnitesVisibles(false);//on récupère les unités visibles qui n'appartiennent pas à l'armée courante   
+  std::cout<<"ennemisvisibles : "<<ennemisVisibles.size()<<std::endl;
+  std::vector<std::pair<int,int>> casesVoisines = carte.getCoordonneesVoisins(unite->getPos(), unite->getPortee());
+  melanger(casesVoisines);
   if (unite->getPortee() > 0) { //Si l'unité peut tirer à distance, on essaie de la faire attaquer le premier ennemi à portée
-    for (unsigned int i = 0; i < casesVoisines.size(); i++) {
-      if (carte.caseAvecEnnemi(casesVoisines[i].first, casesVoisines[i].second)) {
+    for (unsigned int i = 0; i < casesVoisines.size(); i++) {      
+      if (carte.ennemiSurCase(casesVoisines[i])) {
         attaquerEnnemi(unite, casesVoisines[i]);
         return;
       } 
     }
   }
   std::vector<std::pair<int,int>> casesAccessibles = carte.positionsAccessibles(unite);
-  for (unsigned int i = 0; i < casesAccessibles.size(); i++) {// On essaie de faire marcher l'unité sur une position tenue par un ennemi accessible en un tour
-    if (carte.caseAvecEnnemi(casesAccessibles[i].first, casesAccessibles[i].second)) {
+  melanger(casesAccessibles);
+  for (unsigned int i = 0; i < casesAccessibles.size(); i++) {// On essaie de faire marcher l'unité sur une position tenue par un ennemi, et accessible en un tour
+    if (carte.ennemiSurCase(casesAccessibles[i])) {
       poursuivreEnnemi(unite, casesAccessibles[i]);
       return;
     } 
+  }  
+  for (const auto & ennemi : ennemisVisibles) {// On essaie de faire marcher l'unité sur une position tenue par un ennemi, non accessible ce tour-ci
+    poursuivreEnnemi(unite, ennemi.second->getPos());
+    return;
   }
-  explorer(unite, carte);
+  explorer(unite, carte); //on explore les cases autour de l'unité
 }
 
 void IA::jouerArmee(Carte & carte) {
-    std::shared_ptr<Armee> armee = carte.getArmee();
-    for (unsigned int i = 0; i < armee->taille(); i++) {
-      jouerUnite(carte, armee->getUnite(i));//on choisit le comportement de toutes les unités de l'armée courante
-    }     
+  std::shared_ptr<Armee> armee = carte.getArmee();
+  for (unsigned int i = 0; i < armee->taille(); i++) {
+    jouerUnite(carte, armee->getUnite(i));//on choisit le comportement de toutes les unités de l'armée courante
+  }     
 }
 
 void IA::poursuivreEnnemi(std::shared_ptr<Unite> unite, std::pair<int,int> pos) {
@@ -41,21 +54,27 @@ void IA::attaquerEnnemi(std::shared_ptr<Unite> unite, std::pair<int,int> pos) {
   unite->donnerOrdre(std::make_shared<Ordre>(TypeOrdre::ATTAQUER, pos.first, pos.second));
 }
 
-int IA::nombreVoisinsInexplores(std::pair<int,int> pos, Carte & carte) {
+int IA::nombreVoisinsInexplores(std::pair<int,int> pos, int rayon, Carte & carte) {
   int compt = 0;
-  std::vector<std::pair<int,int>> voisins = carte.getCoordonneesVoisins(pos.first, pos.second);
+  std::vector<std::pair<int,int>> voisins = carte.getCoordonneesVoisins(pos, rayon);
   for (unsigned int i = 0; i < voisins.size(); i++) {
     if (! carte.caseVisible(voisins[i])) compt++;
   }
   return compt;
 }
 
+int IA::nombreVoisinsInexplores(std::shared_ptr<Unite> unite, Carte & carte) {
+  return nombreVoisinsInexplores(unite->getPos(), unite->getDistanceVue(), carte);
+}
+
+//L'unité passée en paramètre va recevoir l'ordre de se diriger vers la case la moins bien explorée et atteignable en un tour
 void IA::explorer(std::shared_ptr<Unite> unite, Carte & carte) {
   std::vector<std::pair<int,int>> positionsAccessibles = carte.positionsAccessibles(unite);
-  int score = nombreVoisinsInexplores( unite->getPos(), carte);
+  melanger(positionsAccessibles);
+  int score = nombreVoisinsInexplores(unite, carte);
   std::pair<int,int> position = unite->getPos();
   for (unsigned int i = 0; i < positionsAccessibles.size(); i++) {
-    int voisinsInexplores = nombreVoisinsInexplores(positionsAccessibles[i], carte);
+    int voisinsInexplores = nombreVoisinsInexplores(positionsAccessibles[i], unite->getDistanceVue(), carte);
     if (voisinsInexplores > score) {
       position = positionsAccessibles[i];
       score = voisinsInexplores;      
@@ -66,9 +85,10 @@ void IA::explorer(std::shared_ptr<Unite> unite, Carte & carte) {
 
 void IA::fuir(std::shared_ptr<Unite> unite, Carte & carte) {
   std::vector<std::pair<int,int>> positionsAccessibles = carte.positionsAccessibles(unite);
+  melanger(positionsAccessibles);
   std::pair<int,int> position = unite->getPos();
   for (unsigned int i = 0; i < positionsAccessibles.size(); i++) {
-    if (! carte.caseAvecEnnemi(positionsAccessibles[i].first, positionsAccessibles[i].second)) {
+    if (! carte.ennemiSurCase(positionsAccessibles[i])) {
       position = positionsAccessibles[i];
       break;
     }

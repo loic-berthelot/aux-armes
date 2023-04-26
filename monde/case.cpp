@@ -117,8 +117,7 @@ accessibilite Case::stringToAccessibilite(std::string const &s) {
 }
 
 bool Case::estDepartRavitaillement() const {
-    return (_nom == "Ville");
-    //return _departRavitaillement;
+    return _departRavitaillement;
 }
 
 int Case::getCapaciteAccueil() const {
