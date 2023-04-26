@@ -36,6 +36,7 @@ Case::Case(std::string nomFichier) : _nom(nomFichier), _coutDeplacement(100), _c
     }
 
     while (std::getline(fichier, ligne)) {
+        if (ligne == "Depart Ravitaillement") _departRavitaillement = true;
         if (ligne == "Permet furtivite") _zoneFurtivite = true;
     }
     fichier.close(); // Fermeture du fichier
