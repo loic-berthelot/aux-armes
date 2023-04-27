@@ -42,6 +42,7 @@ Case::Case(std::string nomFichier) : _nom(nomFichier), _coutDeplacement(100), _c
         throw std::invalid_argument("Cout capacité d'accueil <= 0 pour : "+ligne+ " dans la case : "+nomFichier);
 
     while (std::getline(fichier, ligne)) {
+        if (ligne == "Depart Ravitaillement") _departRavitaillement = true;
         if (ligne == "Permet furtivite") _zoneFurtivite = true;
     }
     fichier.close(); // Fermeture du fichier

@@ -25,7 +25,8 @@ void LancerJeu(){
 
 int main() {
     LancerJeu();
-
+    
+    //LancerJeu();
 
 
     return 0;

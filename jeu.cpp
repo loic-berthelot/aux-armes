@@ -43,12 +43,12 @@ void Jeu::ajouterJoueur(bool estHumain) {
 
 bool Jeu::partieFinie() {
     //return _toursPasses > 2;
-    return (_carte->nombreArmeesVivantes() <= 1);
+    return (_carte->nombreArmeesVivantes() <= 1 || _toursPasses > _carte->getMaxTours());
 }
 
 void Jeu::jouer() {
     std::cout<<"Debut de la partie !"<<std::endl;
-    while (!partieFinie() && _toursPasses <= _carte->getMaxTours()) {
+    while (!partieFinie()) {
         std::cout<<"---Tour n°"<<_toursPasses<<"---"<<std::endl;
         for (unsigned int i = 0; i < _joueurs.size(); i++) {
             std::cout<<"Tour du joueur "<<i<<" : "<<std::endl;

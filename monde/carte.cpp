@@ -29,6 +29,7 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
     }
     
     srand(seed);
+    srand(time(0));
 
     std::getline(fichier, ligne);//index nbVilles
     std::getline(fichier, ligne);//val nbVilles
@@ -313,7 +314,7 @@ std::map<std::pair<int,int>, int> Carte::getRelaisRavitaillement(std::shared_ptr
 std::map<std::pair<int,int>, std::shared_ptr<Unite>> Carte::getUnitesVisibles(bool allies) {
     std::map<std::pair<int,int>, std::shared_ptr<Unite>> unites;
     for (unsigned int i = 0; i < _armees.size(); i++) {
-        std::vector<std::shared_ptr<Unite>> unitesArmee;
+        std::vector<std::shared_ptr<Unite>> unitesArmee = _armees[i]->getUnites();
         for (unsigned int j = 0; j < unitesArmee.size(); j++) {
             if (i == _indiceArmee) {
                 if (allies) unites[unitesArmee[j]->getPos()] = unitesArmee[j];
@@ -330,11 +331,11 @@ void Carte::ravitaillerArmee() {
     std::vector<std::pair<int,int>> obstacles = getPositionsEnnemis();    
     std::map<std::pair<int,int>,int> relais = getRelaisRavitaillement();
     std::vector<std::pair<int,int>> zoneRavitaillement = _grapheEauEtTerre->zoneRavitaillement(departs, obstacles, relais);
-    
+
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
     for (unsigned int i = 0; i < unites.size(); i++) {
         if (std::find(zoneRavitaillement.begin(), zoneRavitaillement.end(), unites[i]->getPos()) != zoneRavitaillement.end()) {
-            unites[i]->ravitailler();
+            unites[i]->ravitailler();            
         } 
     }
 }
@@ -509,12 +510,22 @@ void Carte::infligerDegatsDeZone(std::pair<int,int> pos, int degats) {
 }
 
 void Carte::brouillardDeGuerreUnite(std::shared_ptr<Unite> unite){
-    std::vector<std::pair<int,int>> voisins = getCoordonneesVoisins(unite->getPos(), unite->getDistanceVue());
-    for (unsigned int i = 0; i < voisins.size(); i++) {
-        int distanceAuSol = _grapheVision->aEtoile(unite->getPos(), voisins[i]).size();
-        int distanceVolOiseau = _grapheAir->aEtoile(unite->getPos(), voisins[i]).size();
-        if (distanceAuSol == distanceVolOiseau) {
-            _casesVisibles[voisins.at(i)] = true;
+    std::vector<std::pair<int,int>> zoneVision = getCoordonneesVoisins(unite->getPos(), unite->getDistanceVue());
+    if (unite->getCategorie() == accessibilite::Air) { // Si l'unité est volante, elle peut voir toutes les cases dans la limite de son champ de vision
+        for (unsigned int i = 0; i < zoneVision.size(); i++) _casesVisibles[zoneVision.at(i)] = true;
+    } else {// Si l'unité n'est pas volante, elle peut voir toutes les cases qui ne sont pas cchées derrière un obstacle
+        for (unsigned int i = 0; i < zoneVision.size(); i++) { 
+            int distanceAuSol = _grapheVision->aEtoile(unite->getPos(), zoneVision[i]).size();
+            int distanceVolOiseau = _grapheAir->aEtoile(unite->getPos(), zoneVision[i]).size();
+            if (distanceAuSol == distanceVolOiseau) { // une case est cachée derrière un obstacle si la distance en tenant compte des obstacles est égale à la distance sans tenir compte des obstacles
+                _casesVisibles[zoneVision.at(i)] = true;
+                if (distanceAuSol < unite->getDistanceVue()) { //Si la case étudiée n'est pas à l'extrémité du champ de vision on essaie aussi d'ajouter les cases voisines
+                    std::vector<std::pair<int,int>> voisins = getCoordonneesVoisins(zoneVision[i], 1);
+                    for (unsigned int j = 0; j < voisins.size(); j++) {
+                        if (_grapheAir->aEtoile(unite->getPos(), voisins.at(j)).size() > distanceAuSol) _casesVisibles[voisins.at(j)] = true; // on n'ajoute la case voisine que si elle n'est pas cachée derrière un obstacle
+                    }
+                }
+            }
         }
     }
 }

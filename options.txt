@@ -1,6 +1,6 @@
 JoueursInformations:
-iii
+hi
 Génération Fichier:
 gen1
 Unités:
-2:Caravane,2:Pégase,Galère,;1:Caravane,;1:Caravane,;
+1:Garde Royale,;1:Garde Royale,;
