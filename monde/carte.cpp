@@ -59,6 +59,7 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
     std::getline(fichier, ligne);
     _mapDernierCase = ligne;
 
+
     int debut = -_rayon+1;
     int fin = 0;
     for (int j = _rayon-1; j > -_rayon; j--) {
@@ -74,6 +75,7 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
         else debut++;        
     }
     
+
     // Paramètres de génération des villes
     double distanceMinDuBord = taille * 0.1; // Distance minimale du bord pour générer une ville (1/10 de la taille)
     double distanceMaxDuBord = taille * 0.2; // Distance maximale du bord pour générer une ville (1/5 de la taille)
@@ -178,6 +180,8 @@ std::vector<std::pair<unsigned int, int>> Carte::getScoreEquipe()const{
     return scoreEquipe;
 
 }
+
+
 
 std::shared_ptr<Graphe> Carte::creerGraphe(accessibilite acces, bool coutDeplacement) const {
     //création d'un std::map qui recense tous les noeuds correspondant aux cases de la carte
@@ -311,7 +315,7 @@ std::map<std::pair<int,int>, std::shared_ptr<Unite>> Carte::getUnitesVisibles(bo
     for (unsigned int i = 0; i < _armees.size(); i++) {
         std::vector<std::shared_ptr<Unite>> unitesArmee;
         for (unsigned int j = 0; j < unitesArmee.size(); j++) {
-            if (j == _indiceArmee) {
+            if (i == _indiceArmee) {
                 if (allies) unites[unitesArmee[j]->getPos()] = unitesArmee[j];
             } else if (caseVisible(unitesArmee[j]->getPos())) {
                 if (! unitesArmee[j]->estFurtif() || ! getCase(unitesArmee[j]->getPos())->permetFurtivite()) unites[unitesArmee[j]->getPos()] = unitesArmee[j];
@@ -363,15 +367,16 @@ void Carte::executerOrdresArmee() {
     for (unsigned int i = 0; i < unites.size(); i++) unites[i]->evolutionBrulure();//on brûle les unites qui sont en feu au début de chaque tour
     getArmee()->retirerUnitesMortes(); // on retire ensuite les unités mortes de l'armée courante
     for (unsigned int i = 0; i < unites.size(); i++) {
-        std::vector<std::pair<std::pair<int,int>, int>> chemin;
-        if (unites[i]->getOrdre()->getType() == TypeOrdre::DEPLACER) {
-            std::pair<int,int> debut = unites[i]->getPos(); 
-            std::pair<int,int> fin = unites[i]->getOrdre()->getPos();
-            chemin = getGraphe(unites[i]-> getCategorie())->aEtoile(debut, fin);
-        }else if (unites[i]->getOrdre()->getType() == TypeOrdre::ATTAQUER){
-            combat(unites[i], _indiceArmee, unites[i]->getOrdre()->getPos());
+            std::vector<std::pair<std::pair<int,int>, int>> chemin;
+            if (unites[i]->getOrdre()->getType() == TypeOrdre::DEPLACER) {
+                std::pair<int,int> debut = unites[i]->getPos(); 
+                std::pair<int,int> fin = unites[i]->getOrdre()->getPos();
+                chemin = getGraphe(unites[i]-> getCategorie())->aEtoile(debut, fin);
+            }else if (unites[i]->getOrdre()->getType() == TypeOrdre::ATTAQUER){
+                combat(unites[i], _indiceArmee, unites[i]->getOrdre()->getPos());
+            }
+            unites[i]->initialiserMouvement(chemin);            
         }
-        unites[i]->initialiserMouvement(chemin);            }
     
     for (unsigned int pm = 0; pm < 100; pm++) { //on distribue un par un 100 points de mouvement aux unités
         for (unsigned int i = 0; i < unites.size(); i++) {
@@ -422,10 +427,6 @@ std::shared_ptr<Case> Carte::getCase(std::pair<int,int> pos) const {
         if (-_rayon - pos.second >= pos.first || pos.first >= _rayon) return nullptr;
     }
     return _cases.at(pos);    
-}
-
-std::shared_ptr<Case> Carte::getCase(int x, int y)const{
-    return getCase(std::make_pair(x,y));    
 }
 
 void Carte::affichageSeulementCarte()const{
@@ -507,13 +508,6 @@ void Carte::infligerDegatsDeZone(std::pair<int,int> pos, int degats) {
     }
 }
 
-/*
-remarques : 
-1 - C'est Giovanni qui a codé la méthode brouillardDeGuerreUnite
-2 - brouillardDeGuerreUnite ne renvoie pas (en théorie) les positions des cases dans le brouillard de guerre de l'unité, mais au contraire les cases qui ne sont pas dans le brouillard de guerre
-3 - Certaines positions de cases sont renvoyées plusieurs fois
-4 - En pratique cette méthode renvoie n'importe quoi sérieux, go réécrire tout le code
-*/
 void Carte::brouillardDeGuerreUnite(std::shared_ptr<Unite> unite){
     std::vector<std::pair<int,int>> voisins = getCoordonneesVoisins(unite->getPos(), unite->getDistanceVue());
     for (unsigned int i = 0; i < voisins.size(); i++) {
@@ -560,64 +554,6 @@ float Carte::ratioAlliesAdversaires(std::shared_ptr<Unite> unite, unsigned int z
 }
 
 /*getters and setters ============================*/
-std::shared_ptr<Armee> Carte::getArmee() const {
-    return _armees.at(_indiceArmee);
-}
-
-/*Bruit de Perlin ======================*/
-double Carte::calculIntermediaire(double pointA, double pointB, double parametreMelange) const{
-    return pointA + parametreMelange * (pointB - pointA);
-}
-
-// Fonction pour calculer le produit scalaire entre un gradient et un vecteur
-//gradient
-double Carte::vecteurPente(int hash, double x, double y) const{
-    switch (hash & 0x3) {
-        case 0x0: return x + y;
-        case 0x1: return -x + y;
-        case 0x2: return x - y;
-        case 0x3: return -x - y;
-        default: return 0;
-    }
-}
-
-// Fonction pour calculer la valeur de bruit de Perlin en 2D
-double Carte::perlin2D(double x, double y) const{
-    int permutation[256];
-
-    // Remplir le tableau de permutation avec des valeurs aléatoires entre 0 et 255
-    for (int i = 0; i < 256; ++i) {
-        permutation[i] = i;
-    }
-
-    for (int i = 255; i > 0; --i) {
-        permutation[i] = rand()%255;
-    }
-    int xi = static_cast<int>(x) & 255;
-    int yi = static_cast<int>(y) & 255;
-    double xf = x - static_cast<int>(x);
-    double yf = y - static_cast<int>(y);
-    double u = fade(xf);
-    double v = fade(yf);
-
-    int aa = permutation[permutation[xi] + yi];
-    int ab = permutation[permutation[xi] + yi + 1];
-    int ba = permutation[permutation[xi + 1] + yi];
-    int bb = permutation[permutation[xi + 1] + yi + 1];
-
-    double x1 = calculIntermediaire(vecteurPente(aa, xf, yf), vecteurPente(ba, xf - 1, yf), u);
-    double x2 = calculIntermediaire(vecteurPente(ab, xf, yf - 1), vecteurPente(bb, xf - 1, yf - 1), u);
-
-    return calculIntermediaire(x1, x2, v);
-    
-}
-
-
-
-// Fonction pour interpoler
-double Carte::fade(double t) const{
-    return t * t * t * (t * (t * 6 - 15) + 10);
-}
 
 std::string Carte::valueToCaseNom(float Value){
     for (auto it = _valeursCasesGenerateurs.begin(); it != _valeursCasesGenerateurs.end(); ++it) {
@@ -636,7 +572,6 @@ bool Carte::caseAvecUnite(int x, int y)const{
     
     return false;
 }
-
 
 bool Carte::ennemiSurCase(std::pair<int,int> pos) const {
     for (unsigned int i = 0; i < _armees.size(); i++) {
@@ -663,7 +598,16 @@ bool Carte::caseVisible(std::pair<int,int> pos) const {
     return _casesVisibles.at(pos);
 }
 
+/*Getters*/
 
 unsigned int Carte::getMaxTours()const{
     return _nbToursMax;    
+}
+
+std::shared_ptr<Armee> Carte::getArmee() const {
+    return _armees.at(_indiceArmee);
+}
+
+std::shared_ptr<Case> Carte::getCase(int x, int y)const{
+    return getCase(std::make_pair(x,y));    
 }

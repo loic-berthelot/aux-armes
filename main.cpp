@@ -24,11 +24,8 @@ void LancerJeu(){
 }
 
 int main() {
-
     LancerJeu();
-    Jeu jeu("hi","gen1","1:Garde Royale,;1:Garde Royale,;");
-    jeu.jouer();
-    //LancerJeu();
+
 
 
     return 0;

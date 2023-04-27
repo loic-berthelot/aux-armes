@@ -20,8 +20,11 @@ Type::Type(std::string const &nomFichier):_nom(nomFichier){
                 try{
                     valCoeff = std::stof(ligne);
                 }catch(...){
-                    throw new Exception("Erreur : La valeur n'est pas un flaot : "+ligne+" dans le fichier Type : "+nomFichier);
+                    throw new Exception("Erreur : La valeur n'est pas un float : "+ligne+" dans le fichier Type : "+nomFichier);
                 }
+
+                if (_coutDeplacement < 0)
+                    throw std::invalid_argument("Coeff < 0 pour : "+ligne+ " dans le type : "+nomFichier);
                 
                 _coefficients[nomType] = valCoeff;        
             }

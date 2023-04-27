@@ -14,8 +14,10 @@ Case::Case(std::string nomFichier) : _nom(nomFichier), _coutDeplacement(100), _c
     try {
         _coutDeplacement = std::stoi(ligne);
     } catch (...) {
-        throw std::invalid_argument("Cout déplacement pas en int dans la case : " + nomFichier+" pour la valeur : "+ligne);
+        throw std::invalid_argument("Cout déplacement pas en int dans la case  dans : " + nomFichier+" pour la valeur : "+ligne);
     }
+    if (_coutDeplacement <= 0)
+        throw std::invalid_argument("Cout Déplacement <= 0 pour : "+ligne+ " dans la case : "+nomFichier);
     
 
     std::getline(fichier, ligne);//index defense
@@ -25,6 +27,8 @@ Case::Case(std::string nomFichier) : _nom(nomFichier), _coutDeplacement(100), _c
     } catch (...) {
         throw std::invalid_argument("Défense pas en int dans la case : " + nomFichier+" pour la valeur : "+ligne);
     }
+    if (_defense <= 0)
+        throw std::invalid_argument("Cout defense <= 0 pour : "+ligne+ " dans la case : "+nomFichier);
     
     std::getline(fichier, ligne);//index capacité d'accueil
     std::getline(fichier, ligne);//valeur capacité d'accueil
@@ -34,6 +38,8 @@ Case::Case(std::string nomFichier) : _nom(nomFichier), _coutDeplacement(100), _c
     } catch (const std::invalid_argument& e) {
         throw std::invalid_argument("Capacité d'accueil pas en int dans la case : " + nomFichier+ " Pour :"+ligne);
     }
+    if (_capaciteAccueil <= 0)
+        throw std::invalid_argument("Cout capacité d'accueil <= 0 pour : "+ligne+ " dans la case : "+nomFichier);
 
     while (std::getline(fichier, ligne)) {
         if (ligne == "Permet furtivite") _zoneFurtivite = true;
@@ -112,8 +118,10 @@ accessibilite Case::stringToAccessibilite(std::string const &s) {
         return accessibilite::Terre;
     else if (s == "Air")
         return accessibilite::Air;
-    else 
+    else if (s == "EauEtTerre")
         return accessibilite::EauEtTerre;
+    else 
+        throw new Exception("Accessibilité non définie : " + s);
 }
 
 bool Case::estDepartRavitaillement() const {
