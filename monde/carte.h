@@ -3,6 +3,7 @@
 #include "graphe.h"
 #include <sstream>   // Pour les flux de chaînes de caractères
 #include <map>
+#include "bruitDePerlin.h"
 
 class Carte {
 private:
@@ -103,21 +104,7 @@ public:
     std::shared_ptr<Armee> getArmee() const;
 
     std::vector<std::pair<unsigned int, int>> getScoreEquipe()const;
-    /*
-    Editeur de map
-    */
-    //calcul une valeur entre a et b en fonction de parametreMelange
-    //qui est compris entre 0 et 1, plus c'est proche de 0 plus la valeur sera proche de A
-    double calculIntermediaire(double pointA, double pointB, double parametreMelange)const;
-
-    // Fonction pour calculer le produit scalaire entre un gradient et un vecteur
-    double vecteurPente(int hash, double x, double y) const;
     
-    double fade(double t)const ;// Fonction pour interpoler
-
-    // Fonction pour calculer la valeur de bruit de Perlin en 2D
-    double perlin2D(double x, double y) const;
-
     std::string valueToCaseNom(float Value);
 
     bool peutEtreEn(int x, int y, std::shared_ptr<Unite> u1);

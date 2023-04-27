@@ -38,6 +38,9 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
     }catch(...){
         throw new Exception("Erreur : La santé n'est pas un int : "+ligne+" dans le fichier unité : "+name);
     }
+    if (_sante <= 0)
+        throw std::invalid_argument("Santé <= 0 pour : "+ligne+ " dans la l'unité : "+name);
+
     _maxSante = std::stoi(ligne);
     std::getline(fichier, ligne);//index attaque
     std::getline(fichier, ligne);//attaque
@@ -46,6 +49,8 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
     }catch(...){
         throw new Exception("Erreur : L'attaque n'est pas un int : "+ligne+" dans le fichier unité : "+name);
     }
+    if (_attaque < 0)
+        throw std::invalid_argument("Attaque < 0 pour : "+ligne+ " dans la l'unité : "+name);
     std::getline(fichier, ligne);//index défense
     std::getline(fichier, ligne);//défense
     try{
@@ -53,6 +58,8 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
     }catch(...){
         throw new Exception("Erreur : La défense n'est pas un int : "+ligne+" dans le fichier unité : "+name);
     }
+    if (_defense <= 0)
+        throw std::invalid_argument("défense <= 0 pour : "+ligne+ " dans la l'unité : "+name);
 
     std::getline(fichier, ligne);//index distanceVue
     std::getline(fichier, ligne);//distanceVue
@@ -61,6 +68,9 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
     }catch(...){
         throw new Exception("Erreur : La distanceVue n'est pas un int : "+ligne+" dans le fichier unité : "+name);
     }
+    if (_distanceVue < 0)
+        throw std::invalid_argument("distanceVue < 0 pour : "+ligne+ " dans la l'unité : "+name);
+    
 
     std::getline(fichier, ligne);//index distanceRavitaillement
     std::getline(fichier, ligne);//distanceRavitaillement
@@ -69,6 +79,8 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
     }catch(...){
         throw new Exception("Erreur : La distance de ravitaillement n'est pas un int : "+ligne+" dans le fichier unité : "+name);
     }
+    if (_distanceRavitaillement < 0)
+        throw std::invalid_argument("Distance Ravitaillement <= 0 pour : "+ligne+ " dans la l'unité : "+name);
 
     std::getline(fichier, ligne);//index portee
     std::getline(fichier, ligne);//portee
@@ -77,6 +89,8 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
     }catch(...){
         throw new Exception("Erreur : La portée n'est pas un int : "+ligne+" dans le fichier unité : "+name);
     }
+    if (_portee < 0)
+        throw std::invalid_argument("Portée < 0 pour : "+ligne+ " dans la l'unité : "+name);
 
     std::getline(fichier, ligne);//index vitesse déplacement
     std::getline(fichier, ligne);//vitesse déplacement
@@ -85,6 +99,8 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
     }catch(...){
         throw new Exception("Erreur : La vitesse de déplacement n'est pas un int : "+ligne+" dans le fichier unité : "+name);
     }
+    if (_vitesseDeplacement < 0)
+        throw std::invalid_argument("vitesseDéplacement < 0 pour : "+ligne+ " dans la l'unité : "+name);
 
     std::getline(fichier, ligne);//index espace occupé
     std::getline(fichier, ligne);//espace occupé
@@ -93,6 +109,8 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
     }catch(...){
         throw new Exception("Erreur : L'espace occupé n'est pas un int : "+ligne+" dans le fichier unité : "+name);
     }
+    if (_espaceOccupe < 0)
+        throw std::invalid_argument("Espace OCcupé < 0 pour : "+ligne+ " dans la l'unité : "+name);
     
     while (std::getline(fichier, ligne)) {
         if (ligne != "") {
@@ -118,7 +136,7 @@ std::string Unite::toString() const {
 }
 
 //on considère que le combat est équilibré. Les boots ou autres changements seront fais dans la méthode combat de la classe Map
-std::pair<int, int> Unite::resultatCombatSimple(std::shared_ptr<Unite> ennemi)const{
+std::pair<int, int> Unite::resultatCombatSimple(std::shared_ptr<Unite> const ennemi)const{
     //calcul du coefficient
     float moy = 1;
     float nb = 0;
@@ -186,7 +204,6 @@ bool Unite::possedeSpecificite(Specificite e)const{
     for (unsigned int i = 0; i < _types.size();i++)
         if (_types[i].possedeSpecificite(e))
             return true;
-
     return false;
 }
 
@@ -230,12 +247,15 @@ bool Unite::avancer() {
         _pointsMouvement = 0;
         return false;
     }
+    
     _pointsMouvement += _vitesseDeplacement;
-    if (_pointsMouvement > _chemin[0].second) {
-        _pointsMouvement = 0;
+    const auto& noeudSuivant = _chemin[0];
+
+    if (_pointsMouvement > noeudSuivant.second) {
+        _pointsMouvement -= noeudSuivant.second;
         _positionPrecedente = std::make_pair(_posX, _posY);
-        _posX = _chemin[0].first.first;
-        _posY = _chemin[0].first.second;
+        _posX = noeudSuivant.first.first;
+        _posY = noeudSuivant.first.second;
         _chemin.erase(_chemin.begin());
         return true;
     }
@@ -247,7 +267,7 @@ void Unite::reculer() {
     _posY = _positionPrecedente.second;
 }
 
-void Unite::initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>> chemin) {
+void Unite::initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>>const &chemin) {
     _pointsMouvement = 0;
     _chemin = chemin;
 }
@@ -270,19 +290,9 @@ void Unite::ajoutMoralMax(int pointsMoral){
     _moral+=pointsMoral;
 }
 
-void Unite::regenererSante(int pointsSante) {
-    throw Exception ("Erreur : LOIC POURQUOI TU AS UTILISE CETTE FONCTION ON A DIT QUON REGENERAIT PAS LA SANTE.");
-    if (pointsSante < 0) throw Exception ("Erreur : points de sante negatifs dans Unite::regenererSante.");
-    _sante += pointsSante;
-    if (_sante > _maxSante) _sante = _maxSante;
-}
-
 void Unite::infligerDegats(unsigned int degats) {
-    if (degats < 0) throw Exception ("Erreur : degats negatifs dans Unite::infligerDegats.");
-    if (degats >= _sante)  {
-        _sante = 0;
-        _enVie = false;
-    } else  _sante -= degats;    
+    _sante -= std::min(_sante, static_cast<int>(degats));
+    _enVie = _enVie && (_sante > 0);   
 }
 
 void Unite::subirAttrition(float attrition) {
@@ -291,9 +301,9 @@ void Unite::subirAttrition(float attrition) {
     if (degats > 0) {
         std::cout<<"Un "<<_nom<<" en ("<<_posX<<","<<_posY<<") subit "<<degats<<" degats à cause de l'attrition."<<std::endl;
     }
-    if (! _estRavitaille) {
-        infligerDegats(static_cast<int>(0.1*_maxSante)); // puis on inflige des dégâts supplémentaires si l'unité n'est pas ravitaillée
-        std::cout<<"Un "<<_nom<<" en ("<<_posX<<","<<_posY<<") subit "<<static_cast<int>(0.1*_maxSante)<<" degats car il n'est pas ravitaillé."<<std::endl;
+    if (!_estRavitaille) {
+        infligerDegats(static_cast<unsigned int>(0.1*_maxSante)); // puis on inflige des dégâts supplémentaires si l'unité n'est pas ravitaillée
+        std::cout<<"Un "<<_nom<<" en ("<<_posX<<","<<_posY<<") subit "<<static_cast<unsigned int>(0.1*_maxSante)<<" degats car il n'est pas ravitaillé."<<std::endl;
     }
     _estRavitaille = false;
 }
@@ -367,13 +377,17 @@ void Unite::evolutionBrulure() {
 }
 
 accessibilite Unite::stringToCategorie(std::string const &s){
-    if (s == "Air")
-        return accessibilite::Air;
-    else if (s == "Eau")
-        return accessibilite::Eau;
-    else if (s == "Terre")
-        return accessibilite::Terre;
-    else return accessibilite::EauEtTerre;
+    switch (s[0]) {
+        case 'A':
+            return accessibilite::Air;
+        case 'E':
+            if (s == "Eau")
+                return accessibilite::Eau;
+            else
+             return accessibilite::EauEtTerre;
+        default:
+            return accessibilite::Terre;
+    }
 }
 
 std::string Unite::CategorieToString(accessibilite const c){

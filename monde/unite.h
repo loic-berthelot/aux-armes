@@ -4,7 +4,9 @@
 #include <memory>
 #include "Type.h"
 #include "ordre.h"
+#include <algorithm>
 #include "case.h"
+
 
 static accessibilite stringToCategorie(std::string const &s);
 
@@ -48,11 +50,11 @@ public:
 
     void donnerOrdre(std::shared_ptr<Ordre> ordre);
 
-    std::pair<int, int> resultatCombatSimple(std::shared_ptr<Unite> ennemi)const;
+    std::pair<int, int> resultatCombatSimple(std::shared_ptr<Unite> const ennemi)const;
 
     bool avancer();
 
-    void initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>> chemin);
+    void initialiserMouvement(std::vector<std::pair<std::pair<int,int>, int>> const &chemin);
 
     static accessibilite stringToCategorie(std::string const &s);
 
@@ -90,8 +92,6 @@ public:
     std::vector<Type> getTypes()const;
 
     Type getType(int i)const;
-
-    void regenererSante(int pointsSante);
 
     void regenererMoral(int pointsMoral);
 

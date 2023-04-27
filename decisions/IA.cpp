@@ -14,7 +14,7 @@ void IA::jouerUnite(Carte & carte, std::shared_ptr<Unite> unite) {
       if (carte.ennemiSurCase(casesVoisines[i])) {
         attaquerEnnemi(unite, casesVoisines[i]);
         return;
-      } 
+      }
     }
   }
   std::vector<std::pair<int,int>> casesAccessibles = carte.positionsAccessibles(unite);
