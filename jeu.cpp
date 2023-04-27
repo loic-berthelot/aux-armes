@@ -54,16 +54,17 @@ void Jeu::jouer() {
             std::cout<<"Tour du joueur "<<i<<" : "<<std::endl;
             _carte->selectionnerArmee(i);            
 
-            //Il faut calculer le brouillard de guerre par ici
             _carte->evolutionMoralArmee();            
             _carte->ravitaillerArmee();
             _carte->appliquerAttritionArmee();
-            _carte->brouillardDeGuerreEquipe();
-            _joueurs[i]->jouerArmee(*_carte);
-            _carte->executerOrdresArmee();
-            
             _carte->retirerCadavres();
-            _carte->afficherArmee();            
+
+            _carte->brouillardDeGuerreEquipe();
+            _joueurs[i]->jouerArmee(*_carte);            
+            _carte->executerOrdresArmee();            
+            _carte->retirerCadavres();
+            _carte->afficherArmee();  
+
             std::cout<<std::endl;
         }  
         _toursPasses++;

@@ -1,5 +1,5 @@
 taille:
-3
+5
 seed:
 5
 Nombre de villes par cases:

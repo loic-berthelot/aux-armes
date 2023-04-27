@@ -1,17 +1,15 @@
 Catégorie:
 Terre
 Santé:
-1000
+500
 Attaque:
-150
+25
 Défense:
 300
 Distance de vue:
-4
-Point de mouvement:
-100
+2
 Distance ravitaillement:
-10
+100
 Portée:
 0
 Vitesse deplacement:

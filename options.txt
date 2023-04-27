@@ -1,6 +1,6 @@
 JoueursInformations:
-hi
+ii
 Génération Fichier:
 gen1
 Unités:
-1:Garde Royale,;1:Garde Royale,;
+1:Archer,;1:Archer,;

@@ -11,7 +11,7 @@ Type::Type(std::string const &nomFichier):_nom(nomFichier){
         if (ligne != ""){
             if (ligne == "Specificites")
                 specificiteSection = true;
-            if (specificiteSection){
+            else if (specificiteSection){
                 _specificites.push_back(stringToSpecificite(ligne));
             }else{
                 std::string nomType = ligne;
@@ -20,7 +20,7 @@ Type::Type(std::string const &nomFichier):_nom(nomFichier){
                 try{
                     valCoeff = std::stof(ligne);
                 }catch(...){
-                    throw new Exception("Erreur : La valeur n'est pas un flaot : "+ligne+" dans le fichier Type : "+nomFichier);
+                    throw new Exception("Erreur : La valeur n'est pas un float : "+ligne+" dans le fichier Type : "+nomFichier);
                 }
                 
                 _coefficients[nomType] = valCoeff;        

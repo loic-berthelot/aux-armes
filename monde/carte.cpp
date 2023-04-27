@@ -312,7 +312,7 @@ std::map<std::pair<int,int>, std::shared_ptr<Unite>> Carte::getUnitesVisibles(bo
     for (unsigned int i = 0; i < _armees.size(); i++) {
         std::vector<std::shared_ptr<Unite>> unitesArmee = _armees[i]->getUnites();
         for (unsigned int j = 0; j < unitesArmee.size(); j++) {
-            if (j == _indiceArmee) {
+            if (i == _indiceArmee) {
                 if (allies) unites[unitesArmee[j]->getPos()] = unitesArmee[j];
             } else if (caseVisible(unitesArmee[j]->getPos())) {
                 if (! unitesArmee[j]->estFurtif() || ! getCase(unitesArmee[j]->getPos())->permetFurtivite()) unites[unitesArmee[j]->getPos()] = unitesArmee[j];
@@ -327,7 +327,6 @@ void Carte::ravitaillerArmee() {
     std::vector<std::pair<int,int>> obstacles = getPositionsEnnemis();    
     std::map<std::pair<int,int>,int> relais = getRelaisRavitaillement();
     std::vector<std::pair<int,int>> zoneRavitaillement = _grapheEauEtTerre->zoneRavitaillement(departs, obstacles, relais);
-
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
     for (unsigned int i = 0; i < unites.size(); i++) {
         if (std::find(zoneRavitaillement.begin(), zoneRavitaillement.end(), unites[i]->getPos()) != zoneRavitaillement.end()) {
@@ -474,13 +473,16 @@ void Carte::combat(std::shared_ptr<Unite> u, unsigned int idTeam, std::pair<int,
         if (u->estIncendiaire()) unites[k]->recevoirBrulure();
         _armees[idTeam]->ajoutScore(degats.first);
 
-        bool ennemiPeutRepliquer = (distance(u->getPos(), positionCombat) <= unites[k]->getPortee())&&unites[k]->estVivant();      
+        bool ennemiPeutRepliquer = (distance(u->getPos(), positionCombat) <= unites[k]->getPortee());      
         //C'est ensuite à l'ennemi d'infliger des dégâts (s'il peut évidemment)
         if (ennemiPeutRepliquer) {
             u->infligerDegats(degats.second);
             if (unites[k]->estIncendiaire()) u->recevoirBrulure();
         }
-        std::cout << "Un " <<u->getNom()<<" inflige "<<degats.first<< " degats et en recoit "<<degats.second<<" en retour."<<std::endl;
+        std::string message =  "Un " +u->getNom()+" inflige "+std::to_string(degats.first)+" degats";
+        if  (ennemiPeutRepliquer) message +=" et en recoit "+std::to_string(degats.second)+" en retour.";
+        else message+=".";
+        std::cout <<message<<std::endl;
     }   
     if (u->possedeDegatsDeZone()) infligerDegatsDeZone(positionCombat, 0.5*u->getAttaque()); // u inflige des dégâts de zone
 }

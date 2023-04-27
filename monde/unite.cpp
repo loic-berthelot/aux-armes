@@ -61,14 +61,6 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
     }catch(...){
         throw new Exception("Erreur : La distanceVue n'est pas un int : "+ligne+" dans le fichier unité : "+name);
     }
-    
-    std::getline(fichier, ligne);//index pm
-    std::getline(fichier, ligne);//pm
-    try{
-        _pointsMouvement = std::stoi(ligne);
-    }catch(...){
-        throw new Exception("Erreur : Les points de mouvement n'est pas un int : "+ligne+" dans le fichier unité : "+name);
-    }
 
     std::getline(fichier, ligne);//index distanceRavitaillement
     std::getline(fichier, ligne);//distanceRavitaillement
@@ -102,20 +94,20 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
         throw new Exception("Erreur : L'espace occupé n'est pas un int : "+ligne+" dans le fichier unité : "+name);
     }
     
-
-    std::getline(fichier, ligne);//index typeUnité
-
     while (std::getline(fichier, ligne)) {
-        if (ligne != "")
-            _types.push_back(Type(ligne));
+        if (ligne != "") {
+            _types.emplace_back(ligne); std::cout<<"type : "<<ligne<<std::endl;
+        }
     }
     
     for (unsigned int i = 0; i < _types.size(); i++) {
         if (_types[i].possedeSpecificite(Specificite::degatsDeZone)) _degatsDeZone = true;
         if (_types[i].possedeSpecificite(Specificite::furtif)) _furtif = true;
-        if (_types[i].possedeSpecificite(Specificite::inflammable)) _degatsDeZone = true;
+        if (_types[i].possedeSpecificite(Specificite::inflammable)) _inflammable = true;
         if (_types[i].possedeSpecificite(Specificite::incendiaire)) _incendiaire = true;
     }
+
+    _ordreRecu = std::make_shared<Ordre>(TypeOrdre::IMMOBILISER, 0, 0);
 
     // Fermer le fichier
     fichier.close();
@@ -148,14 +140,14 @@ std::pair<int, int> Unite::resultatCombatSimple(std::shared_ptr<Unite> ennemi)co
     if (nb == 0) coef = 1;
     else coef = moy/nb;
     std::pair<int, int> resultat;
-    //1er int correspond aux dégâts que recoit l'unité this et le deuxième aux dégats de l'unité
-    resultat.first = static_cast<float>(ennemi->_attaque) / (static_cast<float>(_defense)) * static_cast<float>(ennemi->_moral)*coef;
-    resultat.second = static_cast<float>(_attaque) / (static_cast<float>(ennemi->_defense)) * static_cast<float>(_moral)*coef;
+    //1er int correspond aux dégâts infligées par l'unité this et le deuxième aux dégats de l'unité
+    resultat.first = static_cast<float>(_attaque) / (static_cast<float>(ennemi->_defense)) * static_cast<float>(_moral)*coef;
+    resultat.second = static_cast<float>(ennemi->_attaque) / (static_cast<float>(_defense)) * static_cast<float>(ennemi->_moral)*coef;    
     return resultat;
 }
 
 void Unite::CreationNouvelleUnite(std::string const &nom, std::vector<Type> const &types, int sante, accessibilite categorie,
-int attaque, int defense, int distanceVue, int pointsMouvement, int distanceRavitaillement, float vitesseDeplacement, int espaceOccupe){
+int attaque, int defense, int distanceVue, int distanceRavitaillement, float vitesseDeplacement, int espaceOccupe){
     std::ofstream fichier("../monde/Unites/"+nom+".txt");
 
     if (fichier.is_open()) {
@@ -170,8 +162,6 @@ int attaque, int defense, int distanceVue, int pointsMouvement, int distanceRavi
         fichier << std::to_string(defense)<<std::endl;
         fichier << "Distance de vue:" << std::endl;
         fichier << std::to_string(distanceVue)<<std::endl;
-        fichier << "Point de mouvement:" << std::endl;
-        fichier << std::to_string(pointsMouvement)<<std::endl;
         fichier << "Distance de ravitaillement:" << std::endl;
         fichier << std::to_string(distanceRavitaillement)<<std::endl;
         fichier << "Vitesse déplacement:" << std::endl;
@@ -370,6 +360,7 @@ void Unite::recevoirBrulure() {
 
 void Unite::evolutionBrulure() {
     if (_effetBrulure > 0) {
+        std::cout<<"Un "<<_nom<<" en ("<<_posX<<","<<_posY<<") recoit 50 degats de brulure."<<std::endl;
         _effetBrulure--;
         infligerDegats(50);
     }

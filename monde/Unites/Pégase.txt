@@ -8,14 +8,12 @@ Défense:
 100
 Distance de vue:
 5
-Point de mouvement:
-150
 Distance ravitaillement:
 10
 Portée:
 0
 Vitesse deplacement:
-1
+1.5
 Espace occupé:
 5
 Cavalerie

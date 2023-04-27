@@ -36,6 +36,7 @@ class Graphe {
 public:    
     Graphe(const std::vector<std::pair<int,int>> & sommets);
     void ajouterSuivant(std::pair<int,int> depart, std::pair<int,int> arrivee, int poids);
+    std::pair<int,int> position(std::shared_ptr<SommetParcours> sommet) const;
     std::shared_ptr<SommetGraphe> creerSommetGraphe(const std::pair<int,int> & pos);
     std::shared_ptr<SommetParcours> creerSommetAEtoile(std::shared_ptr<SommetGraphe> sommetGraphe, std::shared_ptr<SommetGraphe> depart, std::shared_ptr<SommetGraphe> arrivee) ;
     std::shared_ptr<SommetParcours> creerSommetZoneRavitaillement(std::shared_ptr<SommetGraphe> sommetGraphe);
@@ -48,4 +49,5 @@ public:
     std::vector<std::pair<std::pair<int,int>, int>> aEtoile(std::pair<int,int> depart, std::pair<int,int>arrivee);
     std::vector<std::pair<int,int>> zoneRavitaillement(std::vector<std::pair<int,int>> departs, std::vector<std::pair<int,int>> obstacles, std::map<std::pair<int,int>,int> relais);
     std::vector<std::pair<int,int>> positionsAccessibles(std::pair<int,int> pos, float distance);
+    int longueurChemin(std::pair<int,int> depart, std::pair<int,int> arrivee);
 };

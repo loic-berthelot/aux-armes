@@ -1,9 +1,9 @@
 Catégorie:
 Terre
 Santé:
-200
+500
 Attaque:
-150
+100
 Défense:
 300
 Distance de vue:
@@ -11,9 +11,10 @@ Distance de vue:
 Distance ravitaillement:
 0
 Portée:
-0
+15
 Vitesse deplacement:
 1
 Espace occupé:
 5
-Infanterie
+Distance
+Incendiaire

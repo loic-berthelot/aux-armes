@@ -26,7 +26,6 @@ void IA::jouerUnite(Carte & carte, std::shared_ptr<Unite> unite) {
     } 
   }
   std::map<std::pair<int,int>, std::shared_ptr<Unite>> ennemisVisibles = carte.getUnitesVisibles(false);//on récupère les unités visibles qui n'appartiennent pas à l'armée courante   
-  std::cout<<"ennemisvisibles : "<<ennemisVisibles.size()<<std::endl;
   for (const auto & ennemi : ennemisVisibles) {// On essaie de faire marcher l'unité sur une position tenue par un ennemi, non accessible ce tour-ci
     poursuivreEnnemi(unite, ennemi.first);std::cout<<ennemi.first.first<<","<<ennemi.first.second<<std::endl;
     return;
