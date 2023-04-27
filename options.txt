@@ -1,0 +1,6 @@
+JoueursInformations:
+hi
+Génération Fichier:
+gen1
+Unités:
+1:Garde Royale,;1:Garde Royale,;

@@ -1,6 +1,0 @@
-JoueursInformations:
-iii
-Génération Fichier:
-gen1
-Unités:
-2:Caravane,2:Pégase,Galère,;1:Caravane,;1:Caravane,;
