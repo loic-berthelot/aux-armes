@@ -113,9 +113,7 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
         throw std::invalid_argument("Espace OCcupé < 0 pour : "+ligne+ " dans la l'unité : "+name);
     
     while (std::getline(fichier, ligne)) {
-        if (ligne != "") {
-            _types.emplace_back(ligne); std::cout<<"type : "<<ligne<<std::endl;
-        }
+        if (ligne != "") _types.emplace_back(ligne);
     }
     
     for (unsigned int i = 0; i < _types.size(); i++) {

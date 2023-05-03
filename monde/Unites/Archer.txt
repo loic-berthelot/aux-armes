@@ -11,7 +11,7 @@ Distance de vue:
 Distance ravitaillement:
 0
 Portée:
-15
+2
 Vitesse deplacement:
 1
 Espace occupé:

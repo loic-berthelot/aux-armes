@@ -160,13 +160,13 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
         }
    }
     
-    _grapheAir = creerGraphe(accessibilite::Air);
+    _grapheAir = creerGraphe(accessibilite::Air, false);
     _grapheTerre = creerGraphe(accessibilite::Terre);
     _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
     _grapheEau = creerGraphe(accessibilite::Eau);
     _grapheVision = creerGraphe(accessibilite::EauEtTerre, false);
     initialiserVisibilite();
-
+    calculerDepartsRavitaillement();
 }
 
 std::vector<std::pair<unsigned int, int>> Carte::getScoreEquipe()const{
@@ -271,12 +271,15 @@ void Carte::selectionnerArmee(unsigned int indiceArmee) {
     _indiceArmee = indiceArmee;
 }
 
-std::vector<std::pair<int,int>> Carte::getDepartsRavitaillement() const {
-    std::vector<std::pair<int,int>> departs;
+void Carte::calculerDepartsRavitaillement() {
+    _departsRavitaillement.clear();
     for (const auto & paire : _cases) {
-        if (paire.second->estDepartRavitaillement()) departs.push_back(paire.first);
+        if (paire.second->estDepartRavitaillement()) _departsRavitaillement.push_back(paire.first);
     }
-    return departs;
+}
+
+std::vector<std::pair<int,int>> Carte::getDepartsRavitaillement() const {
+    return _departsRavitaillement;
 }
 
 std::vector<std::pair<int,int>> Carte::getPositionsEnnemis() const {
@@ -413,7 +416,7 @@ std::vector<std::pair<int, int>> Carte::getCoordonneesVoisins(std::pair<int,int>
         for (int i = debut; i <= fin; i++) {
             if (getCase(i, j)) resultat.push_back(std::make_pair(i,j));
         }
-        if (j>0) fin++;
+        if (j>pos.second) fin++;
         else debut++;        
     }    
     return resultat;
@@ -512,19 +515,19 @@ void Carte::infligerDegatsDeZone(std::pair<int,int> pos, int degats) {
 }
 
 void Carte::brouillardDeGuerreUnite(std::shared_ptr<Unite> unite){
-    std::vector<std::pair<int,int>> zoneVision = getCoordonneesVoisins(unite->getPos(), unite->getDistanceVue());
+    std::vector<std::pair<int,int>> zoneVision = getCoordonneesVoisins(unite->getPos(), 1+unite->getDistanceVue());
     if (unite->getCategorie() == accessibilite::Air) { // Si l'unité est volante, elle peut voir toutes les cases dans la limite de son champ de vision
         for (unsigned int i = 0; i < zoneVision.size(); i++) _casesVisibles[zoneVision.at(i)] = true;
     } else {// Si l'unité n'est pas volante, elle peut voir toutes les cases qui ne sont pas cchées derrière un obstacle
         for (unsigned int i = 0; i < zoneVision.size(); i++) { 
-            int distanceAuSol = _grapheVision->aEtoile(unite->getPos(), zoneVision[i]).size();
-            int distanceVolOiseau = _grapheAir->aEtoile(unite->getPos(), zoneVision[i]).size();
+            int distanceAuSol = _grapheVision->longueurChemin(unite->getPos(), zoneVision[i]);
+            int distanceVolOiseau = _grapheAir->longueurChemin(unite->getPos(), zoneVision[i]);
             if (distanceAuSol == distanceVolOiseau) { // une case est cachée derrière un obstacle si la distance en tenant compte des obstacles est égale à la distance sans tenir compte des obstacles
                 _casesVisibles[zoneVision.at(i)] = true;
                 if (distanceAuSol < unite->getDistanceVue()) { //Si la case étudiée n'est pas à l'extrémité du champ de vision on essaie aussi d'ajouter les cases voisines
                     std::vector<std::pair<int,int>> voisins = getCoordonneesVoisins(zoneVision[i], 1);
                     for (unsigned int j = 0; j < voisins.size(); j++) {
-                        if (_grapheAir->aEtoile(unite->getPos(), voisins.at(j)).size() > distanceAuSol) _casesVisibles[voisins.at(j)] = true; // on n'ajoute la case voisine que si elle n'est pas cachée derrière un obstacle
+                        if (_grapheAir->longueurChemin(unite->getPos(), voisins.at(j)) > distanceAuSol) _casesVisibles[voisins.at(j)] = true; // on n'ajoute la case voisine que si elle n'est pas cachée derrière un obstacle
                     }
                 }
             }
@@ -534,7 +537,7 @@ void Carte::brouillardDeGuerreUnite(std::shared_ptr<Unite> unite){
 
 void Carte::brouillardDeGuerreEquipe(){
     initialiserVisibilite();
-    for (unsigned int j = 0; j < getArmee()->size();j++) brouillardDeGuerreUnite(_armees[_indiceArmee]->getUnite(j));
+    for (unsigned int j = 0; j < getArmee()->size();j++) brouillardDeGuerreUnite(getArmee()->getUnite(j));
 }
 
 void Carte::ajoutUniteTeam(unsigned int IDarmee, std::shared_ptr<Unite> unite){
@@ -623,4 +626,24 @@ std::shared_ptr<Armee> Carte::getArmee() const {
 
 std::shared_ptr<Case> Carte::getCase(int x, int y)const{
     return getCase(std::make_pair(x,y));    
+}
+
+std::vector<std::shared_ptr<Unite>> Carte::unitesAllieesSurCase(std::pair<int,int> pos) {
+    std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
+    std::vector<std::shared_ptr<Unite>> resultat;
+    for (unsigned int i = 0; i < unites.size(); i++) {
+        if (unites.at(i)->getPos() == pos) resultat.push_back(unites.at(i));
+    }
+    return resultat;
+}
+
+int Carte::porteeRavitaillementAllie(std::pair<int,int> pos) const {
+    std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
+    int portee = 0;
+    int porteeUnite;
+    for (unsigned int i = 0; i < unites.size(); i++) {
+        porteeUnite = unites.at(i)->getDistanceRavitaillement();
+        if (porteeUnite > portee) portee = porteeUnite;
+    }
+    return portee;
 }

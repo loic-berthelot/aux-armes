@@ -200,5 +200,7 @@ std::vector<std::pair<int,int>> Graphe::positionsAccessibles(std::pair<int,int> 
 }
 
 int Graphe::longueurChemin(std::pair<int,int> depart, std::pair<int,int> arrivee) {
-    return aEtoile(depart, arrivee).size();
+    std::vector<std::pair<std::pair<int,int>, int>> chemin = aEtoile(depart, arrivee);
+    if (chemin.empty() && depart != arrivee) return -1;
+    return chemin.size();
 }

@@ -20,7 +20,7 @@ private:
     unsigned int _nbToursMax;
     std::map<float, std::string> _valeursCasesGenerateurs;//utilisé dans le bruit de Perlin
     std::string _mapDernierCase;
-
+    std::vector<std::pair<int,int>> _departsRavitaillement;
 public:
 
     std::shared_ptr<Graphe> creerGraphe(accessibilite acces, bool coutDeplacement = true) const; 
@@ -57,6 +57,8 @@ public:
     unsigned int getMaxTours()const;
 
     void selectionnerArmee(unsigned int indiceArmee);
+
+    void calculerDepartsRavitaillement();
 
     std::vector<std::pair<int,int>> getDepartsRavitaillement() const;
 
@@ -116,4 +118,8 @@ public:
     bool ennemiSurCase(std::pair<int,int> pos) const;
     
     bool caseVisible(std::pair<int,int> pos) const;
+
+    std::vector<std::shared_ptr<Unite>> unitesAllieesSurCase(std::pair<int,int> pos);
+
+    int porteeRavitaillementAllie(std::pair<int,int> pos) const; //renvoie la portée de ravitaillement maximale des unités alliées de cette case
 };

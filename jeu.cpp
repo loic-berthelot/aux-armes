@@ -56,10 +56,12 @@ void Jeu::jouer() {
 
             _carte->evolutionMoralArmee();            
             _carte->ravitaillerArmee();
-            _carte->appliquerAttritionArmee();
+            //on n'applique pas d'attrition au premier tour car le joueur n'a pas eu le temps de positionner ses troupes :
+            if (_toursPasses > 0) _carte->appliquerAttritionArmee();
             _carte->retirerCadavres();
 
             _carte->brouillardDeGuerreEquipe();
+            
             _joueurs[i]->jouerArmee(*_carte);            
             _carte->executerOrdresArmee();            
             _carte->retirerCadavres();
