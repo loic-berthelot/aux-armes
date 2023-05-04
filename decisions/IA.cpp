@@ -345,6 +345,5 @@ void IA::jouerArmee(Carte & carte) {
     if (scoreExplorationUnite(unite) > 2) explorer(carte, unite);
     else defendre(carte, unite); 
   }
-
   initialiser(false); // //!\\ Il faut IMPERATIVEMENT faire une nouvelle initialisation à la fin de l'utilisation de l'IA, afin de supprimer les shared_ptr sur les unités
 }
