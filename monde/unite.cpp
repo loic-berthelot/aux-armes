@@ -228,6 +228,10 @@ int Unite::getDistanceRavitaillement() const {
     return _distanceRavitaillement;
 }
 
+int Unite::getSante() const {
+    return _sante;
+}
+
 int Unite::getAttaque() const {
     return _attaque;
 }
@@ -320,6 +324,11 @@ void Unite::setX(int x){
 
 void Unite::setY(int y){
     _posY = y;
+}
+
+void Unite::setPos(const std::pair<int,int> & pos) {
+    _posX = pos.first;
+    _posY = pos.second;   
 }
 
 unsigned int Unite::getPortee()const{

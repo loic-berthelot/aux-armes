@@ -33,7 +33,7 @@ public:
 
     std::pair<int,int> positionAleatoireCarte();
     
-    std::vector<std::pair<int,int>> positionsAccessibles(std::shared_ptr<Unite> unite) const;
+    std::vector<std::pair<int,int>> positionsAccessibles(std::shared_ptr<Unite> unite, int nbTours=1) const;
 
     /*Méthode armée ============================================*/    
     /*Méthode armée ============================================*/
@@ -45,6 +45,8 @@ public:
     unsigned int getNbArmee()const{
         return _armees.size();
     }
+
+    int getRayon() const;
 
     void creerArmee();//créer une armée vide
     
@@ -66,7 +68,7 @@ public:
 
     std::map<std::pair<int,int>, int> getRelaisRavitaillement(std::shared_ptr<Unite> unite = nullptr) const;
 
-    std::map<std::pair<int,int>, std::shared_ptr<Unite>> getUnitesVisibles(bool allies = true);
+    std::map<std::pair<int,int>, std::vector<std::shared_ptr<Unite>>> getUnitesVisibles(bool allies = true);
 
     void ravitaillerArmee();
 
@@ -93,6 +95,8 @@ public:
     
     std::vector<std::pair<int, int>> getCoordonneesVoisins(std::pair<int,int> pos, int rayon)const;
 
+    std::vector<std::pair<int, int>> getCoordonneesCouronne(std::pair<int,int> pos, int rayon)const;
+
     std::shared_ptr<Case> getCase(int x, int y)const;//Attention les X et Y sont les coordonnées en fonction du milieu
 
     std::shared_ptr<Case> getCase(std::pair<int,int> pos) const;
@@ -109,9 +113,9 @@ public:
     
     std::string valueToCaseNom(float Value);
 
-    bool peutEtreEn(int x, int y, std::shared_ptr<Unite> u1);
+    bool peutEtreEn(std::pair<int,int> pos, std::shared_ptr<Unite> u1);
 
-    bool caseAvecUnite(int x, int y)const;
+    bool caseAvecUnite(std::pair<int,int> pos)const;
 
     bool ennemiSurCase(int x, int y)const;
 

@@ -120,43 +120,45 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
     affichageSeulementCarte();
 
     /*Placement des unités*/
-   for (unsigned int i = 0; i < _armees.size();i++){
-        std::vector<std::pair<int, int>> emplacements;
-        emplacements.push_back(villes[i]);
-        unsigned int indexEmplacements = 0;
-        for (unsigned int j = 0; j < _armees[i]->taille();j++){
-            
-            while(indexEmplacements >= emplacements.size() || !peutEtreEn(emplacements[indexEmplacements].first, emplacements[indexEmplacements].second, _armees[i]->getUnite(j))){
-                indexEmplacements++;
-                if (indexEmplacements < emplacements.size()){
-                    _armees[i]->getUnite(j)->setX(emplacements[j].first);
-                    _armees[i]->getUnite(j)->setY(emplacements[j].second);
-                }else{//pas d'emplacements donc on élargit la zone
-                    //on ajoute les voisins qui n'ont pas d'unités et qui ne sont pas des villes et qui sont accessible pour l'unité
-                    std::vector<std::pair<int, int>> emplacementsBuffer;
-                    for (unsigned int k = 0; k < emplacements.size();k++){
-                        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(emplacements[k]);
-                        for (unsigned int l = 0; l < voisins.size();l++){
-                            //Mtn on vérifie si l'emplacement n'est pas déjà dans l'emplacement
-                            bool appartientEmplacement = false;
-                            for (unsigned int m = 0; m < emplacements.size();m++)
-                                if (emplacements[m].first == voisins[l].first && emplacements[m].second == voisins[l].second)
-                                    appartientEmplacement = true;
-                            //donc mtn on l'ajoute
-                            if (!appartientEmplacement && _cases[voisins[l]]->getNom() != "Ville" && 
-                            !caseAvecUnite(voisins[l].first, voisins[l].second))
-                                emplacementsBuffer.push_back(voisins[l]);
-                        }
-                    }
-                    //mtn on ajoute les emplacements
-                    for (unsigned int k = 0; k < emplacementsBuffer.size();k++){
-                        emplacements.push_back(emplacementsBuffer[k]);
-                    }
-                }
+   for (unsigned int i = 0; i < _armees.size();i++){    
+        unsigned int indexEmplacement;
+        int rayonEmplacements = 0;
+        std::pair<int,int> departEmplacements = villes.at(i);
+        std::vector<std::pair<int,int>> emplacements;
+        emplacements.push_back(departEmplacements);
+        std::pair<int,int> pos;
+        bool carteParcourue = false;
+        unsigned int j = 0;
+        std::vector<std::pair<int,int>> positionsInaccessibles;
+        while (j < _armees.at(i)->taille() && ! carteParcourue){ // on tente de placer toutes les unités de l'armée tant que la carte n'est pas entièrement parcourue
+            while (indexEmplacement < emplacements.size())  {
+                pos = emplacements.at(indexEmplacement);
+                if (peutEtreEn(pos, _armees.at(i)->getUnite(j))) break;
+                else positionsInaccessibles.push_back(pos);
+                indexEmplacement++;
             }
-            _armees[i]->getUnite(j)->setX(emplacements[indexEmplacements].first);
-            _armees[i]->getUnite(j)->setY(emplacements[indexEmplacements].second);
-            indexEmplacements++;
+            if (indexEmplacement < emplacements.size()) {
+                _armees[i]->getUnite(j)->setPos(pos);
+                j++;
+                indexEmplacement++;
+            } else {
+                rayonEmplacements++;
+                emplacements = getCoordonneesCouronne(departEmplacements, rayonEmplacements);
+                carteParcourue = emplacements.empty();
+                indexEmplacement = 0;
+            }         
+        }
+        indexEmplacement = 0;
+        while (j < _armees.at(i)->taille()) { // s'il reste des unités à placer, on tente de les placer en changeant l'accessibilité des cases de la carte
+            pos = positionsInaccessibles.at(indexEmplacement);
+            if (! caseAvecUnite(pos)) {
+                if (_armees[i]->getUnite(j)->getCategorie() == accessibilite::Eau) _cases[pos] = std::make_shared<Case>("Ocean");
+                else if (_armees[i]->getUnite(j)->getCategorie() == accessibilite::Terre) _cases[pos] = std::make_shared<Case>("Plaine");
+                _armees[i]->getUnite(j)->setPos(pos);
+                j++;
+            }
+            indexEmplacement++;
+            if (indexEmplacement > positionsInaccessibles.size()) throw Exception("Trop d'unités pour une carte trop petite dans le constructeur de Carte.");
         }
    }
     
@@ -242,8 +244,12 @@ std::pair<int,int> Carte::positionAleatoireCarte() { //méthode de complexité O
     throw Exception("Erreur dans Carte::positionAleatoireCarte() : depassement de "+std::to_string(indiceLineaireCase)+" cases.");
 }
 
-std::vector<std::pair<int,int>> Carte::positionsAccessibles(std::shared_ptr<Unite> unite) const {
-    return getGraphe(unite->getCategorie())->positionsAccessibles(unite->getPos(), 100*unite->getVitesse());
+std::vector<std::pair<int,int>> Carte::positionsAccessibles(std::shared_ptr<Unite> unite, int nbTours) const {
+    return getGraphe(unite->getCategorie())->positionsAccessibles(unite->getPos(), 100*nbTours*unite->getVitesse());
+}
+
+int Carte::getRayon() const {
+    return _rayon;
 }
 
 void Carte::creerArmee() {     
@@ -314,15 +320,15 @@ std::map<std::pair<int,int>, int> Carte::getRelaisRavitaillement(std::shared_ptr
     return relais;
 }
 
-std::map<std::pair<int,int>, std::shared_ptr<Unite>> Carte::getUnitesVisibles(bool allies) {
-    std::map<std::pair<int,int>, std::shared_ptr<Unite>> unites;
+std::map<std::pair<int,int>, std::vector<std::shared_ptr<Unite>>> Carte::getUnitesVisibles(bool allies) {
+    std::map<std::pair<int,int>, std::vector<std::shared_ptr<Unite>>> unites;
     for (unsigned int i = 0; i < _armees.size(); i++) {
         std::vector<std::shared_ptr<Unite>> unitesArmee = _armees[i]->getUnites();
         for (unsigned int j = 0; j < unitesArmee.size(); j++) {
             if (i == _indiceArmee) {
-                if (allies) unites[unitesArmee[j]->getPos()] = unitesArmee[j];
+                if (allies) unites[unitesArmee[j]->getPos()].push_back(unitesArmee.at(j));
             } else if (caseVisible(unitesArmee[j]->getPos())) {
-                if (! unitesArmee[j]->estFurtif() || ! getCase(unitesArmee[j]->getPos())->permetFurtivite()) unites[unitesArmee[j]->getPos()] = unitesArmee[j];
+                if (! unitesArmee[j]->estFurtif() || ! getCase(unitesArmee[j]->getPos())->permetFurtivite()) unites[unitesArmee[j]->getPos()].push_back(unitesArmee.at(j));
             } 
         }     
     }
@@ -419,6 +425,23 @@ std::vector<std::pair<int, int>> Carte::getCoordonneesVoisins(std::pair<int,int>
         if (j>pos.second) fin++;
         else debut++;        
     }    
+    return resultat;
+}
+
+std::vector<std::pair<int, int>> Carte::getCoordonneesCouronne(std::pair<int,int> pos, int rayon)const {
+    std::vector<std::pair<int, int>> resultat;
+    if (rayon == 0) {
+        if (getCase(pos.first, pos.second)) resultat.emplace_back(pos.first, pos.second);
+    } else {
+        for (unsigned int i = 0; i < rayon; i++) {
+            if (getCase(pos.first-i, pos.second+rayon)) resultat.emplace_back(pos.first-i, pos.second+rayon);
+            if (getCase(pos.first+rayon-i, pos.second+i)) resultat.emplace_back(pos.first+rayon-i, pos.second+i);
+            if (getCase(pos.first+rayon, pos.second-i)) resultat.emplace_back(pos.first+rayon, pos.second-i);
+            if (getCase(pos.first+i, pos.second-rayon)) resultat.emplace_back(pos.first+i, pos.second-rayon);
+            if (getCase(pos.first-i, pos.second+i-rayon)) resultat.emplace_back(pos.first-i, pos.second+i-rayon);
+            if (getCase(pos.first-rayon, pos.second+i)) resultat.emplace_back(pos.first-rayon, pos.second+i);
+        }    
+    }
     return resultat;
 }
 
@@ -580,12 +603,10 @@ std::string Carte::valueToCaseNom(float Value){
     return _mapDernierCase;
 }
 
-bool Carte::caseAvecUnite(int x, int y)const{
+bool Carte::caseAvecUnite(std::pair<int,int> pos)const{
     for (unsigned int i = 0; i < _armees.size();i++)
         for (unsigned int j = 0; j < _armees[i]->getUnites().size();j++)
-            if (_armees[i]->getUnites()[j]->getX() == x && _armees[i]->getUnites()[j]->getY() == y)
-                return true;
-    
+            if (_armees[i]->getUnite(j)->getPos() == pos) return true;    
     return false;
 }
 
@@ -605,9 +626,9 @@ bool Carte::ennemiSurCase(int x, int y)const{
     return ennemiSurCase(std::make_pair(x,y));
 }
 
-bool Carte::peutEtreEn(int x, int y, std::shared_ptr<Unite> u1){
-    return (u1->getCategorie() == accessibilite::Air)||((u1->getCategorie() == accessibilite::Eau || u1->getCategorie() == accessibilite::EauEtTerre) && _cases[std::make_pair(x, y)]->accessibleEau())
-    || ((u1->getCategorie() == accessibilite::Terre || u1->getCategorie() == accessibilite::EauEtTerre) && _cases[std::make_pair(x, y)]->accessibleTerre());
+bool Carte::peutEtreEn(std::pair<int,int> pos, std::shared_ptr<Unite> u1){
+    return (u1->getCategorie() == accessibilite::Air)||((u1->getCategorie() == accessibilite::Eau || u1->getCategorie() == accessibilite::EauEtTerre) && _cases.at(pos)->accessibleEau())
+    || ((u1->getCategorie() == accessibilite::Terre || u1->getCategorie() == accessibilite::EauEtTerre) && _cases.at(pos)->accessibleTerre());
 }
 
 bool Carte::caseVisible(std::pair<int,int> pos) const {

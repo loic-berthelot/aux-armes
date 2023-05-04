@@ -68,14 +68,16 @@ public:
     int getMoral()const;
 
     int getX()const;
-
-    void ajoutMoralMax(int pointsMoral);
-
+    
     int getY()const;
+
+    void ajoutMoralMax(int pointsMoral);    
 
     int getDistanceVue()const;
 
     int getDistanceRavitaillement() const;
+
+    int getSante() const;
 
     int getAttaque() const;
 
@@ -104,6 +106,8 @@ public:
     void setX(int x);
 
     void setY(int y);
+
+    void setPos(const std::pair<int,int> & pos);
 
     unsigned int getPortee()const;
 
