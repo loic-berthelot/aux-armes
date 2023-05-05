@@ -1,6 +1,5 @@
 #include "armee.h"
 #include "case.h"
-#include "graphe.h"
 #include <sstream>   // Pour les flux de chaînes de caractères
 #include <map>
 #include "bruitDePerlin.h"

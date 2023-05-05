@@ -347,6 +347,10 @@ Type Unite::getType(int i) const {
     return _types.at(i);
 }
 
+bool Unite::peutAttaquer(int x, int y) {
+    return (distance(std::make_pair(x,y), std::make_pair(_posX, _posY)) < static_cast<float>(_portee));
+}
+
 bool Unite::possedeDegatsDeZone() const {
     return _degatsDeZone;
 }

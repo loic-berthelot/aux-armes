@@ -45,7 +45,7 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
     std::getline(fichier, ligne);//val toursMax 
     
     try{
-        _nbToursMax = 2;//std::stoul(ligne);
+        _nbToursMax = std::stoul(ligne);
     }catch (...){
         throw new Exception(ligne+" n'est pas un unsigned int pour nbToursMax dans le fichier : "+nomFichier);
     }
@@ -163,7 +163,6 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
             if (indexEmplacement >= positionsInaccessibles.size()) throw Exception("Trop d'unités pour une carte trop petite dans le constructeur de Carte.");
         }
    }
-    std::cout<<"ok !"<<std::endl;
     _grapheAir = creerGraphe(accessibilite::Air, false);
     _grapheTerre = creerGraphe(accessibilite::Terre);
     _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
@@ -665,8 +664,10 @@ int Carte::porteeRavitaillementAllie(std::pair<int,int> pos) const {
     int portee = 0;
     int porteeUnite;
     for (unsigned int i = 0; i < unites.size(); i++) {
-        porteeUnite = unites.at(i)->getDistanceRavitaillement();
-        if (porteeUnite > portee) portee = porteeUnite;
+        if (unites.at(i)->getPos() == pos) {
+            porteeUnite = unites.at(i)->getDistanceRavitaillement();
+            if (porteeUnite > portee) portee = porteeUnite;
+        }
     }
     return portee;
 }

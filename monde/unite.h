@@ -6,6 +6,7 @@
 #include "ordre.h"
 #include <algorithm>
 #include "case.h"
+#include "graphe.h"
 
 
 static accessibilite stringToCategorie(std::string const &s);
@@ -92,6 +93,8 @@ public:
     std::vector<Type> getTypes()const;
 
     Type getType(int i)const;
+
+    bool peutAttaquer(int x, int y);
 
     void regenererMoral(int pointsMoral);
 
