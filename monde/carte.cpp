@@ -30,6 +30,7 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
     
     srand(seed);
     srand(time(0));
+    //srand(1683275872);
 
     std::getline(fichier, ligne);//index nbVilles
     std::getline(fichier, ligne);//val nbVilles
@@ -44,7 +45,7 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
     std::getline(fichier, ligne);//val toursMax 
     
     try{
-        _nbToursMax = std::stoul(ligne);
+        _nbToursMax = 2;//std::stoul(ligne);
     }catch (...){
         throw new Exception(ligne+" n'est pas un unsigned int pour nbToursMax dans le fichier : "+nomFichier);
     }
@@ -118,10 +119,11 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
         }
     }
     affichageSeulementCarte();
-
     /*Placement des unités*/
-   for (unsigned int i = 0; i < _armees.size();i++){    
-        unsigned int indexEmplacement;
+    std::shared_ptr<Armee> armee;
+    for (unsigned int i = 0; i < _armees.size();i++){ 
+        armee = _armees.at(i);   
+        unsigned int indexEmplacement = 0;
         int rayonEmplacements = 0;
         std::pair<int,int> departEmplacements = villes.at(i);
         std::vector<std::pair<int,int>> emplacements;
@@ -130,11 +132,11 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
         bool carteParcourue = false;
         unsigned int j = 0;
         std::vector<std::pair<int,int>> positionsInaccessibles;
-        while (j < _armees.at(i)->taille() && ! carteParcourue){ // on tente de placer toutes les unités de l'armée tant que la carte n'est pas entièrement parcourue
+        while (j < armee->taille() && ! carteParcourue){ // on tente de placer toutes les unités de l'armée tant que la carte n'est pas entièrement parcourue
             while (indexEmplacement < emplacements.size())  {
                 pos = emplacements.at(indexEmplacement);
-                if (peutEtreEn(pos, _armees.at(i)->getUnite(j))) break;
-                else positionsInaccessibles.push_back(pos);
+                if (peutEtreEn(pos, armee->getUnite(j)) && ! caseAvecUnite(pos)) break;
+                positionsInaccessibles.push_back(pos);
                 indexEmplacement++;
             }
             if (indexEmplacement < emplacements.size()) {
@@ -149,19 +151,19 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
             }         
         }
         indexEmplacement = 0;
-        while (j < _armees.at(i)->taille()) { // s'il reste des unités à placer, on tente de les placer en changeant l'accessibilité des cases de la carte
+        while (j < armee->taille()) { // s'il reste des unités à placer, on tente de les placer en changeant l'accessibilité des cases de la carte
             pos = positionsInaccessibles.at(indexEmplacement);
             if (! caseAvecUnite(pos)) {
-                if (_armees[i]->getUnite(j)->getCategorie() == accessibilite::Eau) _cases[pos] = std::make_shared<Case>("Ocean");
-                else if (_armees[i]->getUnite(j)->getCategorie() == accessibilite::Terre) _cases[pos] = std::make_shared<Case>("Plaine");
-                _armees[i]->getUnite(j)->setPos(pos);
+                if (armee->getUnite(j)->getCategorie() == accessibilite::Eau) _cases[pos] = std::make_shared<Case>("Ocean");
+                else if (armee->getUnite(j)->getCategorie() == accessibilite::Terre) _cases[pos] = std::make_shared<Case>("Plaine");
+                armee->getUnite(j)->setPos(pos);
                 j++;
             }
             indexEmplacement++;
-            if (indexEmplacement > positionsInaccessibles.size()) throw Exception("Trop d'unités pour une carte trop petite dans le constructeur de Carte.");
+            if (indexEmplacement >= positionsInaccessibles.size()) throw Exception("Trop d'unités pour une carte trop petite dans le constructeur de Carte.");
         }
    }
-    
+    std::cout<<"ok !"<<std::endl;
     _grapheAir = creerGraphe(accessibilite::Air, false);
     _grapheTerre = creerGraphe(accessibilite::Terre);
     _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);

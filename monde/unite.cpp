@@ -1,22 +1,16 @@
 #include "unite.h"
 
 static accessibilite stringToCategorie(std::string const &s){
-        if (s == "Air")
-            return accessibilite::Air;
-        else if (s == "Eau")
-            return accessibilite::Eau;
-        else if (s == "Terre")
-            return accessibilite::Terre;
-        else return accessibilite::EauEtTerre;
+    if (s == "Air") return accessibilite::Air;
+    if (s == "Eau") return accessibilite::Eau;
+    if (s == "Terre") return accessibilite::Terre;
+    return accessibilite::EauEtTerre;
 }
 static std::string CategorieToString(accessibilite const c){
-    if (c == accessibilite::Air)
-        return "Air";
-    else if (c == accessibilite::Eau)
-        return "Eau";
-    else if (c == accessibilite::Terre)
-        return "Terre";
-    else return "EauEtTerre";
+    if (c == accessibilite::Air) return "Air";
+    if (c == accessibilite::Eau) return "Eau";
+    if (c == accessibilite::Terre) return "Terre";
+    return "EauEtTerre";
 }
 
 //lecture du fichier
@@ -288,10 +282,6 @@ void Unite::regenererMoral(int pointsMoral) {
     if (_moral < 0) _moral = 0;
 }
 
-void Unite::ajoutMoralMax(int pointsMoral){
-    _moral+=pointsMoral;
-}
-
 void Unite::infligerDegats(unsigned int degats) {
     _sante -= std::min(_sante, static_cast<int>(degats));
     _enVie = _enVie && (_sante > 0);   
@@ -311,11 +301,9 @@ void Unite::subirAttrition(float attrition) {
 }
 
 void Unite::ravitailler() {
-    std::cout<<"unite ravitaillee !"<<std::endl;
+    std::cout<<_nom<<" ravitaille en ("<<_posX<<","<<_posY<<")"<<std::endl;
     _estRavitaille = true;
-    if (_moral <= 90)
-        _moral+=10;
-    
+    regenererMoral(10);  
 }
 
 void Unite::setX(int x){

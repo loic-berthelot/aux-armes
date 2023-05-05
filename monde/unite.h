@@ -69,9 +69,7 @@ public:
 
     int getX()const;
     
-    int getY()const;
-
-    void ajoutMoralMax(int pointsMoral);    
+    int getY()const;  
 
     int getDistanceVue()const;
 

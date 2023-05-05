@@ -46,7 +46,7 @@ int IA::scoreExplorationUnite(std::shared_ptr<Unite> unite) const {
 }
 
 std::pair<int,int> IA::plusProcheVoisin(const std::pair<int,int> & pos, const std::vector<std::pair<int,int>> & voisins) const {
-  if (voisins.empty()) throw Exception("pas de voisins dans IA::plusProcheVoisin.");
+  if (voisins.empty()) return pos;
   int distanceMin = distance(pos, voisins.front());
   int dist;
   std::pair<int,int> voisin = voisins.front();
@@ -62,7 +62,7 @@ std::pair<int,int> IA::plusProcheVoisin(const std::pair<int,int> & pos, const st
 
 bool IA::uniteDansVille(std::shared_ptr<Unite> unite) const {
   for (unsigned int i = 0; i < _villesControlees.size(); i++) {
-    if (unite->getPos() == _villesSelectionnees.at(i)) return true;
+    if (unite->getPos() == _villesControlees.at(i)) return true;
   }
   return false;
 }
@@ -174,7 +174,7 @@ void IA::selectionnerVilles(Carte & carte) {
 }
 
 // méthode qui ordonne à l'unité de se placer à l'endroit optimal pour assurer un bon ravitaillement
-void IA::etendreRavitaillement(Carte & carte, std::shared_ptr<Unite> unite) {
+void IA::etendreRavitaillement(Carte & carte, std::shared_ptr<Unite> unite) {  
   std::pair<int,int> pos = unite->getPos();
   std::pair<int,int> villeVoisine = plusProcheVoisin(pos, _villesSelectionnees);
   int porteeVille = carte.porteeRavitaillementAllie(villeVoisine);
@@ -185,7 +185,7 @@ void IA::etendreRavitaillement(Carte & carte, std::shared_ptr<Unite> unite) {
     unite->donnerOrdre(std::make_shared<Ordre>(TypeOrdre::DEPLACER, villeVoisine.first, villeVoisine.second)); 
   } else { // sinon l'unité est dispersée
     _unitesDispersees.push_back(unite);
-  }
+  }  
 }
 
 void IA::choisirDispersion(Carte & carte) {
@@ -311,8 +311,7 @@ void IA::defendre(Carte & carte, std::shared_ptr<Unite> unite) {
   }
 }
 
-void IA::jouerArmee(Carte & carte) {
-  
+void IA::jouerArmee(Carte & carte) {  
   initialiser(true);
   std::map<std::pair<int,int>, std::vector<std::shared_ptr<Unite>>> ennemis = carte.getUnitesVisibles(false);
   calculerPositionsEnnemis(ennemis);
@@ -320,6 +319,7 @@ void IA::jouerArmee(Carte & carte) {
   calculerCentreArmee(armee);
   calculerVillesNecessaires(carte);
   selectionnerVilles(carte);
+  std::cout<<_villesSelectionnees.size()<<", "<<_villesControlees.size()<<std::endl;
   std::vector<std::shared_ptr<Unite>> unites1 = armee->getUnites();
   std::vector<std::shared_ptr<Unite>> unites2;
   std::vector<std::shared_ptr<Unite>> unites3;
@@ -328,8 +328,7 @@ void IA::jouerArmee(Carte & carte) {
     if (scoreSoutienUnite(unites1.at(i)) > 0) {
       etendreRavitaillement(carte, unites1.at(i));
       unites2.push_back(unites1.at(i));
-    }
-    
+    }    
     else unites3.push_back(unites1.at(i));
   }  
   calculerDegatsNecessaires(ennemis);  

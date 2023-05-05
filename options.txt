@@ -3,4 +3,4 @@ ii
 Génération Fichier:
 gen1
 Unités:
-1:Archer,;1:Archer,;
+1:Archer,1:Caravane,;1:Archer,1:Caravane,;

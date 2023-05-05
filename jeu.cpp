@@ -7,6 +7,7 @@ Jeu::Jeu(std::string const & joueurs,std::string const &configurationMap, std::s
     std::shared_ptr<Armee> armeeCourante = std::make_shared<Armee>();
     unsigned int nbUnites = 0;
     unsigned int indexPrecedent = 0;
+    
     for (unsigned int i = 0; i < armeeDesc.size();i++){
         
         if (armeeDesc[i] == ';'){
@@ -23,7 +24,6 @@ Jeu::Jeu(std::string const & joueurs,std::string const &configurationMap, std::s
             indexPrecedent = i+1;
         }
     }
-    
     _carte = std::make_unique<Carte>(configurationMap, buffer);
     for (unsigned int i = 0; i < joueurs.size(); i++){
         switch(joueurs[i]) {
@@ -54,10 +54,12 @@ void Jeu::jouer() {
             std::cout<<"Tour du joueur "<<i<<" : "<<std::endl;
             _carte->selectionnerArmee(i);            
 
-            _carte->evolutionMoralArmee();            
-            _carte->ravitaillerArmee();
-            //on n'applique pas d'attrition au premier tour car le joueur n'a pas eu le temps de positionner ses troupes :
-            if (_toursPasses > 0) _carte->appliquerAttritionArmee();
+            _carte->evolutionMoralArmee(); 
+            //on ne se préoccupe pas du ravitaillement au premier tour car le joueur n'a pas eu le temps de positionner ses troupes :
+            if (_toursPasses > 0) {
+                _carte->ravitaillerArmee();
+                _carte->appliquerAttritionArmee();
+            }
             _carte->retirerCadavres();
 
             _carte->brouillardDeGuerreEquipe();
