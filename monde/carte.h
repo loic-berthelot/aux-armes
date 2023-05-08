@@ -21,12 +21,15 @@ private:
     std::string _mapDernierCase;
     std::vector<std::pair<int,int>> _departsRavitaillement;
 public:
-
     std::shared_ptr<Graphe> creerGraphe(accessibilite acces, bool coutDeplacement = true) const; 
 
     std::shared_ptr<Graphe> getGraphe(accessibilite acces) const;
 
     Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Armee>> const &armees);
+
+    void sauvegarder(const std::string & nom);
+
+    void chargerSauvegarde(const std::string & nom);
 
     void initialiserVisibilite();
 
@@ -46,6 +49,10 @@ public:
     }
 
     int getRayon() const;
+
+    int getNombreCases() const;
+
+    int getNombreCases(const std::string & nom) const;
 
     void creerArmee();//créer une armée vide
     
