@@ -41,6 +41,8 @@ class Unite{
     bool _incendiaire = false;
     bool _inflammable = false;
     bool _furtif = false;
+    bool _intrepide = false;
+    bool _autonome = false;
     int _effetBrulure = 0;
 
 public:
@@ -131,4 +133,8 @@ public:
     std::string getNom() const;
 
     float getVitesse() const;
+
+    bool getIntrepide()const;
+
+    bool getAutonome()const;
 };

@@ -287,6 +287,15 @@ void Unite::infligerDegats(unsigned int degats) {
     _enVie = _enVie && (_sante > 0);   
 }
 
+
+bool Unite::getIntrepide()const{
+    return _intrepide;
+}
+
+bool Unite::getAutonome()const{
+    return _autonome;
+}
+
 void Unite::subirAttrition(float attrition) {
     unsigned int degats = static_cast<unsigned int>(attrition);
     infligerDegats(degats); // on inflige d'abord des dégâts équivalents à l'attrition dûe à la surpopulation

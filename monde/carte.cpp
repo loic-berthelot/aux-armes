@@ -518,12 +518,16 @@ void Carte::combat(std::shared_ptr<Unite> u, unsigned int idTeam, std::pair<int,
         if (ennemiPeutRepliquer) {
             u->infligerDegats(degats.second);
             if (unites[k]->estIncendiaire()) u->recevoirBrulure();
-        }
+        }else 
+            u->regenererMoral(15);
+
+        
+        
         std::string message =  "Un " +u->getNom()+" inflige "+std::to_string(degats.first)+" degats";
         if  (ennemiPeutRepliquer) message +=" et en recoit "+std::to_string(degats.second)+" en retour.";
         else message+=".";
         std::cout <<message<<std::endl;
-    }   
+    }
     if (u->possedeDegatsDeZone()) infligerDegatsDeZone(positionCombat, 0.5*u->getAttaque()); // u inflige des dégâts de zone
 }
 
