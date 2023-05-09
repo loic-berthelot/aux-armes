@@ -151,8 +151,8 @@ std::pair<int, int> Unite::resultatCombatSimple(std::shared_ptr<Unite> const enn
     else coef = moy/nb;
     std::pair<int, int> resultat;
     //1er int correspond aux dégâts infligées par l'unité this et le deuxième aux dégats de l'unité
-    resultat.first = static_cast<float>(_attaque) / (static_cast<float>(ennemi->_defense)) * static_cast<float>(_moral)*coef;
-    resultat.second = static_cast<float>(ennemi->_attaque) / (static_cast<float>(_defense)) * static_cast<float>(ennemi->_moral)*coef;    
+    resultat.first = static_cast<float>(_attaque) / (static_cast<float>(ennemi->_defense)) * static_cast<float>(_moral)*coef*(_sante/_maxSante);
+    resultat.second = static_cast<float>(ennemi->_attaque) / (static_cast<float>(_defense)) * static_cast<float>(ennemi->_moral)*coef*(ennemi->_sante/ennemi->_maxSante);    
     return resultat;
 }
 
