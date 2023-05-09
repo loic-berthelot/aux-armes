@@ -4,6 +4,8 @@
 #include "armee.h"
 #include "bruitDePerlin.h"
 
+std::vector<std::string> separerChaine(std::string chaine, char separateur);
+
 class Carte {
 private:
     std::map<std::pair<int,int>,std::shared_ptr<Case>> _cases;
@@ -25,6 +27,8 @@ public:
 
     void placerUnites(std::vector<std::pair<int, int>> const &villes);
 
+    void initialiserGraphes();
+
     std::shared_ptr<Graphe> creerGraphe(accessibilite acces, bool coutDeplacement = true) const; 
 
     std::shared_ptr<Graphe> getGraphe(accessibilite acces) const;
@@ -32,8 +36,6 @@ public:
     Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Armee>> const &armees);
 
     void sauvegarder(const std::string & nom);
-
-    std::vector<std::string> separerChaine(std::string chaine, char separateur) const;
 
     void chargerSauvegarde(const std::string & nomFichier);
 
