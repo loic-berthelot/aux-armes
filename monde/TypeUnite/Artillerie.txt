@@ -1,7 +1,0 @@
-Bete
-2
-InfanterieLourde
-1.5
-Specificites
-inflammable
-furtif
