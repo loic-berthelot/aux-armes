@@ -37,7 +37,6 @@ public:
 
     void chargerSauvegarde(const std::string & nomFichier);
 
-
     void initialiserVisibilite();
 
     std::pair<int,int> positionAleatoireCarte();
