@@ -15,9 +15,9 @@ public :
 
     unsigned int taille() const;
 
-    void donnerOrdre(unsigned int indiceUnite, std::shared_ptr<Ordre> ordre);
+    void donnerOrdre(unsigned int indiceUnite, std::shared_ptr<Ordre> const ordre);
     
-    void ajoutUnite(std::shared_ptr<Unite> u);
+    void ajoutUnite(std::shared_ptr<Unite> const u);
 
     void retirerUnitesMortes();
 

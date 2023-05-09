@@ -13,11 +13,11 @@ unsigned int Armee::taille() const {
     return _unites.size(); 
 }
 
-void Armee::donnerOrdre(unsigned int indiceUnite, std::shared_ptr<Ordre> ordre) { 
+void Armee::donnerOrdre(unsigned int indiceUnite, std::shared_ptr<Ordre>const ordre) { 
     _unites[indiceUnite]->donnerOrdre(ordre); 
 }
 
-void Armee::ajoutUnite(std::shared_ptr<Unite> u){
+void Armee::ajoutUnite(std::shared_ptr<Unite>const u){
     _unites.push_back(u);
 }
 

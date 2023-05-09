@@ -10,7 +10,7 @@ public:
 
     Jeu(std::string const & joueurs,std::string const &configurationMap, std::string const &armeeDesc);
     void ajouterJoueur(bool estHumain = false);
-    bool partieFinie();
+    bool partieFinie()const;
     void jouer();
 
 
