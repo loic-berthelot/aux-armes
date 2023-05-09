@@ -1,7 +1,7 @@
-#include "armee.h"
 #include "case.h"
 #include <sstream>   // Pour les flux de chaînes de caractères
 #include <map>
+#include "armee.h"
 #include "bruitDePerlin.h"
 
 class Carte {
@@ -21,6 +21,10 @@ private:
     std::string _mapDernierCase;
     std::vector<std::pair<int,int>> _departsRavitaillement;
 public:
+    std::vector<std::pair<int, int>> genererVille(int nbVilles);
+
+    void placerUnites(std::vector<std::pair<int, int>> const &villes);
+
     std::shared_ptr<Graphe> creerGraphe(accessibilite acces, bool coutDeplacement = true) const; 
 
     std::shared_ptr<Graphe> getGraphe(accessibilite acces) const;
@@ -51,10 +55,6 @@ public:
     }
 
     int getRayon() const;
-
-    int getNombreCases() const;
-
-    int getNombreCases(const std::string & nom) const;
 
     void creerArmee();//créer une armée vide
     
