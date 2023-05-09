@@ -163,8 +163,7 @@ std::vector<std::pair<int, int>> Carte::genererVille(int nbVilles){
                 break;
             }
         }
-
-        // Vérification si le point est accessible par la terre
+                    // Vérification si le point est accessible par la terre
         bool estAccessibleParTerre = false;
         std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(std::make_pair(i, j));
         for (const auto& voisin : voisins) {
@@ -173,7 +172,6 @@ std::vector<std::pair<int, int>> Carte::genererVille(int nbVilles){
                 break;
             }
         }
-
         // Si le point est assez éloigné du bord, des autres villes et accessible par la terre, alors on ajoute une ville
         if (!estTropPresDuBord && estAssezEloigneDesVilles && estAccessibleParTerre) {
             _cases[std::make_pair(i, j)] = std::make_shared<Case>("Ville");
@@ -182,6 +180,33 @@ std::vector<std::pair<int, int>> Carte::genererVille(int nbVilles){
         }
     }
     return villes;
+}
+
+
+std::vector<std::string> Carte::separerChaine(std::string chaine, char separateur) const {
+    std::vector<std::string> resultat;
+
+    return resultat;
+}
+
+void Carte::chargerSauvegarde(const std::string & nomFichier) {
+    std::ifstream fichier(nomFichier); // Ouverture du fichier en lecture
+    if (! fichier.is_open()) throw Exception("Erreur lors de l'ouverture du fichier dans Carte::chargerSauvegarde");
+
+    std::string ligne;
+    int mode = -1;
+    int x, y;
+    std::string nom;
+    while (std::getline(fichier, ligne)) {
+        if (ligne == "CASES") mode = -1;
+        else if (ligne.substr(0, 6) == "JOUEUR") mode = stoi(ligne.substr(6));
+        else if (ligne != "") {
+            if (mode == -1) {
+                _cases[std::make_pair(x,y)] = std::make_shared<Case>(nom);
+            }
+        }
+    }
+
 }
 
 std::vector<std::pair<unsigned int, int>> Carte::getScoreEquipe()const{

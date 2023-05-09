@@ -31,6 +31,12 @@ public:
 
     Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Armee>> const &armees);
 
+    void sauvegarder(const std::string & nom);
+
+    std::vector<std::string> separerChaine(std::string chaine, char separateur) const;
+
+    void chargerSauvegarde(const std::string & nomFichier);
+
     void initialiserVisibilite();
 
     std::pair<int,int> positionAleatoireCarte();
