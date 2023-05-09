@@ -76,50 +76,24 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
         if (j>0) fin++;
         else debut++;        
     }
+
+    std::vector<std::pair<int, int>> villes = genererVille(nbVilles);
+
+    placerUnites(villes);
     
-
-    // Paramètres de génération des villes
-    double distanceMinDuBord = taille * 0.1; // Distance minimale du bord pour générer une ville (1/10 de la taille)
-    double distanceMaxDuBord = taille * 0.2; // Distance maximale du bord pour générer une ville (1/5 de la taille)
-    double distanceMinEntreVilles = taille * 0.5; // Distance minimale entre deux villes (1/10 de la taille)
-    std::vector<std::pair<int, int>> villes;
-    
-    for (int n = 0; n < nbVilles;n++) {
-        std::pair<int,int> pos = positionAleatoireCarte();
-        int i = pos.first;
-        int j = pos.second;
-        double distanceDuBord = std::abs(distance(std::make_pair(0, 0), std::make_pair(i, j))); // Distance du point au bord de la carte
-        bool estTropPresDuBord = distanceDuBord < distanceMinDuBord; // Vérification si le point est trop près du bord
-
-        // Vérification si le point est assez éloigné des autres villes
-        bool estAssezEloigneDesVilles = true;
-        for (const auto& ville : villes) {
-            double distanceEntreVilles = distance(std::make_pair(i, j), ville);
-            if (distanceEntreVilles < distanceMinEntreVilles) {
-                estAssezEloigneDesVilles = false;
-                break;
-            }
-        }
-
-        // Vérification si le point est accessible par la terre
-        bool estAccessibleParTerre = false;
-        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(std::make_pair(i, j));
-        for (const auto& voisin : voisins) {
-            if (getCase(voisin) && getCase(voisin)->accessibleTerre()) {
-                estAccessibleParTerre = true;
-                break;
-            }
-        }
-
-        // Si le point est assez éloigné du bord, des autres villes et accessible par la terre, alors on ajoute une ville
-        if (!estTropPresDuBord && estAssezEloigneDesVilles && estAccessibleParTerre) {
-            _cases[std::make_pair(i, j)] = std::make_shared<Case>("Ville");
-            villes.push_back(std::make_pair(i, j));
-            n++;
-        }
-    }
     affichageSeulementCarte();
-    /*Placement des unités*/
+    
+    _grapheAir = creerGraphe(accessibilite::Air, false);
+    _grapheTerre = creerGraphe(accessibilite::Terre);
+    _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
+    _grapheEau = creerGraphe(accessibilite::Eau);
+    _grapheVision = creerGraphe(accessibilite::EauEtTerre, false);
+    initialiserVisibilite();
+    calculerDepartsRavitaillement();
+}
+
+
+void Carte::placerUnites(std::vector<std::pair<int, int>> const &villes){
     std::shared_ptr<Armee> armee;
     for (unsigned int i = 0; i < _armees.size();i++){ 
         armee = _armees.at(i);   
@@ -163,60 +137,51 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
             if (indexEmplacement >= positionsInaccessibles.size()) throw Exception("Trop d'unités pour une carte trop petite dans le constructeur de Carte.");
         }
    }
-    _grapheAir = creerGraphe(accessibilite::Air, false);
-    _grapheTerre = creerGraphe(accessibilite::Terre);
-    _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
-    _grapheEau = creerGraphe(accessibilite::Eau);
-    _grapheVision = creerGraphe(accessibilite::EauEtTerre, false);
-    initialiserVisibilite();
-    calculerDepartsRavitaillement();
 }
 
-void Carte::sauvegarder(const std::string & nom) {
-    std::ofstream fichier(nom);
-    if (! fichier.is_open()) throw Exception("Erreur lors de l'ouverture du fichier dans Carte::sauvegarder");
+std::vector<std::pair<int, int>> Carte::genererVille(int nbVilles){
+    // Paramètres de génération des villes
+    int taille = _rayon;
+    double distanceMinDuBord = taille * 0.1; // Distance minimale du bord pour générer une ville (1/10 de la taille)
+    double distanceMaxDuBord = taille * 0.2; // Distance maximale du bord pour générer une ville (1/5 de la taille)
+    double distanceMinEntreVilles = taille * 0.001; // Distance minimale entre deux villes (1/10 de la taille)
+    std::vector<std::pair<int, int>> villes;
+    
+    for (int n = 0; n < nbVilles;n++) {
+        std::pair<int,int> pos = positionAleatoireCarte();
+        int i = pos.first;
+        int j = pos.second;
+        double distanceDuBord = std::abs(distance(std::make_pair(0, 0), std::make_pair(i, j))); // Distance du point au bord de la carte
+        bool estTropPresDuBord = distanceDuBord < distanceMinDuBord; // Vérification si le point est trop près du bord
 
-    fichier << "CASES"<< std::endl;
-    int debut = -_rayon+1;
-    int fin = 0;
-    for (int j = _rayon-1; j > -_rayon; j--) {
-        for (int i = debut; i <= fin; i++) {
-            fichier<<getCase(i,j)->getNom()<<" "<<i<<" "<<j<<std::endl;
-        }
-        if (j>0) fin++;
-        else debut++;        
-    }
-    std::shared_ptr<Armee> armee;
-    std::shared_ptr<Unite> unite;
-    for (unsigned int i = 0; i < _armees.size(); i++){
-        armee = _armees.at(i);
-        fichier << "JOUEUR "+i<< std::endl;
-        for (unsigned int j = 0; j < armee->size(); j++) {
-            unite = armee->getUnite(j);
-            fichier << unite->getNom() << " " << unite->getSante() << " " << unite->getMoral() << std::endl;
-        }
-    }        
-    fichier.close(); 
-}
-
-void Carte::chargerSauvegarde(const std::string & nom) {
-    std::ifstream fichier(nom); // Ouverture du fichier en lecture
-    if (! fichier.is_open()) throw Exception("Erreur lors de l'ouverture du fichier dans Carte::chargerSauvegarde");
-
-    std::string ligne;
-    int mode = -1;
-    int x, y;
-    std::string nom;
-    while (std::getline(fichier, ligne)) {
-        if (ligne == "CASES") mode = -1;
-        else if (ligne.substr(0, 6) == "JOUEUR") mode = stoi(ligne.substr(6));
-        else if (ligne != "") {
-            if (mode == -1) {
-                _cases[std::make_pair(x,y)] = std::make_shared<Case>(nom);
+        // Vérification si le point est assez éloigné des autres villes
+        bool estAssezEloigneDesVilles = true;
+        for (const auto& ville : villes) {
+            double distanceEntreVilles = distance(std::make_pair(i, j), ville);
+            if (distanceEntreVilles < distanceMinEntreVilles) {
+                estAssezEloigneDesVilles = false;
+                break;
             }
         }
-    }
 
+        // Vérification si le point est accessible par la terre
+        bool estAccessibleParTerre = false;
+        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(std::make_pair(i, j));
+        for (const auto& voisin : voisins) {
+            if (getCase(voisin) && getCase(voisin)->accessibleTerre()) {
+                estAccessibleParTerre = true;
+                break;
+            }
+        }
+
+        // Si le point est assez éloigné du bord, des autres villes et accessible par la terre, alors on ajoute une ville
+        if (!estTropPresDuBord && estAssezEloigneDesVilles && estAccessibleParTerre) {
+            _cases[std::make_pair(i, j)] = std::make_shared<Case>("Ville");
+            villes.push_back(std::make_pair(i, j));
+            n++;
+        }
+    }
+    return villes;
 }
 
 std::vector<std::pair<unsigned int, int>> Carte::getScoreEquipe()const{
@@ -298,24 +263,6 @@ std::vector<std::pair<int,int>> Carte::positionsAccessibles(std::shared_ptr<Unit
 
 int Carte::getRayon() const {
     return _rayon;
-}
-
-int Carte::getNombreCases() const {
-    return 3*_rayon*_rayon-3*_rayon+1;
-}
-
-int Carte::getNombreCases(const std::string & nom) const {
-    int compt = 0;   
-    int debut = -_rayon+1;
-    int fin = 0;
-    for (int j = _rayon-1; j > -_rayon; j--) {
-        for (int i = debut; i <= fin; i++) { 
-            if (getCase(i, j)->getNom() == nom) compt++;
-        }
-        if (j>0) fin++;
-        else debut++;        
-    } 
-    return compt;
 }
 
 void Carte::creerArmee() {     

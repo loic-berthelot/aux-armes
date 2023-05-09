@@ -13,7 +13,9 @@ enum class Specificite{
     furtif,
     degatsDeZone,
     incendiaire,
-    inflammable
+    inflammable,
+    autonome,
+    intrepide
 };
 
 class Type{

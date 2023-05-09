@@ -34,6 +34,8 @@ Specificite Type::stringToSpecificite(std::string const &s){
     if (s == "degats de zone") return Specificite::degatsDeZone;
     if (s == "incendiaire") return Specificite::incendiaire;
     if (s == "inflammable") return Specificite::inflammable;
+    if (s == "intrepide") return Specificite::intrepide;
+    if (s == "autonome") return Specificite::autonome;
     throw Exception ("Specificite inconnue : "+s);
 }
 
