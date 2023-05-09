@@ -162,6 +162,7 @@ std::vector<std::pair<int, int>> Carte::genererVille(int nbVilles){
                 estAssezEloigneDesVilles = false;
                 break;
             }
+<<<<<<< HEAD
         }
                     // Vérification si le point est accessible par la terre
         bool estAccessibleParTerre = false;
@@ -203,10 +204,28 @@ void Carte::chargerSauvegarde(const std::string & nomFichier) {
         else if (ligne != "") {
             if (mode == -1) {
                 _cases[std::make_pair(x,y)] = std::make_shared<Case>(nom);
+=======
+        }
+
+        // Vérification si le point est accessible par la terre
+        bool estAccessibleParTerre = false;
+        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(std::make_pair(i, j));
+        for (const auto& voisin : voisins) {
+            if (getCase(voisin) && getCase(voisin)->accessibleTerre()) {
+                estAccessibleParTerre = true;
+                break;
+>>>>>>> a771ba045e851b1d58ecdae66ddbbe660bc869b6
             }
         }
-    }
 
+        // Si le point est assez éloigné du bord, des autres villes et accessible par la terre, alors on ajoute une ville
+        if (!estTropPresDuBord && estAssezEloigneDesVilles && estAccessibleParTerre) {
+            _cases[std::make_pair(i, j)] = std::make_shared<Case>("Ville");
+            villes.push_back(std::make_pair(i, j));
+            n++;
+        }
+    }
+    return villes;
 }
 
 std::vector<std::pair<unsigned int, int>> Carte::getScoreEquipe()const{
