@@ -29,7 +29,9 @@ public:
 
     void sauvegarder(const std::string & nom);
 
-    void chargerSauvegarde(const std::string & nom);
+    std::vector<std::string> separerChaine(std::string chaine, char separateur) const;
+
+    void chargerSauvegarde(const std::string & nomFichier);
 
     void initialiserVisibilite();
 

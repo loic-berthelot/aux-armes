@@ -199,8 +199,14 @@ void Carte::sauvegarder(const std::string & nom) {
     fichier.close(); 
 }
 
-void Carte::chargerSauvegarde(const std::string & nom) {
-    std::ifstream fichier(nom); // Ouverture du fichier en lecture
+std::vector<std::string> Carte::separerChaine(std::string chaine, char separateur) const {
+    std::vector<std::string> resultat;
+
+    return resultat;
+}
+
+void Carte::chargerSauvegarde(const std::string & nomFichier) {
+    std::ifstream fichier(nomFichier); // Ouverture du fichier en lecture
     if (! fichier.is_open()) throw Exception("Erreur lors de l'ouverture du fichier dans Carte::chargerSauvegarde");
 
     std::string ligne;
