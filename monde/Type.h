@@ -36,7 +36,7 @@ class Type{
 
     float getCoefficients(std::string const &key) const;
 
-    bool possedeSpecificite(Specificite s)const;
+    bool possedeSpecificite(Specificite const s)const;
     
 
 };

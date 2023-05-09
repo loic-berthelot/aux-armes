@@ -48,7 +48,7 @@ float Type::getCoefficients(std::string const &key) const {
 
 
 
-bool Type::possedeSpecificite(Specificite s)const{
+bool Type::possedeSpecificite(Specificite const s)const{
     for (unsigned int i = 0; i < _specificites.size();i++)
         if (s == _specificites[i])
             return true;

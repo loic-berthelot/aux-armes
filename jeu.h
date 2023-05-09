@@ -12,7 +12,7 @@ public:
     void ajouterJoueur(bool estHumain = false);
     void sauvegarder(const std::string & nom);
     void chargerSauvegarde(const std::string & nomFichier);
-    bool partieFinie();
+    bool partieFinie()const;
     void jouer();
 
 

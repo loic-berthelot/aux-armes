@@ -30,9 +30,9 @@ public:
 
     void initialiserGraphes();
 
-    std::shared_ptr<Graphe> creerGraphe(accessibilite acces, bool coutDeplacement = true) const; 
+    std::shared_ptr<Graphe> creerGraphe(accessibilite const acces, bool coutDeplacement = true) const; 
 
-    std::shared_ptr<Graphe> getGraphe(accessibilite acces) const;
+    std::shared_ptr<Graphe> getGraphe(accessibilite const acces) const;
 
     Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Armee>> const &armees);
 
@@ -44,7 +44,7 @@ public:
 
     std::pair<int,int> positionAleatoireCarte();
     
-    std::vector<std::pair<int,int>> positionsAccessibles(std::shared_ptr<Unite> unite, int nbTours=1) const;
+    std::vector<std::pair<int,int>> positionsAccessibles(std::shared_ptr<Unite> const unite, int nbTours=1) const;
 
     /*Méthode armée ============================================*/    
     /*Méthode armée ============================================*/
@@ -85,38 +85,38 @@ public:
 
     void appliquerAttritionArmee();
 
-    std::vector<std::shared_ptr<Unite>> unitesSurCase(std::pair<int,int> pos);
+    std::vector<std::shared_ptr<Unite>> unitesSurCase(std::pair<int,int> const &pos);
 
     void executerOrdresArmee();
 
-    void infligerDegatsDeZone(std::pair<int,int> pos, int degats);
+    void infligerDegatsDeZone(std::pair<int,int> const &pos, int degats);
 
     void retirerCadavres();
     
     void evolutionMoralArmee();
 
-    void combat(std::shared_ptr<Unite> u1, unsigned int idTeam, std::pair<int,int> positionCombat);//fait combattre 2 unités
+    void combat(std::shared_ptr<Unite> u1, unsigned int idTeam, std::pair<int,int> const &positionCombat);//fait combattre 2 unités
 
     /*Methode de la carte (MAP ) =============================*/
-    void brouillardDeGuerreUnite(std::shared_ptr<Unite> unite);
+    void brouillardDeGuerreUnite(std::shared_ptr<Unite> const unite);
 
     void brouillardDeGuerreEquipe();
     
-    std::vector<std::pair<int, int>> getCoordonneesVoisins(std::pair<int,int> pos)const;//renvoie les coordonnées des voisins
+    std::vector<std::pair<int, int>> getCoordonneesVoisins(std::pair<int,int> const &pos)const;//renvoie les coordonnées des voisins
     
-    std::vector<std::pair<int, int>> getCoordonneesVoisins(std::pair<int,int> pos, int rayon)const;
+    std::vector<std::pair<int, int>> getCoordonneesVoisins(std::pair<int,int> const &pos, int rayon)const;
 
-    std::vector<std::pair<int, int>> getCoordonneesCouronne(std::pair<int,int> pos, int rayon)const;
+    std::vector<std::pair<int, int>> getCoordonneesCouronne(std::pair<int,int> const &pos, int rayon)const;
 
     std::shared_ptr<Case> getCase(int x, int y)const;//Attention les X et Y sont les coordonnées en fonction du milieu
 
-    std::shared_ptr<Case> getCase(std::pair<int,int> pos) const;
+    std::shared_ptr<Case> getCase(std::pair<int,int> const &pos) const;
 
     void affichageSeulementCarte()const;
 
-    void ajoutUniteTeam(unsigned int IDarmee, std::shared_ptr<Unite> unite);
+    void ajoutUniteTeam(unsigned int IDarmee, std::shared_ptr<Unite> const unite);
     
-    float ratioAlliesAdversaires(std::shared_ptr<Unite> unite, unsigned int zoneAutour, unsigned int idEquipeJoueur)const;
+    float ratioAlliesAdversaires(std::shared_ptr<Unite> const unite, unsigned int zoneAutour, unsigned int idEquipeJoueur)const;
 
     std::shared_ptr<Armee> getArmee() const;
 
@@ -124,17 +124,17 @@ public:
     
     std::string valueToCaseNom(float Value);
 
-    bool peutEtreEn(std::pair<int,int> pos, std::shared_ptr<Unite> u1);
+    bool peutEtreEn(std::pair<int,int> const &pos, std::shared_ptr<Unite> const u1);
 
-    bool caseAvecUnite(std::pair<int,int> pos)const;
+    bool caseAvecUnite(std::pair<int,int> const &pos)const;
 
     bool ennemiSurCase(int x, int y)const;
 
-    bool ennemiSurCase(std::pair<int,int> pos) const;
+    bool ennemiSurCase(std::pair<int,int> const &pos) const;
     
-    bool caseVisible(std::pair<int,int> pos) const;
+    bool caseVisible(std::pair<int,int> const &pos) const;
 
-    std::vector<std::shared_ptr<Unite>> unitesAllieesSurCase(std::pair<int,int> pos);
+    std::vector<std::shared_ptr<Unite>> unitesAllieesSurCase(std::pair<int,int> const &pos);
 
-    int porteeRavitaillementAllie(std::pair<int,int> pos) const; //renvoie la portée de ravitaillement maximale des unités alliées de cette case
+    int porteeRavitaillementAllie(std::pair<int,int> const &pos) const; //renvoie la portée de ravitaillement maximale des unités alliées de cette case
 };

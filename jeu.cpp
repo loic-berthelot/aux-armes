@@ -42,7 +42,7 @@ void Jeu::ajouterJoueur(bool estHumain) {
     else _joueurs.emplace_back(new IA());
 }
 
-bool Jeu::partieFinie() {
+bool Jeu::partieFinie() const{
     return (_carte->nombreArmeesVivantes() <= 1 || _toursPasses > _carte->getMaxTours());
 }
 
