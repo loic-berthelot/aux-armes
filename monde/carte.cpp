@@ -545,11 +545,13 @@ void Carte::combat(std::shared_ptr<Unite> u, unsigned int idTeam, std::pair<int,
             if (unites[k]->estIncendiaire()) u->recevoirBrulure();
 
             if (degats.first < degats.second){
-                u->regenererMoral(-15);
+                if (!u->getIntrepide())
+                    u->regenererMoral(-15);
                 unites[k]->regenererMoral(15);
             }else if (degats.first > degats.second){
                 u->regenererMoral(15);
-                unites[k]->regenererMoral(-15);
+                if (!unites[k]->getIntrepide())
+                    unites[k]->regenererMoral(-15);
             }
         }else 
             u->regenererMoral(15);
