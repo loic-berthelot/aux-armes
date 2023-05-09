@@ -2,6 +2,20 @@
 
 
 
+std::vector<std::string> separerChaine(std::string chaine, char separateur) {
+    std::vector<std::string> resultat;
+    std::string mot;
+    for (unsigned int i = 0; i < chaine.size(); i++) {
+        if (chaine[i] == separateur) {
+            if (! mot.empty()) resultat.push_back(mot);
+            mot = "";
+        } else {
+            mot+=chaine[i];
+        }
+    }
+    return resultat;
+}
+
 Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Armee>> const &armees):_indiceArmee(0), _armees(armees){
     std::string nomFichier = "../monde/génération/"+nomFichierConfig+".txt";  
 
@@ -82,14 +96,17 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
     placerUnites(villes);
     
     affichageSeulementCarte();
-    
+    initialiserGraphes();
+    calculerDepartsRavitaillement();
+}
+
+void Carte::initialiserGraphes() {
     _grapheAir = creerGraphe(accessibilite::Air, false);
     _grapheTerre = creerGraphe(accessibilite::Terre);
     _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
     _grapheEau = creerGraphe(accessibilite::Eau);
     _grapheVision = creerGraphe(accessibilite::EauEtTerre, false);
     initialiserVisibilite();
-    calculerDepartsRavitaillement();
 }
 
 
@@ -182,12 +199,34 @@ std::vector<std::pair<int, int>> Carte::genererVille(int nbVilles){
     return villes;
 }
 
+void Carte::sauvegarder(const std::string & nom) {
+    std::ofstream fichier(nom);
+    if (! fichier.is_open()) throw Exception("Erreur lors de l'ouverture du fichier dans Carte::sauvegarder");
 
-std::vector<std::string> Carte::separerChaine(std::string chaine, char separateur) const {
-    std::vector<std::string> resultat;
-
-    return resultat;
+    fichier << "CASES"<< std::endl;
+    int debut = -_rayon+1;
+    int fin = 0;
+    for (int j = _rayon-1; j > -_rayon; j--) {
+        for (int i = debut; i <= fin; i++) {
+            fichier<<getCase(i,j)->getNom()<<" "<<i<<" "<<j<<std::endl;
+        }
+        if (j>0) fin++;
+        else debut++;        
+    }
+    std::shared_ptr<Armee> armee;
+    std::shared_ptr<Unite> unite;
+    for (unsigned int i = 0; i < _armees.size(); i++){
+        armee = _armees.at(i);
+        fichier << "JOUEUR "+i<< std::endl;
+        for (unsigned int j = 0; j < armee->size(); j++) {
+            unite = armee->getUnite(j);
+            fichier << unite->getNom() << " " << unite->getSante() << " " << unite->getMoral() << std::endl;
+        }
+    }        
+    fichier.close(); 
 }
+
+
 
 void Carte::chargerSauvegarde(const std::string & nomFichier) {
     std::ifstream fichier(nomFichier); // Ouverture du fichier en lecture
@@ -195,14 +234,18 @@ void Carte::chargerSauvegarde(const std::string & nomFichier) {
 
     std::string ligne;
     int mode = -1;
-    int x, y;
-    std::string nom;
+    std::vector<std::string> mots;
     while (std::getline(fichier, ligne)) {
+        mots = separerChaine(ligne, ' ');
         if (ligne == "CASES") mode = -1;
-        else if (ligne.substr(0, 6) == "JOUEUR") mode = stoi(ligne.substr(6));
+        else if (mots[0] == "JOUEUR") {
+            mode = stoi(mots[1]);
+        }
         else if (ligne != "") {
-            if (mode == -1) {
-                _cases[std::make_pair(x,y)] = std::make_shared<Case>(nom);
+            
+            if (mode == -1) _cases[std::make_pair(stoi(mots[1]),stoi(mots[2]))] = std::make_shared<Case>(mots[0]);
+            else if (mode >= 0))  {
+
             }
         }
     }
