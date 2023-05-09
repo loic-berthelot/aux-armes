@@ -1,0 +1,7 @@
+Distance
+2
+Artillerie
+2
+Specificites
+inflammable
+furtif

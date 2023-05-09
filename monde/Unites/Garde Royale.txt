@@ -1,0 +1,19 @@
+Catégorie:
+Terre
+Santé:
+200
+Attaque:
+150
+Défense:
+300
+Distance de vue:
+1
+Distance ravitaillement:
+0
+Portée:
+0
+Vitesse deplacement:
+1
+Espace occupé:
+5
+Infanterie

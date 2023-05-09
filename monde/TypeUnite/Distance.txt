@@ -1,0 +1,5 @@
+InfanterieLourde
+1.5
+Specificites
+inflammable
+furtif
