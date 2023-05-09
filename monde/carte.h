@@ -23,6 +23,7 @@ private:
     std::string _mapDernierCase;
     std::vector<std::pair<int,int>> _departsRavitaillement;
 public:
+
     std::vector<std::pair<int, int>> genererVille(int nbVilles);
 
     void placerUnites(std::vector<std::pair<int, int>> const &villes);
@@ -35,9 +36,9 @@ public:
 
     Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Armee>> const &armees);
 
-    void sauvegarder(const std::string & nom);
+    Carte(int rayon);
 
-    void chargerSauvegarde(const std::string & nomFichier);
+    void ajouterCase(const std::pair<int,int> & position, const std::string & nom) ;
 
     void initialiserVisibilite();
 

@@ -2,37 +2,38 @@
 
 
 Jeu::Jeu(std::string const & joueurs,std::string const &configurationMap, std::string const &armeeDesc){
-    unsigned int team = 0;
-    std::vector<std::shared_ptr<Armee>> buffer;
-    std::shared_ptr<Armee> armeeCourante = std::make_shared<Armee>();
-    unsigned int nbUnites = 0;
-    unsigned int indexPrecedent = 0;
-    
-    for (unsigned int i = 0; i < armeeDesc.size();i++){
-        
-        if (armeeDesc[i] == ';'){
-            buffer.push_back(armeeCourante);
-            armeeCourante = std::make_shared<Armee>();
-            team++;
-            indexPrecedent = i+1;
-        }else if (armeeDesc[i] == ':'){
-            nbUnites = std::stoul(armeeDesc.substr(indexPrecedent, i-indexPrecedent));
-            indexPrecedent = i+1;
-        }else if (armeeDesc[i] == ','){
-            for (unsigned int j = 0; j < nbUnites;j++)
-                armeeCourante->ajoutUnite(std::make_shared<Unite>(armeeDesc.substr(indexPrecedent ,i-indexPrecedent), 0, 0));
-            indexPrecedent = i+1;
+    if(false) {
+        unsigned int team = 0;
+        std::vector<std::shared_ptr<Armee>> buffer;
+        std::shared_ptr<Armee> armeeCourante = std::make_shared<Armee>();
+        unsigned int nbUnites = 0;
+        unsigned int indexPrecedent = 0;    
+        for (unsigned int i = 0; i < armeeDesc.size();i++){            
+            if (armeeDesc[i] == ';'){
+                buffer.push_back(armeeCourante);
+                armeeCourante = std::make_shared<Armee>();
+                team++;
+                indexPrecedent = i+1;
+            }else if (armeeDesc[i] == ':'){
+                nbUnites = std::stoul(armeeDesc.substr(indexPrecedent, i-indexPrecedent));
+                indexPrecedent = i+1;
+            }else if (armeeDesc[i] == ','){
+                for (unsigned int j = 0; j < nbUnites;j++)
+                    armeeCourante->ajoutUnite(std::make_shared<Unite>(armeeDesc.substr(indexPrecedent ,i-indexPrecedent), 0, 0));
+                indexPrecedent = i+1;
+            }
         }
-    }
-    _carte = std::make_unique<Carte>(configurationMap, buffer);
-    for (unsigned int i = 0; i < joueurs.size(); i++){
-        switch(joueurs[i]) {
-            case 'i' : ajouterJoueur(); break;
-            default:
-            case 'h' : ajouterJoueur(true); break;
+        _carte = std::make_unique<Carte>(configurationMap, buffer);
+        for (unsigned int i = 0; i < joueurs.size(); i++){
+            switch(joueurs[i]) {
+                case 'i' : ajouterJoueur(); break;
+                default:
+                case 'h' : ajouterJoueur(true); break;
+            }
         }
-    }
-    
+    } else {
+        chargerSauvegarde("sauvegarde1");
+    }    
 }
 
 
@@ -42,12 +43,71 @@ void Jeu::ajouterJoueur(bool estHumain) {
 }
 
 bool Jeu::partieFinie() {
-    //return _toursPasses > 2;
     return (_carte->nombreArmeesVivantes() <= 1 || _toursPasses > _carte->getMaxTours());
+}
+
+void Jeu::sauvegarder(const std::string & nom) {
+    std::ofstream fichier("../sauvegardes/"+nom+".txt");//on doit revenir au répertoire parent pour atteindre la racine du projet depuis le répertoire build
+    if (! fichier.is_open()) throw Exception("Erreur lors de l'ouverture du fichier dans Carte::sauvegarder");
+
+    int rayon = _carte->getRayon();
+    fichier<<"RAYON "+std::to_string(rayon)+"\n";
+    int debut = -rayon+1;
+    int fin = 0;
+    for (int j = rayon-1; j > -rayon; j--) {
+        for (int i = debut; i <= fin; i++) {
+            fichier<<_carte->getCase(i,j)->getNom()+" "+std::to_string(i)+" "+std::to_string(j)+"\n";
+        }
+        if (j>0) fin++;
+        else debut++;        
+    }
+    std::shared_ptr<Armee> armee;
+    std::shared_ptr<Unite> unite;
+    for (unsigned int i = 0; i < _joueurs.size(); i++){
+        armee = _carte->getArmee(i);
+        std::string type = (dynamic_cast<Humain*>(_joueurs[i].get())) ? "Humain" : "IA";
+        fichier << "JOUEUR "+type<< std::endl;
+        for (unsigned int j = 0; j < armee->size(); j++) {
+            unite = armee->getUnite(j);
+            fichier << unite->getNom() + " " + std::to_string(unite->getX()) + " " + std::to_string(unite->getY()) + " " + std::to_string(unite->getSante()) + " " + std::to_string(unite->getMoral()) + "\n";
+        }
+    }       
+    fichier.close(); 
+}
+
+void Jeu::chargerSauvegarde(const std::string & nomFichier) {
+    std::ifstream fichier("../sauvegardes/"+nomFichier+".txt"); // Ouverture du fichier en lecture
+    if (! fichier.is_open()) throw Exception("Erreur lors de l'ouverture du fichier dans Carte::chargerSauvegarde");
+    
+    std::string ligne;
+    std::getline(fichier, ligne);
+    int rayon = std::stoi(separerChaine(ligne, ' ').at(1));
+
+    _carte = std::make_unique<Carte>(rayon);
+    bool modeCases = true;
+    std::vector<std::string> mots;
+    int nombreArmees = 0;
+    while (std::getline(fichier, ligne)) {
+        mots = separerChaine(ligne, ' ');
+        if (mots[0] == "JOUEUR") {
+            modeCases = false;
+            ajouterJoueur(mots[1] == "Humain");
+            _carte->creerArmee();
+            nombreArmees++;
+        }
+        else if (! ligne.empty()) { 
+            if (modeCases) _carte->ajouterCase(std::make_pair(std::stoi(mots[1]),std::stoi(mots[2])),mots[0]); 
+            else _carte->ajoutUniteTeam(nombreArmees-1, std::make_shared<Unite>(mots[0], std::stoi(mots[1]), std::stoi(mots[2]), std::stoi(mots[3]), std::stoi(mots[4])));
+        }
+    }
+    _carte->initialiserGraphes();
+    _carte->calculerDepartsRavitaillement();   
+    _carte->affichageSeulementCarte();
 }
 
 void Jeu::jouer() {
     std::cout<<"Debut de la partie !"<<std::endl;
+    sauvegarder("sauvegarde1");
     while (!partieFinie()) {
         std::cout<<"---Tour n°"<<_toursPasses<<"---"<<std::endl;
         for (unsigned int i = 0; i < _joueurs.size(); i++) {

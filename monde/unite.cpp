@@ -14,7 +14,7 @@ static std::string CategorieToString(accessibilite const c){
 }
 
 //lecture du fichier
-Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ordreRecu(nullptr){
+Unite::Unite(std::string name, int x,int y, int sante, int moral):_nom(name), _posX(x), _posY(y), _ordreRecu(nullptr){
     std::ifstream fichier("../monde/Unites/"+name+".txt");
     
     if (!fichier.is_open()) {
@@ -28,14 +28,18 @@ Unite::Unite(std::string name, int x,int y):_nom(name), _posX(x), _posY(y), _ord
     std::getline(fichier, ligne);//index santé
     std::getline(fichier, ligne);//santé 
     try{
-        _sante = std::stoi(ligne);
+        _maxSante = std::stoi(ligne);
     }catch(...){
         throw new Exception("Erreur : La santé n'est pas un int : "+ligne+" dans le fichier unité : "+name);
     }
-    if (_sante <= 0)
+    if (_maxSante <= 0)
         throw std::invalid_argument("Santé <= 0 pour : "+ligne+ " dans la l'unité : "+name);
 
-    _maxSante = std::stoi(ligne);
+    if (sante >= 0) _sante = sante;
+    else sante = _maxSante;
+    if (moral >= 0) _moral = moral;
+    else moral = 50;
+    
     std::getline(fichier, ligne);//index attaque
     std::getline(fichier, ligne);//attaque
     try{
