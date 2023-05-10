@@ -1,33 +1,33 @@
 RAYON 5
 Ocean -4 4
-Ville -3 4
-Ocean -2 4
-Ocean -1 4
-Ocean 0 4
-Plaine -4 3
+Ocean -3 4
+Plaine -2 4
+Plaine -1 4
+Plaine 0 4
+Ocean -4 3
 Ocean -3 3
 Plaine -2 3
-Plaine -1 3
-Ocean 0 3
+Ocean -1 3
+Plaine 0 3
 Plaine 1 3
 Plaine -4 2
 Ocean -3 2
 Plaine -2 2
-Plaine -1 2
+Ocean -1 2
 Plaine 0 2
 Ocean 1 2
 Ocean 2 2
 Plaine -4 1
 Ocean -3 1
 Plaine -2 1
-Plaine -1 1
+Ocean -1 1
 Plaine 0 1
 Plaine 1 1
-Ocean 2 1
+Plaine 2 1
 Plaine 3 1
-Ville -4 0
-Ocean -3 0
-Plaine -2 0
+Ocean -4 0
+Plaine -3 0
+Ville -2 0
 Plaine -1 0
 Plaine 0 0
 Plaine 1 0
@@ -35,34 +35,34 @@ Ocean 2 0
 Plaine 3 0
 Plaine 4 0
 Ocean -3 -1
-Ocean -2 -1
-Ocean -1 -1
-Plaine 0 -1
-Plaine 1 -1
+Plaine -2 -1
+Plaine -1 -1
+Ocean 0 -1
+Ville 1 -1
 Plaine 2 -1
-Ville 3 -1
+Plaine 3 -1
 Plaine 4 -1
 Ocean -2 -2
 Ocean -1 -2
-Plaine 0 -2
+Ville 0 -2
 Plaine 1 -2
 Plaine 2 -2
-Plaine 3 -2
-Plaine 4 -2
-Ocean -1 -3
+Ocean 3 -2
+Ocean 4 -2
+Plaine -1 -3
 Ocean 0 -3
 Plaine 1 -3
 Plaine 2 -3
 Plaine 3 -3
-Plaine 4 -3
+Ocean 4 -3
 Ocean 0 -4
 Plaine 1 -4
-Plaine 2 -4
-Plaine 3 -4
-Ocean 4 -4
+Ocean 2 -4
+Ocean 3 -4
+Plaine 4 -4
 JOUEUR Humain
-Archer -3 4 0 100
-Caravane -1 3 0 100
+Archer 0 -2 0 100
+Caravane 1 -2 0 100
 JOUEUR IA
-Archer -4 0 0 100
-Caravane -4 1 0 100
+Archer -2 0 0 100
+Caravane -2 1 0 100

@@ -191,7 +191,6 @@ std::vector<std::pair<int, int>> Carte::genererVille(int nbVilles){
 
         while(nbRecherche < getNombreCases() && (estTropLoinDuBord || !estAssezEloigneDesVilles || !estAccessibleParTerre || estSurUneVille)){
             nbRecherche++;
-            std::cout << "nb : "<<nbRecherche<< std::endl;
             std::pair<int,int> pos = positionAleatoireCarte();
             int i = pos.first;
             int j = pos.second;
@@ -321,24 +320,6 @@ std::vector<std::pair<int,int>> Carte::positionsAccessibles(std::shared_ptr<Unit
 
 int Carte::getRayon() const {
     return _rayon;
-}
-
-int Carte::getNombreCases() const {
-    return 3*_rayon*_rayon-3*_rayon+1;
-}
-
-int Carte::getNombreCases(const std::string & nom) const {
-    int compt = 0;   
-    int debut = -_rayon+1;
-    int fin = 0;
-    for (int j = _rayon-1; j > -_rayon; j--) {
-        for (int i = debut; i <= fin; i++) { 
-            if (getCase(i, j)->getNom() == nom) compt++;
-        }
-        if (j>0) fin++;
-        else debut++;        
-    } 
-    return compt;
 }
 
 void Carte::creerArmee() {     

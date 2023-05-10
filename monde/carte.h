@@ -142,9 +142,5 @@ public:
 
     std::vector<std::shared_ptr<Unite>> unitesAllieesSurCase(std::pair<int,int> const &pos);
 
-        int getNombreCases() const;
-
-    int getNombreCases(const std::string & nom) const;
-
     int porteeRavitaillementAllie(std::pair<int,int> const &pos) const; //renvoie la portée de ravitaillement maximale des unités alliées de cette case
 };
