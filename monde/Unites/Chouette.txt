@@ -1,0 +1,19 @@
+Catégorie:
+Air
+Santé:
+50
+Attaque:
+120
+Défense:
+80
+Distance de vue:
+6
+Distance ravitaillement:
+0
+Portée:
+0
+Vitesse deplacement:
+3
+Espace occupé:
+3
+Bete

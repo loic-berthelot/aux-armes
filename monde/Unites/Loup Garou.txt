@@ -1,0 +1,19 @@
+Catégorie:
+Terre
+Santé:
+100
+Attaque:
+120
+Défense:
+80
+Distance de vue:
+3
+Distance ravitaillement:
+0
+Portée:
+0
+Vitesse deplacement:
+2
+Espace occupé:
+15
+Bete

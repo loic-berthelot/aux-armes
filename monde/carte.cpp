@@ -43,13 +43,13 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
     
     srand(seed);
     srand(time(0));
-    //srand(1683275872);
+    srand(1683275872);
 
     std::getline(fichier, ligne);//index nbVilles
     std::getline(fichier, ligne);//val nbVilles
     int nbVilles;
     try{
-        nbVilles = armees.size()*std::stoi(ligne);
+        nbVilles = std::max(static_cast<int>(armees.size()),getNombreCases()/std::stoi(ligne));
     }catch (...){
         throw new Exception(ligne+" n'est pas un int pour nbVilles dans le fichier : "+nomFichier);
     }
@@ -99,6 +99,23 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
     calculerDepartsRavitaillement();
 }
 
+int Carte::getNombreCases() const {
+    return 3*_rayon*_rayon-3*_rayon+1;
+}
+
+int Carte::getNombreCases(const std::string & nom) const {
+    int compt = 0;   
+    int debut = -_rayon+1;
+    int fin = 0;
+    for (int j = _rayon-1; j > -_rayon; j--) {
+        for (int i = debut; i <= fin; i++) { 
+            if (getCase(i, j)->getNom() == nom) compt++;
+        }
+        if (j>0) fin++;
+        else debut++;        
+    } 
+    return compt;
+}
 Carte::Carte(int rayon)  : _rayon(rayon){
 }
 
@@ -161,41 +178,61 @@ void Carte::placerUnites(std::vector<std::pair<int, int>> const &villes){
 std::vector<std::pair<int, int>> Carte::genererVille(int nbVilles){
     // Paramètres de génération des villes
     int taille = _rayon;
-    double distanceMinDuBord = taille * 0.1; // Distance minimale du bord pour générer une ville (1/10 de la taille)
-    double distanceMaxDuBord = taille * 0.2; // Distance maximale du bord pour générer une ville (1/5 de la taille)
+    double distanceMaxDuBord = taille * 1; // Distance maximale du bord pour générer une ville (1/5 de la taille)
     double distanceMinEntreVilles = taille * 0.001; // Distance minimale entre deux villes (1/10 de la taille)
     std::vector<std::pair<int, int>> villes;
     
     for (int n = 0; n < nbVilles;n++) {
-        std::pair<int,int> pos = positionAleatoireCarte();
-        int i = pos.first;
-        int j = pos.second;
-        double distanceDuBord = std::abs(distance(std::make_pair(0, 0), std::make_pair(i, j))); // Distance du point au bord de la carte
-        bool estTropPresDuBord = distanceDuBord < distanceMinDuBord; // Vérification si le point est trop près du bord
-
-        // Vérification si le point est assez éloigné des autres villes
-        bool estAssezEloigneDesVilles = true;
-        for (const auto& ville : villes) {
-            double distanceEntreVilles = distance(std::make_pair(i, j), ville);
-            if (distanceEntreVilles < distanceMinEntreVilles) {
-                estAssezEloigneDesVilles = false;
-                break;
-            }
-        }
-                    // Vérification si le point est accessible par la terre
+        int nbRecherche = 0;
+        bool estTropLoinDuBord = false;
+        bool estAssezEloigneDesVilles = false;
         bool estAccessibleParTerre = false;
-        std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(std::make_pair(i, j));
-        for (const auto& voisin : voisins) {
-            if (getCase(voisin) && getCase(voisin)->accessibleTerre()) {
-                estAccessibleParTerre = true;
-                break;
+        bool estSurUneVille = true;
+
+        while(nbRecherche < getNombreCases() && (estTropLoinDuBord || !estAssezEloigneDesVilles || !estAccessibleParTerre || estSurUneVille)){
+            nbRecherche++;
+            std::cout << "nb : "<<nbRecherche<< std::endl;
+            std::pair<int,int> pos = positionAleatoireCarte();
+            int i = pos.first;
+            int j = pos.second;
+            double distanceDuBord = std::abs(distance(std::make_pair(0, 0), std::make_pair(i, j))); // Distance du point au bord de la carte
+            estTropLoinDuBord = distanceDuBord > distanceMaxDuBord; // Vérification si le point est trop près du bord
+
+            // Vérification si le point est assez éloigné des autres villes
+            estAssezEloigneDesVilles = true;
+            for (const auto& ville : villes) {
+                double distanceEntreVilles = distance(std::make_pair(i, j), ville);
+                if (distanceEntreVilles < distanceMinEntreVilles) {
+                    estAssezEloigneDesVilles = false;
+                    break;
+                }
             }
-        }
-        // Si le point est assez éloigné du bord, des autres villes et accessible par la terre, alors on ajoute une ville
-        if (!estTropPresDuBord && estAssezEloigneDesVilles && estAccessibleParTerre) {
-            _cases[std::make_pair(i, j)] = std::make_shared<Case>("Ville");
-            villes.push_back(std::make_pair(i, j));
-            n++;
+            // Vérification si le point est accessible par la terre
+            estAccessibleParTerre = false;
+            std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(std::make_pair(i, j));
+            for (const auto& voisin : voisins) {
+                if (getCase(voisin) && getCase(voisin)->accessibleTerre()) {
+                    estAccessibleParTerre = true;
+                    break;
+                }
+            }
+            //sur une ville
+            estSurUneVille = false;
+            for (const auto& ville : villes) {
+                double distanceEntreVilles = distance(std::make_pair(i, j), ville);
+                if (ville.first == i && ville.second == ville.second) {
+                    estSurUneVille = true;
+                    break;
+                }
+            }
+            // Si le point est assez éloigné du bord, des autres villes et accessible par la terre, alors on ajoute une ville
+            if (!estTropLoinDuBord && estAssezEloigneDesVilles && estAccessibleParTerre && !estSurUneVille) {
+                _cases[std::make_pair(i, j)] = std::make_shared<Case>("Ville");
+                villes.push_back(std::make_pair(i, j));
+            }
+            
+        }if (nbRecherche >= getNombreCases()){
+            throw std::invalid_argument("Impossible de placer une ville numéro : "+std::to_string(n));
         }
     }
     return villes;
