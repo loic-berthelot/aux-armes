@@ -59,6 +59,10 @@ public:
 
     int getRayon() const;
 
+    int getNombreCases() const;
+
+    int getNombreCases(const std::string & nom) const;
+
     void creerArmee();//créer une armée vide
     
     void afficherArmee() const;//ne marche pas encore donc à renseigner
@@ -86,6 +90,8 @@ public:
     void appliquerAttritionArmee();
 
     std::vector<std::shared_ptr<Unite>> unitesSurCase(std::pair<int,int> const &pos);
+
+    std::vector<std::pair<int,int>> positionsEnnemisVolants() const;
 
     void executerOrdresArmee();
 

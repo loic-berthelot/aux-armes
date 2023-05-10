@@ -2,7 +2,7 @@
 
 
 Jeu::Jeu(std::string const & joueurs,std::string const &configurationMap, std::string const &armeeDesc){
-    if(false) {
+    if(true) {
         unsigned int team = 0;
         std::vector<std::shared_ptr<Armee>> buffer;
         std::shared_ptr<Armee> armeeCourante = std::make_shared<Armee>();

@@ -21,7 +21,7 @@ std::shared_ptr<SommetParcours> Graphe::creerSommetAEtoile(std::shared_ptr<Somme
     sommetParcours->_sommetGraphe = sommetGraphe;    
     sommetParcours->_visite = (sommetGraphe == depart);
     sommetParcours->_heuristique = distance(sommetParcours->_sommetGraphe->_pos, arrivee->_pos);
-    sommetParcours->_passageAutorise = true;
+    sommetParcours->_passageAutorise = ! _obstacles[sommetGraphe->_pos];
     sommetParcours->_coutChemin = 0; 
     sommetParcours->_parent = nullptr;
     return sommetParcours;
@@ -97,19 +97,22 @@ std::shared_ptr<SommetParcours> Graphe::plusFaibleScore(const std::vector<std::s
     });
 }
 
-std::vector<std::pair<std::pair<int,int>, int>> Graphe::aEtoile(std::pair<int,int> depart, std::pair<int,int> arrivee) {
+std::vector<std::pair<std::pair<int,int>, int>> Graphe::aEtoile(std::pair<int,int> depart, std::pair<int,int> arrivee, std::vector<std::pair<int,int>> obstacles) {
     try {
         _typeOperation = A_ETOILE;
         if (_sommetsGraphe.count(depart) == 0 || _sommetsGraphe.count(arrivee) == 0) {
             std::vector<std::pair<std::pair<int,int>, int>> vecteurVide;
             return vecteurVide;
         }
+
+        //on initialise la variable _obstacles
+        _obstacles.clear();
+        for (unsigned int i = 0; i < obstacles.size(); i++) _obstacles[obstacles.at(i)] = true;
         
         //on initialise les sommets de départ et d'arrivée, ainsi que l'ensemble des sommets-parcours               
         _sommetDepart = creerSommetAEtoile(_sommetsGraphe.at(depart), _sommetsGraphe.at(depart), _sommetsGraphe.at(arrivee));
         _sommetArrivee = creerSommetAEtoile(_sommetsGraphe.at(arrivee), _sommetsGraphe.at(depart), _sommetsGraphe.at(arrivee));
-        _sommetsParcours.clear();
-        
+        _sommetsParcours.clear();        
         _sommetsParcours[depart] = _sommetDepart;
         _sommetsParcours[arrivee] = _sommetArrivee;
         for (const auto paire : _sommetDepart->_sommetGraphe->_suivants) ajouterSommetParcours(paire.first);        
@@ -135,6 +138,7 @@ std::vector<std::pair<std::pair<int,int>, int>> Graphe::aEtoile(std::pair<int,in
             plusCourtChemin.push_back(std::make_pair(position(sommetCourant), coutParent));//on récupère toutes les étapes du chemin, en partant de la fin
             sommetCourant = sommetCourant->_parent;
         }
+
         //on replace les étapes du chemin dans le bon ordre, avant de le renvoyer
         std::reverse(plusCourtChemin.begin(), plusCourtChemin.end());
         return plusCourtChemin;
