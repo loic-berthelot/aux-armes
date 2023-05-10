@@ -1,0 +1,19 @@
+Catégorie:
+EauEtTerre
+Santé:
+1000
+Attaque:
+350
+Défense:
+500
+Distance de vue:
+4
+Distance ravitaillement:
+0
+Portée:
+4
+Vitesse deplacement:
+1
+Espace occupé:
+10
+Artillerie
