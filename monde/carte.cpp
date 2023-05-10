@@ -228,9 +228,8 @@ std::vector<std::pair<int, int>> Carte::genererVille(int nbVilles){
             if (!estTropLoinDuBord && estAssezEloigneDesVilles && estAccessibleParTerre && !estSurUneVille) {
                 _cases[std::make_pair(i, j)] = std::make_shared<Case>("Ville");
                 villes.push_back(std::make_pair(i, j));
-            }else{
-                std::cout << "Trop loin du bord "<<estTropLoinDuBord<<" Assezéloigné : "<<estAssezEloigneDesVilles <<" AccessibleTerre : "<<estAccessibleParTerre<<" , surUneVille"<<estSurUneVille<<std::endl;
             }
+            
         }if (nbRecherche >= getNombreCases()){
             throw std::invalid_argument("Impossible de placer une ville numéro : "+std::to_string(n));
         }
