@@ -47,7 +47,7 @@ class Unite{
 
 public:
     
-    Unite(std::string name, int x, int y);
+    Unite(std::string name, int x, int y, int sante=-1, int moral=-1);
 
     std::string toString() const;
 

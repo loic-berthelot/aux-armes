@@ -1,7 +1,5 @@
 #include "carte.h"
 
-
-
 std::vector<std::string> separerChaine(std::string chaine, char separateur) {
     std::vector<std::string> resultat;
     std::string mot;
@@ -13,6 +11,7 @@ std::vector<std::string> separerChaine(std::string chaine, char separateur) {
             mot+=chaine[i];
         }
     }
+    if (! mot.empty()) resultat.push_back(mot);
     return resultat;
 }
 
@@ -116,6 +115,8 @@ int Carte::getNombreCases(const std::string & nom) const {
         else debut++;        
     } 
     return compt;
+}
+Carte::Carte(int rayon)  : _rayon(rayon){
 }
 
 void Carte::initialiserGraphes() {
@@ -237,38 +238,8 @@ std::vector<std::pair<int, int>> Carte::genererVille(int nbVilles){
     return villes;
 }
 
-void Carte::sauvegarder(const std::string & nom) {
-    std::ofstream fichier(nom);
-    if (! fichier.is_open()) throw Exception("Erreur lors de l'ouverture du fichier dans Carte::sauvegarder");
-
-    fichier << "CASES"<< std::endl;
-    int debut = -_rayon+1;
-    int fin = 0;
-    for (int j = _rayon-1; j > -_rayon; j--) {
-        for (int i = debut; i <= fin; i++) {
-            fichier<<getCase(i,j)->getNom()<<" "<<i<<" "<<j<<std::endl;
-        }
-        if (j>0) fin++;
-        else debut++;        
-    }
-    std::shared_ptr<Armee> armee;
-    std::shared_ptr<Unite> unite;
-    for (unsigned int i = 0; i < _armees.size(); i++){
-        armee = _armees.at(i);
-        fichier << "JOUEUR "+i<< std::endl;
-        for (unsigned int j = 0; j < armee->size(); j++) {
-            unite = armee->getUnite(j);
-            fichier << unite->getNom() << " " << unite->getSante() << " " << unite->getMoral() << std::endl;
-        }
-    }        
-    fichier.close(); 
-}
-
-
-
-void Carte::chargerSauvegarde(const std::string & nomFichier) {
-  
-
+void Carte::ajouterCase(const std::pair<int,int> & position, const std::string & nom) {
+    _cases[position] = std::make_shared<Case>(nom);
 }
 
 std::vector<std::pair<unsigned int, int>> Carte::getScoreEquipe()const{
@@ -556,7 +527,7 @@ std::shared_ptr<Case> Carte::getCase(std::pair<int,int> const &pos) const {
 }
 
 void Carte::affichageSeulementCarte()const{
-    std::cout << "Map : -----------------------\n";
+    std::cout << "Carte : -----------------------"<<_rayon<<std::endl;
     int debut = -_rayon+1;
     int fin = 0;
     for (int j = _rayon-1; j > -_rayon; j--) {
