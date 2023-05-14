@@ -31,8 +31,9 @@ void IA::calculerVillesNecessaires(Carte & carte) {
 
 // méthode qui calcule l'intérêt que représente la capture de la ville dont la position est passée en paramètre
 int IA::scoreVille(Carte & carte, const std::pair<int,int> & pos) const {
-  float score = 1/(distance(pos, _centreArmee)+1);
-  return static_cast<int>(score);
+  float dist = distance(pos, _centreArmee);
+  if (dist == 0) return 1000;
+  return static_cast<int>(1000/dist);
 }
 
 // méthode qui renvoie un score correspondant à la capacité de l'unité à assurer le ravitaillement
@@ -105,11 +106,10 @@ int IA::calculerScoreDispersion(Carte & carte, const std::map<std::shared_ptr<Un
 
 int IA::scoreAttaque(std::shared_ptr<Unite> unite, const std::vector<std::shared_ptr<Unite>> & ennemis) const {
   int score = 0;
-  float agressivite = 0.5;
   std::pair<int,int> resultatCombat;
   for (unsigned int i = 0; i < ennemis.size(); i++) {
     resultatCombat = unite->resultatCombatSimple(ennemis.at(i));
-    score += static_cast<int>(agressivite*static_cast<float>(resultatCombat.first)) - resultatCombat.second;
+    score += static_cast<int>(_agressivite*static_cast<float>(resultatCombat.first)) - resultatCombat.second;
   }
   return score;
 }
@@ -126,6 +126,20 @@ void IA::calculerPositionsRavitaillees(Carte & carte, const std::vector<std::sha
   }
   std::vector<std::pair<int,int>> zoneRavitaillee = carte.getGraphe(accessibilite::EauEtTerre)->zoneRavitaillement(departs, obstacles, relais);
   for (unsigned int i = 0; i < zoneRavitaillee.size(); i++) _positionsRavitaillees[zoneRavitaillee.at(i)] = true;
+}
+
+ // retourne la meilleure unité de ravitaillement, en prenant les premières unités de la case en priorité
+std::shared_ptr<Unite> IA::meilleureUniteRavitaillement(Carte & carte, const std::pair<int,int> & pos) const {
+  std::vector<std::shared_ptr<Unite>> unites = carte.unitesSurCase(pos);
+  std::shared_ptr<Unite> meilleureUnite = unites.front();
+  int dist = meilleureUnite->getDistanceRavitaillement();
+  for (unsigned int i = 0; i < unites.size(); i++) {
+    if(unites.at(i)->getDistanceRavitaillement() > dist) {
+      meilleureUnite = unites.at(i);
+      dist = meilleureUnite->getDistanceRavitaillement();
+    }
+  }
+  return meilleureUnite;
 }
 
 void IA::initialiser(bool debut) {
@@ -179,8 +193,8 @@ void IA::etendreRavitaillement(Carte & carte, std::shared_ptr<Unite> unite) {
   std::pair<int,int> villeVoisineSelectionnee = plusProcheVoisin(pos, _villesSelectionnees);
   std::pair<int,int> villeVoisineControlee = plusProcheVoisin(pos, _villesControlees);
   int porteeVille = carte.porteeRavitaillementAllie(villeVoisineControlee);
-  if (uniteDansVille(unite)) { // Si l'unité se trouve dans une ville avec un allié qui ravitaille plus loin, l'unité part
-    if (unite->getDistanceRavitaillement() < porteeVille) _unitesDispersees.push_back(unite);
+  if (uniteDansVille(unite)) { // Si l'unité n'est pas la plus performante pour le ravitaillement dans cette ville, l'unité part
+    if (unite != meilleureUniteRavitaillement(carte, unite->getPos())) _unitesDispersees.push_back(unite);
   } else if (! _villesSelectionnees.empty()) { // S'il existe une ville sélectionnée, l'unité se dirige vers la plus proche d'entre elles
     unite->donnerOrdre(std::make_shared<Ordre>(TypeOrdre::DEPLACER, villeVoisineSelectionnee.first, villeVoisineSelectionnee.second)); 
   } else if (unite->getDistanceRavitaillement() > porteeVille) { //Si la ville occupée voisine peut augmenter sa portée de ravitaillement, l'unité se dirige vers elle
@@ -201,13 +215,16 @@ void IA::choisirDispersion(Carte & carte) {
   int score;
   std::map<std::shared_ptr<Unite>, std::pair<int,int>> dispersionSelectionnee;
   std::map<std::shared_ptr<Unite>, std::pair<int,int>> dispersion;
-  for (unsigned int i = 0; i < 10; i++){
+  for (unsigned int i = 0; i < 10; i++){ // On teste 10 dispersions différentes et l'on sélectionne celle qui obtient le meilleur score
     dispersion = dispersionAleatoire(casesAccessibles);
     score = calculerScoreDispersion(carte, dispersion);
     if (score > scoreSelection) {
       dispersionSelectionnee = dispersion;
       scoreSelection = score;
     }
+  }
+  for (const auto & paire : dispersionSelectionnee) { // Une fois la dispersion sélectionnée, on l'applique aux unités
+    paire.first->donnerOrdre(std::make_shared<Ordre>(TypeOrdre::DEPLACER, paire.second.first, paire.second.second));
   }
 }
 
@@ -221,7 +238,13 @@ void IA::calculerDegatsNecessaires(const std::map<std::pair<int,int>, std::vecto
 }
 
 bool IA::attribuerCible(Carte & carte, std::shared_ptr<Unite> unite, const std::map<std::pair<int,int>, std::vector<std::shared_ptr<Unite>>> & ennemis) {
-  std::vector<std::pair<int,int>> zoneAccessible = carte.positionsAccessibles(unite); //On étudie les cases pouvant être atteintes en un tour
+  std::vector<std::pair<int,int>> zoneDeplacement = carte.positionsAccessibles(unite); //On étudie les cases pouvant être atteintes en un tour en de déplaçant...
+  std::vector<std::pair<int,int>> zoneAttaque = carte.getCoordonneesVoisins(unite->getPos(), unite->getPortee());//et en attaquant à distance
+  std::map<std::pair<int,int>,bool> mapAccessible; 
+  for (unsigned int i = 0; i < zoneDeplacement.size(); i++) mapAccessible[zoneDeplacement.at(i)] = true;
+  for (unsigned int i = 0; i < zoneAttaque.size(); i++) mapAccessible[zoneAttaque.at(i)] = true;
+  std::vector<std::pair<int,int>> zoneAccessible;
+  for (auto & pos : mapAccessible) zoneAccessible.push_back(pos.first); // zoneAccessible contient ainsi toutes les positions des ennemis attaquables ce tour-ci
   if (zoneAccessible.empty()) return false;
   int scoreMax = -1;
   int score;
@@ -237,9 +260,12 @@ bool IA::attribuerCible(Carte & carte, std::shared_ptr<Unite> unite, const std::
       }
     }
   }
-  if (scoreMax > 0) { // si un score suffisamment intéressant a été trouvé, on ordonne à l'unité de marcher sur cette case pour attaquer les ennemis qui s'y trouvent
-    unite->donnerOrdre(std::make_shared<Ordre>(TypeOrdre::DEPLACER, cibleChoisie.first, cibleChoisie.second));
-    _degatsNecessaires[cibleChoisie] -= unite->resultatCombatSimple(ennemis.at(cibleChoisie).front()).first;//Cette ligne est provisoire : il faudrait retirer les dégats de l'ensemble des ennemis frappés
+  if (scoreMax > 0) { // si un score suffisamment intéressant a été trouvé, on ordonne à l'unité d'attaquer, à distance ou en se déplaçant
+    if (distance(cibleChoisie, unite->getPos()) <= unite->getPortee()) unite->donnerOrdre(std::make_shared<Ordre>(TypeOrdre::ATTAQUER, cibleChoisie.first, cibleChoisie.second));
+    else unite->donnerOrdre(std::make_shared<Ordre>(TypeOrdre::DEPLACER, cibleChoisie.first, cibleChoisie.second));
+    for (unsigned int i = 0; i < ennemis.at(cibleChoisie).size(); i++) { // on retire aux dégâts nécessaires une approximation de la somme des dégâts infligés
+      _degatsNecessaires[cibleChoisie] -= unite->resultatCombatSimple(ennemis.at(cibleChoisie).at(i)).first;
+    }
   }
   return (scoreMax > 0);
 }
@@ -257,7 +283,8 @@ void IA::calculerScoresExploration(Carte & carte) {
           _scoresExploration[pos] = 0;
         } else {
           dist = distance(pos, _centreArmee);
-          _scoresExploration[pos] += (int) 100/(dist*dist+10);
+          if (dist == 0) _scoresExploration[pos] += 100;
+          else _scoresExploration[pos] += (int) 100/(dist*dist);
         }
       }
       if (j>0) fin++;
@@ -315,6 +342,7 @@ void IA::defendre(Carte & carte, std::shared_ptr<Unite> unite) {
 
 void IA::jouerArmee(Carte & carte) {  
   initialiser(true);
+  _agressivite = 0.5;
   std::map<std::pair<int,int>, std::vector<std::shared_ptr<Unite>>> ennemis = carte.getUnitesVisibles(false);
   calculerPositionsEnnemis(ennemis);
   std::shared_ptr<Armee> armee = carte.getArmee();

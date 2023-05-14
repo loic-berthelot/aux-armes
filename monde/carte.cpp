@@ -483,6 +483,7 @@ void Carte::executerOrdresArmee() {
                 bool seDeplace = unites[i]->avancer(); //l'unité avance (elle accumule des points de mouvement et avance parfois d'une case)
                 if (seDeplace) { //si en avançant l'unité arrive sur une nouvelle case, on vérifie si cette case est tenue par un ennemi
                     if (ennemiSurCase(unites[i]->getPos())) {
+                        unites[i]->initialiserMouvement({}); // Le déplacement de l'unité prend fin si elle rencontre des ennmis sur la même case
                         combat(unites[i], _indiceArmee, unites[i]->getPos()); //on lance alors un combat
                         if (ennemiSurCase(unites[i]->getPos())) unites[i]->reculer(); //si l'une des unités ennemies survit, elle repousse l'attaque(l'unité courante doit reculer)
                     }
@@ -741,7 +742,12 @@ bool Carte::caseVisible(std::pair<int,int> const &pos) const {
 /*Getters*/
 
 unsigned int Carte::getMaxTours()const{
+    std::cout<<"tm : "<<_nbToursMax<<std::endl;
     return _nbToursMax;    
+}
+
+void Carte::setMaxTours(unsigned int nbTours) {
+    _nbToursMax = nbTours;
 }
 
 std::shared_ptr<Armee> Carte::getArmee() const {

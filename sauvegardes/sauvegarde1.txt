@@ -1,4 +1,6 @@
 RAYON 5
+TOUR 0
+TOURS_MAX 15
 Ocean -4 4
 Ocean -3 4
 Plaine -2 4

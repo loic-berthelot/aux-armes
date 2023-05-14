@@ -2,7 +2,7 @@ taille:
 5
 seed:
 5
-Nombre de villes relativement au case par exemple si on a 25: 1/25 cases de la carte seront des villes:
+Nombre de villes relativement aux cases par exemple si on a 25: 1/25 cases de la carte seront des villes:
 20
 Nombre de tours Max:
 15

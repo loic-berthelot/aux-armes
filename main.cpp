@@ -18,7 +18,8 @@ void LancerJeu(){
     std::getline(fichier, ligne);
     std::string armeeInfo = ligne;
     
-    Jeu j(joueurInfo, generationInfo, armeeInfo);
+//    Jeu j(joueurInfo, generationInfo, armeeInfo);
+Jeu j("sauvegarde1");
     j.jouer();
     
 }

@@ -73,6 +73,8 @@ public:
 
     unsigned int getMaxTours()const;
 
+    void setMaxTours(unsigned int nbTours);
+
     void selectionnerArmee(unsigned int indiceArmee);
 
     void calculerDepartsRavitaillement();

@@ -9,6 +9,7 @@ class Jeu {
 public:
 
     Jeu(std::string const & joueurs,std::string const &configurationMap, std::string const &armeeDesc);
+    Jeu(const std::string & nomFichier);
     void ajouterJoueur(bool estHumain = false);
     void sauvegarder(const std::string & nom);
     void chargerSauvegarde(const std::string & nomFichier);
