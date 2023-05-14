@@ -129,7 +129,6 @@ void Jeu::jouer() {
             _carte->retirerCadavres();
 
             _carte->brouillardDeGuerreEquipe();
-            
             _joueurs[i]->jouerArmee(*_carte);            
             _carte->executerOrdresArmee();            
             _carte->retirerCadavres();

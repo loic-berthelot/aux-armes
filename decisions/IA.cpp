@@ -8,13 +8,15 @@ void melanger(std::vector<std::pair<int,int>> & v) {
 
 void IA::calculerCentreArmee(std::shared_ptr<Armee> armee) {
   _centreArmee = std::make_pair(0,0);
+  std::shared_ptr<Unite> unite;
   for (unsigned int i = 0; i < armee->size(); i++) {
-    _centreArmee.first += armee->getUnite(i)->getX();
-    _centreArmee.second += armee->getUnite(i)->getY();
+    unite = armee->getUnite(i);
+    _centreArmee.first += unite->getX();
+    _centreArmee.second += unite->getY();
   }
   if (armee->size() > 0) {
-    _centreArmee.first /= armee->size();
-    _centreArmee.second /= armee->size();
+    _centreArmee.first = static_cast<float>(_centreArmee.first)/armee->size();
+    _centreArmee.second = static_cast<float>(_centreArmee.second)/armee->size();
   }
 }
 
@@ -277,14 +279,19 @@ void IA::calculerScoresExploration(Carte & carte) {
   int debut = -rayon+1;
   int fin = 0;
   for (int j = rayon-1; j > -rayon; j--) {
-      for (int i = debut; i <= fin; i++) {        
+      for (int i = debut; i <= fin; i++) {  
         pos = std::make_pair(i,j);
         if (carte.caseVisible(pos)) {
           _scoresExploration[pos] = 0;
         } else {
           dist = distance(pos, _centreArmee);
-          if (dist == 0) _scoresExploration[pos] += 100;
-          else _scoresExploration[pos] += (int) 100/(dist*dist);
+          if (dist == 0) {
+            _scoresExploration[pos]+= 100;
+          }
+          else {
+            if (dist == 0) _scoresExploration[pos] += 100;
+            else _scoresExploration[pos] += (int) 100.0/(dist*dist);
+          }
         }
       }
       if (j>0) fin++;
