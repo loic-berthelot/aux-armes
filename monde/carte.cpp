@@ -58,6 +58,7 @@ Carte::Carte(std::string const &nomFichierConfig, std::vector<std::shared_ptr<Ar
     std::getline(fichier, ligne);//val toursMax 
     
     try{
+        std::cout << "ligne -----------: "<<ligne<<std::endl;
         _nbToursMax = std::stoul(ligne);
     }catch (...){
         throw new Exception(ligne+" n'est pas un unsigned int pour nbToursMax dans le fichier : "+nomFichier);
@@ -355,6 +356,7 @@ void Carte::afficherArmee() const{
 unsigned int Carte::nombreArmeesVivantes() const {
     unsigned int compt = 0;
     for (unsigned int i = 0; i < _armees.size(); i++) {
+        
         if (! _armees[i]->estEliminee()) compt++;
     }
     return compt;

@@ -1,21 +1,17 @@
 taille:
-5
+20
 seed:
 5
-Nombre de villes relativement aux cases par exemple si on a 25: 1/25 cases de la carte seront des villes:
-20
+Nombre de villes relativement au case par exemple si on a 25: 1/25 cases de la carte seront des villes:
+30
 Nombre de tours Max:
-15
+20
 Cases:
--0.2
+-0.1
 Ocean
-0
+5
 Plaine
-45
-Plaine
-50
+20
 Foret
-100
-Marecage
 Dernière:
 Montagne

@@ -2,34 +2,37 @@
 
 
 Jeu::Jeu(std::string const & joueurs,std::string const &configurationMap, std::string const &armeeDesc){
-    unsigned int team = 0;
-    std::vector<std::shared_ptr<Armee>> buffer;
-    std::shared_ptr<Armee> armeeCourante = std::make_shared<Armee>();
-    unsigned int nbUnites = 0;
-    unsigned int indexPrecedent = 0;    
-    for (unsigned int i = 0; i < armeeDesc.size();i++){            
-        if (armeeDesc[i] == ';'){
-            buffer.push_back(armeeCourante);
-            armeeCourante = std::make_shared<Armee>();
-            team++;
-            indexPrecedent = i+1;
-        }else if (armeeDesc[i] == ':'){
-            nbUnites = std::stoul(armeeDesc.substr(indexPrecedent, i-indexPrecedent));
-            indexPrecedent = i+1;
-        }else if (armeeDesc[i] == ','){
-            for (unsigned int j = 0; j < nbUnites;j++)
-                armeeCourante->ajoutUnite(std::make_shared<Unite>(armeeDesc.substr(indexPrecedent ,i-indexPrecedent), 0, 0));
-            indexPrecedent = i+1;
+    if(true) {
+            unsigned int team = 0;
+            std::vector<std::shared_ptr<Armee>> buffer;
+            std::shared_ptr<Armee> armeeCourante = std::make_shared<Armee>();
+            unsigned int nbUnites = 0;
+            unsigned int indexPrecedent = 0;    
+        
+            for (unsigned int i = 0; i < armeeDesc.size();i++){            
+                if (armeeDesc[i] == ';'){
+                    buffer.push_back(armeeCourante);
+                    armeeCourante = std::make_shared<Armee>();
+                    team++;
+                    indexPrecedent = i+1;
+                }else if (armeeDesc[i] == ':'){
+                    nbUnites = std::stoul(armeeDesc.substr(indexPrecedent, i-indexPrecedent));
+                    indexPrecedent = i+1;
+                }else if (armeeDesc[i] == ','){
+                    for (unsigned int j = 0; j < nbUnites;j++)
+                        armeeCourante->ajoutUnite(std::make_shared<Unite>(armeeDesc.substr(indexPrecedent ,i-indexPrecedent), 0, 0));
+                    indexPrecedent = i+1;
+                }
+        }
+        _carte = std::make_unique<Carte>(configurationMap, buffer);
+        for (unsigned int i = 0; i < joueurs.size(); i++){
+            switch(joueurs[i]) {
+                case 'i' : ajouterJoueur(); break;
+                default:
+                case 'h' : ajouterJoueur(true); break;
+            }
         }
     }
-    _carte = std::make_unique<Carte>(configurationMap, buffer);
-    for (unsigned int i = 0; i < joueurs.size(); i++){
-        switch(joueurs[i]) {
-            case 'i' : ajouterJoueur(); break;
-            default:
-            case 'h' : ajouterJoueur(true); break;
-        }
-    } 
 }
 
 

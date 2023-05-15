@@ -18,18 +18,19 @@ void LancerJeu(){
     std::getline(fichier, ligne);
     std::string armeeInfo = ligne;
     
-//    Jeu j(joueurInfo, generationInfo, armeeInfo);
-Jeu j("sauvegarde1");
-    j.jouer();
+    Jeu j(joueurInfo, generationInfo, armeeInfo);
+    
     
 }
 
 int main() {
     LancerJeu();
-    /*
-    Jeu jeu("hi","gen1","1:Garde Royale,;1:Garde Royale,;");
-    jeu.jouer();
-    */
+    
+    
+    
+    //Jeu jeu("hi","gen1","1:Garde Royale,;1:Garde Royale,;");
+    //jeu.jouer();
+    
     
     //LancerJeu();
 
