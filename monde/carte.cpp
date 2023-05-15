@@ -443,21 +443,41 @@ void Carte::retirerCadavres(){
     for (unsigned int i = 0; i < _armees.size(); i++) _armees[i]->retirerUnitesMortes();
 }
 
+std::vector<std::pair<int,int>> Carte::positionsEnnemisVolants() const {
+    std::map<std::pair<int,int>, bool> positions; // on enregistre les positions dns un std::map dans un premier temps, afin d'éviter les positions en double
+    std::shared_ptr<Armee> armee;
+    std::shared_ptr<Unite> unite;
+    for (unsigned int i = 0; i < _armees.size(); i++) {
+        if (i != _indiceArmee) {
+            armee = _armees.at(i);
+            for (unsigned int j = 0; j < armee->size(); j++) {
+                unite = armee->getUnite(j);
+                if (unite->getCategorie() == accessibilite::Air) positions[unite->getPos()] = true;
+            }
+        }
+    }
+    std::vector<std::pair<int,int>> resultat;
+    for (const auto & pos : positions) resultat.push_back(pos.first); // on enregistre ensuite les positions des unités ennemies volantes dans un vecteur, que l'on retourne
+    return resultat;
+}
+
 void Carte::executerOrdresArmee() {
     std::vector<std::shared_ptr<Unite>> unites = getArmee()->getUnites();
     for (unsigned int i = 0; i < unites.size(); i++) unites[i]->evolutionBrulure();//on brûle les unites qui sont en feu au début de chaque tour
     getArmee()->retirerUnitesMortes(); // on retire ensuite les unités mortes de l'armée courante
     for (unsigned int i = 0; i < unites.size(); i++) {
-            std::vector<std::pair<std::pair<int,int>, int>> chemin;
-            if (unites[i]->getOrdre()->getType() == TypeOrdre::DEPLACER) {
-                std::pair<int,int> debut = unites[i]->getPos(); 
-                std::pair<int,int> fin = unites[i]->getOrdre()->getPos();
-                chemin = getGraphe(unites[i]-> getCategorie())->aEtoile(debut, fin);
-            }else if (unites[i]->getOrdre()->getType() == TypeOrdre::ATTAQUER){
-                combat(unites[i], _indiceArmee, unites[i]->getOrdre()->getPos());
-            }
-            unites[i]->initialiserMouvement(chemin);            
+        std::vector<std::pair<std::pair<int,int>, int>> chemin;
+        if (unites[i]->getOrdre()->getType() == TypeOrdre::DEPLACER) { // on prépare les unités à se déplacer
+            std::pair<int,int> debut = unites[i]->getPos(); 
+            std::pair<int,int> fin = unites[i]->getOrdre()->getPos();
+            accessibilite categorieUnite = unites[i]-> getCategorie();
+            if (categorieUnite == accessibilite::Air) chemin = getGraphe(categorieUnite)->aEtoile(debut, fin); // on calcule le chemin que devra prendre l'unité
+            else chemin = getGraphe(categorieUnite)->aEtoile(debut, fin, positionsEnnemisVolants()); // si l'unité ne sait pas voler, elle devra contourner les ennemis volants
+        }else if (unites[i]->getOrdre()->getType() == TypeOrdre::ATTAQUER){ // On fait attaquer les unités à distance
+            combat(unites[i], _indiceArmee, unites[i]->getOrdre()->getPos());
         }
+        unites[i]->initialiserMouvement(chemin);            
+    }
     
     for (unsigned int pm = 0; pm < 100; pm++) { //on distribue un par un 100 points de mouvement aux unités
         for (unsigned int i = 0; i < unites.size(); i++) {
@@ -465,6 +485,7 @@ void Carte::executerOrdresArmee() {
                 bool seDeplace = unites[i]->avancer(); //l'unité avance (elle accumule des points de mouvement et avance parfois d'une case)
                 if (seDeplace) { //si en avançant l'unité arrive sur une nouvelle case, on vérifie si cette case est tenue par un ennemi
                     if (ennemiSurCase(unites[i]->getPos())) {
+                        unites[i]->initialiserMouvement({}); // Le déplacement de l'unité prend fin si elle rencontre des ennmis sur la même case
                         combat(unites[i], _indiceArmee, unites[i]->getPos()); //on lance alors un combat
                         if (ennemiSurCase(unites[i]->getPos())) unites[i]->reculer(); //si l'une des unités ennemies survit, elle repousse l'attaque(l'unité courante doit reculer)
                     }
@@ -723,7 +744,12 @@ bool Carte::caseVisible(std::pair<int,int> const &pos) const {
 /*Getters*/
 
 unsigned int Carte::getMaxTours()const{
+    std::cout<<"tm : "<<_nbToursMax<<std::endl;
     return _nbToursMax;    
+}
+
+void Carte::setMaxTours(unsigned int nbTours) {
+    _nbToursMax = nbTours;
 }
 
 std::shared_ptr<Armee> Carte::getArmee() const {

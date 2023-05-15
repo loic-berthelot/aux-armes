@@ -20,16 +20,17 @@ void LancerJeu(){
     
     Jeu j(joueurInfo, generationInfo, armeeInfo);
     
-    j.jouer();
     
 }
 
 int main() {
     LancerJeu();
-    /*
-    Jeu jeu("hi","gen1","1:Garde Royale,;1:Garde Royale,;");
-    jeu.jouer();
-    */
+    
+    
+    
+    //Jeu jeu("hi","gen1","1:Garde Royale,;1:Garde Royale,;");
+    //jeu.jouer();
+    
     
     //LancerJeu();
 

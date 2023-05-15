@@ -3,26 +3,26 @@
 
 Jeu::Jeu(std::string const & joueurs,std::string const &configurationMap, std::string const &armeeDesc){
     if(true) {
-        unsigned int team = 0;
-        std::vector<std::shared_ptr<Armee>> buffer;
-        std::shared_ptr<Armee> armeeCourante = std::make_shared<Armee>();
-        unsigned int nbUnites = 0;
-        unsigned int indexPrecedent = 0;    
-     
-        for (unsigned int i = 0; i < armeeDesc.size();i++){            
-            if (armeeDesc[i] == ';'){
-                buffer.push_back(armeeCourante);
-                armeeCourante = std::make_shared<Armee>();
-                team++;
-                indexPrecedent = i+1;
-            }else if (armeeDesc[i] == ':'){
-                nbUnites = std::stoul(armeeDesc.substr(indexPrecedent, i-indexPrecedent));
-                indexPrecedent = i+1;
-            }else if (armeeDesc[i] == ','){
-                for (unsigned int j = 0; j < nbUnites;j++)
-                    armeeCourante->ajoutUnite(std::make_shared<Unite>(armeeDesc.substr(indexPrecedent ,i-indexPrecedent), 0, 0));
-                indexPrecedent = i+1;
-            }
+            unsigned int team = 0;
+            std::vector<std::shared_ptr<Armee>> buffer;
+            std::shared_ptr<Armee> armeeCourante = std::make_shared<Armee>();
+            unsigned int nbUnites = 0;
+            unsigned int indexPrecedent = 0;    
+        
+            for (unsigned int i = 0; i < armeeDesc.size();i++){            
+                if (armeeDesc[i] == ';'){
+                    buffer.push_back(armeeCourante);
+                    armeeCourante = std::make_shared<Armee>();
+                    team++;
+                    indexPrecedent = i+1;
+                }else if (armeeDesc[i] == ':'){
+                    nbUnites = std::stoul(armeeDesc.substr(indexPrecedent, i-indexPrecedent));
+                    indexPrecedent = i+1;
+                }else if (armeeDesc[i] == ','){
+                    for (unsigned int j = 0; j < nbUnites;j++)
+                        armeeCourante->ajoutUnite(std::make_shared<Unite>(armeeDesc.substr(indexPrecedent ,i-indexPrecedent), 0, 0));
+                    indexPrecedent = i+1;
+                }
         }
         _carte = std::make_unique<Carte>(configurationMap, buffer);
         for (unsigned int i = 0; i < joueurs.size(); i++){
@@ -32,11 +32,13 @@ Jeu::Jeu(std::string const & joueurs,std::string const &configurationMap, std::s
                 case 'h' : ajouterJoueur(true); break;
             }
         }
-    } else {
-        chargerSauvegarde("sauvegarde1");
-    }    
+    }
 }
 
+
+Jeu::Jeu(const std::string & nomFichier) {
+    chargerSauvegarde(nomFichier);
+}
 
 void Jeu::ajouterJoueur(bool estHumain) {
     if (estHumain) _joueurs.emplace_back(new Humain());
@@ -53,6 +55,8 @@ void Jeu::sauvegarder(const std::string & nom) {
 
     int rayon = _carte->getRayon();
     fichier<<"RAYON "+std::to_string(rayon)+"\n";
+    fichier<<"TOUR "+std::to_string(_toursPasses)+"\n";
+    fichier<<"TOURS_MAX "+std::to_string(_carte->getMaxTours())+"\n";
     int debut = -rayon+1;
     int fin = 0;
     for (int j = rayon-1; j > -rayon; j--) {
@@ -83,8 +87,12 @@ void Jeu::chargerSauvegarde(const std::string & nomFichier) {
     std::string ligne;
     std::getline(fichier, ligne);
     int rayon = std::stoi(separerChaine(ligne, ' ').at(1));
-
     _carte = std::make_unique<Carte>(rayon);
+    std::getline(fichier, ligne);
+    _toursPasses = std::stoi(separerChaine(ligne, ' ').at(1));
+    std::getline(fichier, ligne);
+    _carte->setMaxTours(std::stoi(separerChaine(ligne, ' ').at(1)));
+
     bool modeCases = true;
     std::vector<std::string> mots;
     int nombreArmees = 0;
@@ -124,7 +132,6 @@ void Jeu::jouer() {
             _carte->retirerCadavres();
 
             _carte->brouillardDeGuerreEquipe();
-            
             _joueurs[i]->jouerArmee(*_carte);            
             _carte->executerOrdresArmee();            
             _carte->retirerCadavres();

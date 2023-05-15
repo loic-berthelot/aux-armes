@@ -9,6 +9,7 @@ class IA : public Joueur {
     std::vector<std::pair<int,int>> _villesSelectionnees;
     std::pair<int,int> _centreArmee;
     unsigned int _nombreVillesNecessaires;
+    float _agressivite;
     std::vector<std::shared_ptr<Unite>> _unitesDispersees;
     std::vector<std::pair<int,int>> _positionsEnnemisVisibles;
     std::map<std::pair<int,int>, int> _degatsNecessaires;
@@ -30,6 +31,7 @@ public:
     int calculerScoreDispersion(Carte & carte, const std::map<std::shared_ptr<Unite>, std::pair<int,int>> & dispersion);    
     int scoreAttaque(std::shared_ptr<Unite> unite, const std::vector<std::shared_ptr<Unite>> & ennemis) const;
     void calculerPositionsRavitaillees(Carte & carte, const std::vector<std::shared_ptr<Unite>> & unites);
+    std::shared_ptr<Unite> meilleureUniteRavitaillement(Carte & carte, const std::pair<int,int> & pos) const;
 
     void initialiser(bool debut);
     void selectionnerVilles(Carte & carte);

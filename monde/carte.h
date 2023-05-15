@@ -59,6 +59,10 @@ public:
 
     int getRayon() const;
 
+    int getNombreCases() const;
+
+    int getNombreCases(const std::string & nom) const;
+
     void creerArmee();//créer une armée vide
     
     void afficherArmee() const;//ne marche pas encore donc à renseigner
@@ -68,6 +72,8 @@ public:
     unsigned int nombreArmeesVivantes() const;
 
     unsigned int getMaxTours()const;
+
+    void setMaxTours(unsigned int nbTours);
 
     void selectionnerArmee(unsigned int indiceArmee);
 
@@ -86,6 +92,8 @@ public:
     void appliquerAttritionArmee();
 
     std::vector<std::shared_ptr<Unite>> unitesSurCase(std::pair<int,int> const &pos);
+
+    std::vector<std::pair<int,int>> positionsEnnemisVolants() const;
 
     void executerOrdresArmee();
 
@@ -135,10 +143,6 @@ public:
     bool caseVisible(std::pair<int,int> const &pos) const;
 
     std::vector<std::shared_ptr<Unite>> unitesAllieesSurCase(std::pair<int,int> const &pos);
-
-        int getNombreCases() const;
-
-    int getNombreCases(const std::string & nom) const;
 
     int porteeRavitaillementAllie(std::pair<int,int> const &pos) const; //renvoie la portée de ravitaillement maximale des unités alliées de cette case
 };
