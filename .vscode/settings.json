@@ -47,6 +47,14 @@
         "typeinfo": "cpp",
         "map": "cpp",
         "fstream": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "chrono": "cpp",
+        "codecvt": "cpp",
+        "ctime": "cpp",
+        "ratio": "cpp",
+        "iomanip": "cpp"
+    },
+    "cmake.configureSettings": {
+        "CMAKE_CXX_STANDARD": "17"
     }
 }

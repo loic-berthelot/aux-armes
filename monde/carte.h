@@ -3,6 +3,7 @@
 #include <map>
 #include "armee.h"
 #include "bruitDePerlin.h"
+#include <filesystem>
 
 std::vector<std::string> separerChaine(std::string chaine, char separateur);
 
@@ -30,7 +31,7 @@ public:
 
     void initialiserGraphes();
 
-    std::shared_ptr<Graphe> creerGraphe(accessibilite const acces, bool coutDeplacement = true) const; 
+    std::shared_ptr<Graphe> creerGraphe(accessibilite const acces, float poidsMinimal, bool coutDeplacement = true) const; 
 
     std::shared_ptr<Graphe> getGraphe(accessibilite const acces) const;
 

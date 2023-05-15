@@ -33,8 +33,9 @@ class Graphe {
     std::map<std::pair<int,int>,bool> _obstacles;
     enum typeOperation {A_ETOILE, ZONE_RAVITAILLEMENT};
     typeOperation _typeOperation;
+    float _poidsMinimal;
 public:    
-    Graphe(const std::vector<std::pair<int,int>> & sommets);
+    Graphe(const std::vector<std::pair<int,int>> & sommets, float poidsMinimal=1);
     void ajouterSuivant(std::pair<int,int> depart, std::pair<int,int> arrivee, int poids);
     std::pair<int,int> position(std::shared_ptr<SommetParcours> sommet) const;
     std::shared_ptr<SommetGraphe> creerSommetGraphe(const std::pair<int,int> & pos);

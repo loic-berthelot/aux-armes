@@ -20,7 +20,7 @@ std::shared_ptr<SommetParcours> Graphe::creerSommetAEtoile(std::shared_ptr<Somme
     std::shared_ptr<SommetParcours> sommetParcours = std::make_shared<SommetParcours>();
     sommetParcours->_sommetGraphe = sommetGraphe;    
     sommetParcours->_visite = (sommetGraphe == depart);
-    sommetParcours->_heuristique = distance(sommetParcours->_sommetGraphe->_pos, arrivee->_pos);
+    sommetParcours->_heuristique = _poidsMinimal*distance(sommetParcours->_sommetGraphe->_pos, arrivee->_pos);
     sommetParcours->_passageAutorise = ! _obstacles[sommetGraphe->_pos];
     sommetParcours->_coutChemin = 0; 
     sommetParcours->_parent = nullptr;
@@ -37,7 +37,7 @@ std::shared_ptr<SommetParcours> Graphe::creerSommetZoneRavitaillement(std::share
     return sommetParcours;    
 }
 
-Graphe::Graphe(const std::vector<std::pair<int,int>> & sommets){
+Graphe::Graphe(const std::vector<std::pair<int,int>> & sommets, float poidsMinimal) : _poidsMinimal(poidsMinimal) {
     for (unsigned int i = 0; i < sommets.size(); i++){
         _sommetsGraphe[sommets[i]] = creerSommetGraphe(sommets[i]);
     }
@@ -184,6 +184,7 @@ std::vector<std::pair<int,int>> Graphe::zoneRavitaillement(std::vector<std::pair
             }
             retirerSommet(sommetsOuverts, sommet);       
         } 
+        
         //on retourne la position des cases accessibles
         std::vector<std::pair<int,int>> zone;
         for (unsigned int i = 0; i < sommetsFermes.size(); i++) zone.push_back(position(sommetsFermes[i]));

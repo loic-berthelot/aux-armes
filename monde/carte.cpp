@@ -120,11 +120,28 @@ Carte::Carte(int rayon)  : _rayon(rayon){
 }
 
 void Carte::initialiserGraphes() {
-    _grapheAir = creerGraphe(accessibilite::Air, false);
-    _grapheTerre = creerGraphe(accessibilite::Terre);
-    _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre);
-    _grapheEau = creerGraphe(accessibilite::Eau);
-    _grapheVision = creerGraphe(accessibilite::EauEtTerre, false);
+    float coutDeplacement;
+    float poidsMinimal = -1;
+    std::string ligne;
+    for (const auto& entry : std::filesystem::directory_iterator("../monde/Cases")) {
+        if (entry.is_regular_file()) {
+            std::ifstream fichier("../monde/Cases/"+entry.path().filename().string());
+            if (! fichier.is_open()) throw Exception("Impossible d'ouvrir un fichier dans Carte::initialiserGraphes()");
+            for (unsigned int i = 0; i < 4; i++) std::getline(fichier, ligne);
+            try {
+                coutDeplacement = std::stof(ligne);                
+            } catch (...) {
+                throw Exception("Carte::initialiserGraphes : impossible de calculer le cout de déplacement.");
+            }
+            if (coutDeplacement < poidsMinimal || poidsMinimal == -1) poidsMinimal = coutDeplacement;
+        }
+    }
+    if (poidsMinimal == -1) poidsMinimal = 1; // si on n'a trouvé aucun fichier case, le poids minimal des arêtes du graphe vaut 1 par défaut
+    _grapheAir = creerGraphe(accessibilite::Air, 1, false);
+    _grapheTerre = creerGraphe(accessibilite::Terre, poidsMinimal);
+    _grapheEauEtTerre = creerGraphe(accessibilite::EauEtTerre, poidsMinimal);
+    _grapheEau = creerGraphe(accessibilite::Eau, poidsMinimal);
+    _grapheVision = creerGraphe(accessibilite::EauEtTerre, 1, false);
     initialiserVisibilite();
 }
 
@@ -256,7 +273,7 @@ std::vector<std::pair<unsigned int, int>> Carte::getScoreEquipe()const{
 
 
 
-std::shared_ptr<Graphe> Carte::creerGraphe(accessibilite const acces, bool coutDeplacement) const {
+std::shared_ptr<Graphe> Carte::creerGraphe(accessibilite const acces, float poidsMinimal, bool coutDeplacement) const {
     //création d'un std::map qui recense tous les noeuds correspondant aux cases de la carte
     std::vector<std::pair<int,int>> sommets;
     int debut = -_rayon+1;
@@ -270,7 +287,7 @@ std::shared_ptr<Graphe> Carte::creerGraphe(accessibilite const acces, bool coutD
         if (j>0) fin++;
         else debut++;        
     }
-    std::shared_ptr<Graphe> graphe = std::make_shared<Graphe>(sommets); 
+    std::shared_ptr<Graphe> graphe = std::make_shared<Graphe>(sommets, poidsMinimal); 
     //ajout des voisins
     for (auto & paire : sommets) {
         std::vector<std::pair<int, int>> voisins = getCoordonneesVoisins(paire);
