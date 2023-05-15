@@ -29,6 +29,7 @@ Unite::Unite(std::string name, int x,int y, int sante, int moral):_nom(name), _p
     std::getline(fichier, ligne);//santé 
     try{
         _maxSante = std::stoi(ligne);
+        _sante = std::stoi(ligne);
     }catch(...){
         throw new Exception("Erreur : La santé n'est pas un int : "+ligne+" dans le fichier unité : "+name);
     }
@@ -287,8 +288,12 @@ void Unite::regenererMoral(int pointsMoral) {
 }
 
 void Unite::infligerDegats(unsigned int degats) {
-    _sante -= std::min(_sante, static_cast<int>(degats));
-    _enVie = _enVie && (_sante > 0);   
+    if (_sante - degats <= 0){
+        _sante = 0;
+        _enVie = false;
+    }else
+        _sante-=static_cast<int>(degats);
+
 }
 
 
@@ -306,6 +311,7 @@ void Unite::subirAttrition(float attrition) {
     if (degats > 0) {
         std::cout<<"Un "<<_nom<<" en ("<<_posX<<","<<_posY<<") subit "<<degats<<" degats à cause de l'attrition."<<std::endl;
     }
+
     if (!_estRavitaille && !_autonome) {
         infligerDegats(static_cast<unsigned int>(0.1*_maxSante)); // puis on inflige des dégâts supplémentaires si l'unité n'est pas ravitaillée
         std::cout<<"Un "<<_nom<<" en ("<<_posX<<","<<_posY<<") subit "<<static_cast<unsigned int>(0.1*_maxSante)<<" degats car il n'est pas ravitaillé."<<std::endl;

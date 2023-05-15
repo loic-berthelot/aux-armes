@@ -36,7 +36,9 @@ Specificite Type::stringToSpecificite(std::string const &s){
     if (s == "inflammable") return Specificite::inflammable;
     if (s == "intrepide") return Specificite::intrepide;
     if (s == "autonome") return Specificite::autonome;
-    throw Exception ("Specificite inconnue : "+s);
+    throw std::invalid_argument ("Specificite inconnue : "+s);
+    
+    
 }
 
 float Type::getCoefficients(std::string const &key) const {

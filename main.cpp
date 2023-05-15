@@ -19,6 +19,7 @@ void LancerJeu(){
     std::string armeeInfo = ligne;
     
     Jeu j(joueurInfo, generationInfo, armeeInfo);
+    
     j.jouer();
     
 }

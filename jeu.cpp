@@ -2,12 +2,13 @@
 
 
 Jeu::Jeu(std::string const & joueurs,std::string const &configurationMap, std::string const &armeeDesc){
-    if(false) {
+    if(true) {
         unsigned int team = 0;
         std::vector<std::shared_ptr<Armee>> buffer;
         std::shared_ptr<Armee> armeeCourante = std::make_shared<Armee>();
         unsigned int nbUnites = 0;
         unsigned int indexPrecedent = 0;    
+     
         for (unsigned int i = 0; i < armeeDesc.size();i++){            
             if (armeeDesc[i] == ';'){
                 buffer.push_back(armeeCourante);

@@ -17,6 +17,7 @@ double vecteurPente(int hash, double x, double y){
     }
 }
 
+
 double fade(double t){
     return t * t * t * (t * (t * 6 - 15) + 10);   
 }    
@@ -28,8 +29,13 @@ double perlin2D(double x, double y){
 
 
     // Remplir le tableau de permutation avec des valeurs aléatoires entre 0 et 255
-    for (int i = 0; i < 256; ++i)
-        permutation[i] = rand()%255;
+    for (int i = 0; i < 256; ++i){
+        permutation[i] = i+rand()%5-2;
+        if (permutation[i] <= 0)
+        permutation[i] = 0;
+        if (permutation[i] >= 255)
+        permutation[i] = 255;
+    }
     
     int xi = static_cast<int>(x) & 255;
     int yi = static_cast<int>(y) & 255;
