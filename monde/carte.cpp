@@ -304,7 +304,7 @@ std::shared_ptr<Graphe> Carte::creerGraphe(accessibilite const acces, float poid
 
 std::shared_ptr<Graphe> Carte::getGraphe(accessibilite const acces) const {
     switch (acces) {
-        case accessibilite::Terre : return _grapheTerre; break;
+        case accessibilite::Terre : return _grapheEauEtTerre; break;
         case accessibilite::EauEtTerre : return _grapheEauEtTerre; break;
         case accessibilite::Eau : return _grapheEau; break;
         case accessibilite::Air : 
@@ -596,6 +596,12 @@ void Carte::combat(std::shared_ptr<Unite> const u, unsigned int idTeam, std::pai
     if (distance(positionCombat, u->getPos()) > u->getPortee()) throw Exception("Portée pas assez grande pour attaquer.");
 
     std::vector<std::shared_ptr<Unite>> unites = unitesSurCase(positionCombat);
+    std::random_device rd;
+    std::mt19937 rng(rd());
+
+    // Mélange du vecteur
+    std::shuffle(unites.begin(), unites.end(), rng);
+
     for (unsigned int k = 0; k < unites.size(); k++){
         if (unites[k] == u) continue; //L'unité u ne doit pas s'attaquer elle-même          
         std::pair<int, int> degats = u->resultatCombatSimple(unites[k]);//calcul de base
@@ -605,16 +611,26 @@ void Carte::combat(std::shared_ptr<Unite> const u, unsigned int idTeam, std::pai
         degats.first = static_cast<float>(degats.first)*(static_cast<float>(defense)/100);
         degats.second = static_cast<float>(degats.second)*(static_cast<float>(200-defense)/100);
 
+        bool caseMaritime = getCase(u->getPos())->accessibleEau();//Si la case où a lieu le combat est une case d'eau, on conserve cette information
+
         //L'unité u inflige d'abord des dégâts à l'unité ennemie
-        unites[k]->infligerDegats(degats.first);
-        if (u->estIncendiaire()) unites[k]->recevoirBrulure();
-        _armees[idTeam]->ajoutScore(degats.first);
+        if (u->getCategorie() != accessibilite::Eau || !caseMaritime) { //Les unités terrestres embarquées n'infligent pas de dégâts
+            unites[k]->infligerDegats(degats.first);
+            if (u->estIncendiaire()) unites[k]->recevoirBrulure();
+            _armees[idTeam]->ajoutScore(degats.first);
+        } else {
+            degats.first = 0;
+        }
 
         bool ennemiPeutRepliquer = (distance(u->getPos(), positionCombat) <= unites[k]->getPortee());      
         //C'est ensuite à l'ennemi d'infliger des dégâts (s'il peut évidemment)
         if (ennemiPeutRepliquer) {
-            u->infligerDegats(degats.second);
-            if (unites[k]->estIncendiaire()) u->recevoirBrulure();
+            if (u->getCategorie() != accessibilite::Eau || !caseMaritime) { //Les unités terrestres embarquées n'infligent pas de dégâts
+                u->infligerDegats(degats.second);
+                if (unites[k]->estIncendiaire()) u->recevoirBrulure();                
+            } else {
+                degats.second = 0;
+            }
 
             if (degats.first < degats.second){
                 if (!u->getIntrepide())
@@ -664,7 +680,7 @@ void Carte::brouillardDeGuerreUnite(std::shared_ptr<Unite> const unite){
     std::vector<std::pair<int,int>> zoneVision = getCoordonneesVoisins(unite->getPos(), 1+unite->getDistanceVue());
     if (unite->getCategorie() == accessibilite::Air) { // Si l'unité est volante, elle peut voir toutes les cases dans la limite de son champ de vision
         for (unsigned int i = 0; i < zoneVision.size(); i++) _casesVisibles[zoneVision.at(i)] = true;
-    } else {// Si l'unité n'est pas volante, elle peut voir toutes les cases qui ne sont pas cchées derrière un obstacle
+    } else {// Si l'unité n'est pas volante, elle peut voir toutes les cases qui ne sont pas cachées derrière un obstacle
         for (unsigned int i = 0; i < zoneVision.size(); i++) { 
             int distanceAuSol = _grapheVision->longueurChemin(unite->getPos(), zoneVision[i]);
             int distanceVolOiseau = _grapheAir->longueurChemin(unite->getPos(), zoneVision[i]);
@@ -729,7 +745,7 @@ std::string Carte::valueToCaseNom(float Value){
 bool Carte::caseAvecUnite(std::pair<int,int> const &pos)const{
     for (unsigned int i = 0; i < _armees.size();i++)
         for (unsigned int j = 0; j < _armees[i]->getUnites().size();j++)
-            if (_armees[i]->getUnite(j)->getPos() == pos) return true;    
+            if (_armees[i]->getUnite(j)->getPos() == pos && _armees[i]->getUnite(j)->estVivant()) return true;    
     return false;
 }
 

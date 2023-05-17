@@ -1,5 +1,5 @@
 taille:
-20
+4
 seed:
 5
 Nombre de villes relativement au case par exemple si on a 25: 1/25 cases de la carte seront des villes:

@@ -46,7 +46,6 @@ class Unite{
     int _effetBrulure = 0;
 
 public:
-    
     Unite(std::string name, int x, int y, int sante=-1, int moral=-1);
 
     std::string toString() const;

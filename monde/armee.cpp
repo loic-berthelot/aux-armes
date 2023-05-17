@@ -24,7 +24,9 @@ void Armee::ajoutUnite(std::shared_ptr<Unite>const u){
 void Armee::retirerUnitesMortes() {
     for (auto it = _unites.begin(); it != _unites.end(); ) {
         if ((*it)->estVivant()) it++;
-        else _unites.erase(it);
+        else { 
+            _unites.erase(it); 
+        }
     }
 }
 
